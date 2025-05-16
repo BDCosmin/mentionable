@@ -8,6 +8,9 @@ mounts:
   'web/uploads':
     source: local
     source_path: uploads
+  'var/log':
+    source: local
+    source_path: log
 
 relationships:
   mariadb: 'mariadb:mysql'
