@@ -1,0 +1,4 @@
+# .platform/services.yaml
+mariadb:
+  type: mariadb:11.4
+  disk: 256

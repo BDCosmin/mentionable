@@ -1,0 +1,13 @@
+name: app
+
+type: 'php:8.3'
+
+disk: 256
+
+mounts:
+  'web/uploads':
+    source: local
+    source_path: uploads
+
+relationships:
+  mariadb: 'mariadb:mysql'
