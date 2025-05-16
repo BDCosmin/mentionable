@@ -18,3 +18,9 @@ relationships:
 hooks:
   build: |
     php bin/console cache:clear --env=prod
+
+web:
+  locations:
+    "/":
+      root: "public"
+      passthru: "/index.php"
