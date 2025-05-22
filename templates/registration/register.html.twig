@@ -12,12 +12,20 @@
     {{ form_errors(registrationForm) }}
 
     {{ form_start(registrationForm) }}
-        {{ form_row(registrationForm.email) }}
-        {{ form_row(registrationForm.plainPassword, {
-            label: 'Password'
+        {{ form_row(registrationForm.email, {
+            label: false
         }) }}
-        {{ form_row(registrationForm.agreeTerms) }}
+        {{ form_row(registrationForm.plainPassword, {
+            label: false
+        }) }}
+        {{ form_row(registrationForm.nametag, {
+            label: false
+        }) }}
+        {{ form_row(registrationForm.avatar) }}
+        {{ form_widget(registrationForm.agreeTerms, { attr: { class: 'form-check-input' } }) }}
+        {{ form_label(registrationForm.agreeTerms, 'I agree to the terms', { label_attr: { class: 'form-check-label' } }) }}
+        {{ form_errors(registrationForm.agreeTerms) }}
 
-        <button type="submit" class="btn">Register</button>
+        <button type="submit" class="btn btn-primary">Register</button>
     {{ form_end(registrationForm) }}
 {% endblock %}

@@ -1,0 +1,22 @@
+<div class="container-fluid">
+    <div class="row p-1">
+        <div class="col-1"></div>
+        <div class="col-7">
+            <a href="{{ path('homepage') }}">
+                <h2>Mentionable</h2>
+            </a>
+        </div>
+        <div class="col-3">
+            {% if app.user %}
+                <p>
+                    {{ app.user.userIdentifier|split('@')[0] }} <a href="{{ path('app_logout') }}">Logout</a>
+                </p>
+            {% else %}
+                <a href="{{ path('app_login') }}">
+                    Login
+                </a>
+            {% endif %}
+        </div>
+        <div class="col-1"></div>
+    </div>
+</div>
