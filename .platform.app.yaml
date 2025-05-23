@@ -4,6 +4,9 @@ type: 'php:8.3'
 
 disk: 256
 
+relationships:
+  mariadb: 'mariadb:mysql'
+
 variables:
   env:
     DATABASE_URL: "mysql://${PLATFORM_RELATIONSHIPS_MARIADB_USERNAME}:${PLATFORM_RELATIONSHIPS_MARIADB_PASSWORD}@${PLATFORM_RELATIONSHIPS_MARIADB_HOST}:${PLATFORM_RELATIONSHIPS_MARIADB_PORT}/main"
@@ -18,9 +21,6 @@ mounts:
   'var/cache':
     source: local
     source_path: cache
-
-relationships:
-  mariadb: 'mariadb:mysql'
 
 hooks:
   build: |
