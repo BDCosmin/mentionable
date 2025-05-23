@@ -5,11 +5,11 @@ type: 'php:8.3'
 disk: 256
 
 relationships:
-  mariadb: 'mariadb:mysql'
+  database: 'mariadb:mysql'
 
 variables:
   env:
-    DATABASE_URL: "mysql://${mariadb.username}:${mariadb.password}@${mariadb.host}:${mariadb.port}/${mariadb.path}"
+    DATABASE_URL: "mysql://${database.username}:${database.password}@${database.host}:${database.port}/${database.path}"
 
 mounts:
   'web/uploads':
