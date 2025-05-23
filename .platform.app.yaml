@@ -7,6 +7,10 @@ disk: 256
 relationships:
   mariadb: 'mariadb:mysql'
 
+variables:
+  env:
+    DATABASE_URL: ""
+
 mounts:
   'web/uploads':
     source: local
