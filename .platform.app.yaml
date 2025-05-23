@@ -4,6 +4,10 @@ type: 'php:8.3'
 
 disk: 256
 
+variables:
+  env:
+    DATABASE_URL: 'mysql://user:${PLATFORM_RELATIONSHIPS_MYSQL_PASSWORD}@${PLATFORM_RELATIONSHIPS_MYSQL_HOST}:${PLATFORM_RELATIONSHIPS_MYSQL_PORT}/main'
+
 mounts:
   'web/uploads':
     source: local
