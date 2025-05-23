@@ -9,7 +9,7 @@ relationships:
 
 variables:
   env:
-    DATABASE_URL: ""
+    DATABASE_URL: '${PLATFORM_RELATIONSHIPS_MARIADB}'
 
 mounts:
   'web/uploads':
