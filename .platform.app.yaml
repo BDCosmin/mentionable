@@ -9,7 +9,7 @@ relationships:
 
 variables:
   env:
-    DATABASE_URL: '${PLATFORM_RELATIONSHIPS_MARIADB}'
+    DATABASE_URL: "mysql://${mariadb.username}:${mariadb.password}@${mariadb.host}:${mariadb.port}/${mariadb.path}"
 
 mounts:
   'web/uploads':
