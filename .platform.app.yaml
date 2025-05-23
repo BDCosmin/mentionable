@@ -5,7 +5,7 @@ type: 'php:8.3'
 disk: 256
 
 relationships:
-  database: 'mariadb:mysql'
+  mariadb: 'mariadb:mysql'
 
 mounts:
   'web/uploads':
