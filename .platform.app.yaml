@@ -7,10 +7,6 @@ disk: 256
 relationships:
   mariadb: 'mariadb:mysql'
 
-variables:
-  env:
-    DATABASE_URL: '%env(resolve:DATABASE_URL)%'
-
 mounts:
   'web/uploads':
     source: local
@@ -31,3 +27,6 @@ web:
     "/":
       root: "public"
       passthru: "/index.php"
+  commands:
+    start: |
+      export DATABASE_URL=$(platform relationships | base64 --decode | jq -r '.database[0] | "mysql://\(.username):\(.password)@\(.host):\(.port)/\(.path)?serverVersion=mariadb-11.4"')
