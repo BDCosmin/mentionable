@@ -9,7 +9,6 @@ relationships:
 
 variables:
   env:
-    DATABASE_URL: 'mysql://user:@mariadb.internal:3306/main'
     APP_SECRET: '629728183e4974a89834b4b48ed47d77'
 
 mounts:
