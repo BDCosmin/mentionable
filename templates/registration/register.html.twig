@@ -3,29 +3,36 @@
 {% block title %}Register{% endblock %}
 
 {% block body %}
-    {% for flash_error in app.flashes('verify_email_error') %}
-        <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
-    {% endfor %}
+<div class="container">
+    <div class="row mt-5">
+        <div class="col-12">
+            {% for flash_error in app.flashes('verify_email_error') %}
+                <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
+            {% endfor %}
 
-    <h1>Register</h1>
+            <h1>Register</h1>
 
-    {{ form_errors(registrationForm) }}
+            {{ form_errors(registrationForm) }}
 
-    {{ form_start(registrationForm) }}
-        {{ form_row(registrationForm.email, {
-            label: false
-        }) }}
-        {{ form_row(registrationForm.plainPassword, {
-            label: false
-        }) }}
-        {{ form_row(registrationForm.nametag, {
-            label: false
-        }) }}
-        {{ form_row(registrationForm.avatar) }}
-        {{ form_widget(registrationForm.agreeTerms, { attr: { class: 'form-check-input' } }) }}
-        {{ form_label(registrationForm.agreeTerms, 'I agree to the terms', { label_attr: { class: 'form-check-label' } }) }}
-        {{ form_errors(registrationForm.agreeTerms) }}
+            {{ form_start(registrationForm) }}
+                {{ form_row(registrationForm.email, {
+                    label: false
+                }) }}
+                {{ form_row(registrationForm.plainPassword, {
+                    label: false
+                }) }}
+                {{ form_row(registrationForm.nametag, {
+                    label: false
+                }) }}
+                {{ form_row(registrationForm.avatar) }}
+                {{ form_widget(registrationForm.agreeTerms, { attr: { class: 'form-check-input' } }) }}
+                {{ form_label(registrationForm.agreeTerms, 'I agree to the terms', { label_attr: { class: 'form-check-label' } }) }}
+                {{ form_errors(registrationForm.agreeTerms) }}
 
-        <button type="submit" class="btn btn-primary">Register</button>
-    {{ form_end(registrationForm) }}
+                <button type="submit" class="btn btn-primary">Register</button>
+            {{ form_end(registrationForm) }}
+            <p>Already a member? <a href="{{ path('app_login') }}">Go to login</a></p>
+        </div>
+    </div>
+</div>
 {% endblock %}

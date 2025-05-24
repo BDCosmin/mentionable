@@ -1,15 +1,16 @@
 <div class="container-fluid">
-    <div class="row p-1">
+    <div class="row pt-3">
         <div class="col-1"></div>
-        <div class="col-7">
+        <div class="col-9">
             <a href="{{ path('homepage') }}">
                 <h2>Mentionable</h2>
             </a>
         </div>
-        <div class="col-3">
+        <div class="col-1 d-flex flex-row">
             {% if app.user %}
-                <p>
-                    {{ app.user.userIdentifier|split('@')[0] }} <a href="{{ path('app_logout') }}">Logout</a>
+                <img src="{{ asset('uploads/avatars/' ~ app.user.avatar) }}" style="width: 30px; height: 30px" alt="avatar"/>
+                <p class="ms-2">
+                    {{ app.user.nametag }} <a href="{{ path('app_logout') }}" class="ms-2">Logout</a>
                 </p>
             {% else %}
                 <a href="{{ path('app_login') }}">
