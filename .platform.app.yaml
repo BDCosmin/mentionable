@@ -7,10 +7,6 @@ disk: 256
 relationships:
   mariadb: 'mariadb:mysql'
 
-variables:
-  env:
-    DATABASE_URL: 'mysql://user:@mariadb.internal:3306/main'
-
 mounts:
   'web/uploads':
     source: local
@@ -25,6 +21,9 @@ mounts:
 hooks:
   build: |
     php bin/console cache:clear --env=prod
+  deploy:
+    - |
+      platform variable:set --level environment --name env:MY_DATABASE_URL --value "$DATABASE_URL" --visible-build false --visible-runtime true --environment $PLATFORM_BRANCH
 
 web:
   locations:
