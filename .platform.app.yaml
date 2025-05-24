@@ -9,7 +9,7 @@ relationships:
 
 variables:
   env:
-    DATABASE_URL: '${PLATFORM_DATABASE_URL}'
+    DATABASE_URL: '${env:PLATFORM_DATABASE_URL}'
 
 mounts:
   'web/uploads':
