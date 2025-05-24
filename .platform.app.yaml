@@ -25,6 +25,8 @@ mounts:
 hooks:
   build: |
     php bin/console cache:clear --env=prod
+  deploy: |
+    export PLATFORM_DATABASE_URL=$(echo $PLATFORM_RELATIONSHIPS | base64 --decode | jq -r '.mariadb[0] | "mysql://\(.username):\(.password)@\(.host):\(.port)/\(.path)"')
 
 web:
   locations:
