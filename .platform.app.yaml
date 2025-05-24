@@ -9,7 +9,8 @@ relationships:
 
 variables:
   env:
-    DATABASE_URL: PLATFORM_DATABASE_URL
+    PLATFORM_DATABASE_URL: 'mysql://user:pass@mariadb.internal:3306/main'
+    DATABASE_URL: '${PLATFORM_DATABASE_URL}'
 
 mounts:
   'web/uploads':
