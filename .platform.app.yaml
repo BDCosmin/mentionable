@@ -10,6 +10,8 @@ relationships:
 variables:
   env:
     APP_SECRET: '629728183e4974a89834b4b48ed47d77'
+    APP_ENV: 'dev'
+    APP_DEBUG: '1'
 
 mounts:
   'web/uploads':
