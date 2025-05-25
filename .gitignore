@@ -26,3 +26,4 @@
 /.idea
 /.env.dev
 /.env.test
+/public/uploads/avatars/
