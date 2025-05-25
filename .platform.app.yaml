@@ -17,7 +17,7 @@ variables:
     APP_DEBUG: '1'
 
 mounts:
-  'web/uploads':
+  'public/uploads':
     source: local
     source_path: uploads
   'var/log':
@@ -26,9 +26,6 @@ mounts:
   'var/cache':
     source: local
     source_path: cache
-  uploads:
-    source: local
-    source_path: uploads
 
 hooks:
   build: |
