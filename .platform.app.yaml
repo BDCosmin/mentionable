@@ -26,6 +26,9 @@ mounts:
   'var/cache':
     source: local
     source_path: cache
+  uploads:
+    source: local
+    source_path: uploads
 
 hooks:
   build: |
