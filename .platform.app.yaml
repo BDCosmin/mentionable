@@ -11,6 +11,7 @@ variables:
   env:
     DATABASE_URL: '${env:DATABASE_URL}'
     MAILER_DSN: '${env:MAILER_DSN}'
+    MESSENGER_TRANSPORT_DSN: '${env:MESSENGER_TRANSPORT_DSN}'
     APP_SECRET: '${env:APP_SECRET}'
     APP_ENV: 'prod'
     APP_DEBUG: '1'
