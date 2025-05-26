@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Success - Mentionable{% endblock %}
+
+{% block body %}
+    <div class="main-panel">
+        <div class="content-wrapper">
+            <div class="col-12 grid-margin stretch-card">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="menu-title"> Successful verification! </h3>
+                        <p class="menu-title">You are now a verified member of @Mentionable :)</p>
+                        <a href="{{ path('homepage') }}" style="color: white; font-size: 12px">Return to home</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

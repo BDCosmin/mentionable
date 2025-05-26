@@ -14,10 +14,9 @@
         <link rel="stylesheet" href="{{ asset('assets/vendors/flag-icon-css/css/flag-icons.min.css') }}">
         <link rel="stylesheet" href="{{ asset('assets/vendors/owl-carousel-2/owl.carousel.min.css') }}">
         <link rel="stylesheet" href="{{ asset('assets/vendors/owl-carousel-2/owl.theme.default.min.css') }}">
+        <link rel='stylesheet' href="{{ asset('https://cdn.boxicons.com/fonts/basic/boxicons.min.css') }}">
         <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
         <link rel="shortcut icon" href="{{ asset('assets/images/favicon.png') }}" />
-
-
 
         <script src="{{ asset('assets/vendors/js/vendor.bundle.base.js') }}"></script>
 
@@ -37,8 +36,16 @@
         <script src="{{ asset('assets/js/dashboard.js') }}"></script>
     </head>
     <body>
-        {{ include ('default/parts/sidebar.html.twig') }}
-        {{ include ('default/parts/header.html.twig') }}
-        {% block body %}{% endblock %}
+            <div class="container-scroller">
+                {{ include ('default/parts/sidebar.html.twig') }}
+                <div class="container-fluid page-body-wrapper">
+                    {{ include ('default/parts/header.html.twig') }}
+                    <div class="main-panel">
+                        <div class="content-wrapper">
+                            {% block body %}{% endblock %}
+                        </div>
+                    </div>
+                </div>
+            </div>
     </body>
 </html>

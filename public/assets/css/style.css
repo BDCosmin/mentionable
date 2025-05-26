@@ -23194,9 +23194,9 @@ dl li {
 .tooltip-static-demo .bs-tooltip-top-demo .arrow {
   left: 50%;
 }
-.tooltip-static-demo .bs-tooltip-right-demo .arrow:before,
-.tooltip-static-demo .bs-tooltip-left-demo .arrow:before {
-  top: calc((100% -0.8rem) / 2);
+
+.tooltip-static-demo .bs-tooltip-right-demo .arrow:before, .tooltip-static-demo .bs-tooltip-left-demo .arrow:before {
+  top: calc((100% - 0.8rem) / 2);
 }
 
 .tooltip {
@@ -25111,7 +25111,7 @@ dl li {
   transition: width 0.25s ease, margin 0.25s ease;
   width: 100%;
   min-height: calc(100vh - 70px);
-  padding-top: 70px;
+  padding-top: 20px;
   display: -webkit-flex;
   display: flex;
   -webkit-flex-direction: column;
