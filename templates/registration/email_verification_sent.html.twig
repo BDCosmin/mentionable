@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Success - Mentionable{% endblock %}
+
+{% block body %}
+    <div class="main-panel">
+        <div class="content-wrapper">
+            <div class="col-12 grid-margin stretch-card">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="menu-title"> Verification email sent! </h3>
+                        <p class="menu-title">You are now an unverified member of Mentionable. We've just sent you a confirmation email to <b>{{ app.user.email }}</b></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

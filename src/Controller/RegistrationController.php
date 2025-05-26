@@ -27,60 +27,77 @@ class RegistrationController extends AbstractController
     }
 
     #[Route('/register', name: 'app_register')]
-    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, Security $security, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
-    {
+    public function register(
+        Request $request,
+        UserPasswordHasherInterface $userPasswordHasher,
+        Security $security,
+        EntityManagerInterface $entityManager,
+        SluggerInterface $slugger
+    ): Response {
         $user = new User();
         $form = $this->createForm(RegistrationForm::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var string $plainPassword */
-            $plainPassword = $form->get('plainPassword')->getData();
+            try {
+                /** @var string $plainPassword */
+                $plainPassword = $form->get('plainPassword')->getData();
 
-            /** @var UploadedFile $avatarFile */
-            $avatarFile = $form->get('avatar')->getData();
+                /** @var UploadedFile|null $avatarFile */
+                $avatarFile = $form->get('avatar')->getData();
 
-            if ($avatarFile) {
-                $originalFilename = pathinfo($avatarFile->getClientOriginalName(), PATHINFO_FILENAME);
-                $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename.'-'.uniqid().'.'.$avatarFile->guessExtension();
+                if ($avatarFile) {
+                    $originalFilename = pathinfo($avatarFile->getClientOriginalName(), PATHINFO_FILENAME);
+                    $safeFilename = $slugger->slug($originalFilename);
+                    $newFilename = $safeFilename . '-' . uniqid() . '.' . $avatarFile->guessExtension();
 
-                try {
                     $avatarFile->move(
                         $this->getParameter('avatars_directory'),
                         $newFilename
                     );
-                } catch (FileException $e) {
-                    $this->addFlash('error', 'Failed to upload avatar.');
+
+                    $user->setAvatar($newFilename);
                 }
 
-                $user->setAvatar($newFilename);
+                $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
+                $user->setCreationDate(new \DateTime());
+                $user->setRoles(['ROLE_USER']);
+                $user->setIsVerified(false);
+
+                $entityManager->persist($user);
+                $entityManager->flush();
+
+                $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
+                    (new TemplatedEmail())
+                        ->from(new Address('cosmindanielbalan@gmail.com', 'NoReply'))
+                        ->to((string) $user->getEmail())
+                        ->subject('Please Confirm your Email')
+                        ->htmlTemplate('registration/confirmation_email.html.twig')
+                );
+
+                $security->login($user, 'form_login', 'main');
+
+                return $this->redirectToRoute('app_user_email_verification_sent');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'A apărut o eroare în procesul de înregistrare. Încearcă din nou.');
             }
-
-            $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
-
-            $user->setCreationDate(new \DateTime());
-            $user->setRoles(['ROLE_USER']);
-            $user->setIsVerified(false);
-
-            $entityManager->persist($user);
-            $entityManager->flush();
-
-
-            $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
-                (new TemplatedEmail())
-                    ->from(new Address('cosmindanielbalan@gmail.com', 'NoReply'))
-                    ->to((string) $user->getEmail())
-                    ->subject('Please Confirm your Email')
-                    ->htmlTemplate('registration/confirmation_email.html.twig')
-            );
-
-            return $security->login($user, 'form_login', 'main');
         }
 
         return $this->render('registration/register.html.twig', [
             'registrationForm' => $form,
         ]);
+    }
+
+    #[Route('/verify', name: 'app_user_email_verification_sent')]
+    public function userEmailVerificationSent(): Response
+    {
+        return $this->render('registration/email_verification_sent.html.twig');
+    }
+
+    #[Route('/verified', name: 'app_user_verified')]
+    public function userVerified(): Response
+    {
+        return $this->render('registration/successful_verification.html.twig');
     }
 
     #[Route('/verify/email', name: 'app_verify_email')]
@@ -101,6 +118,6 @@ class RegistrationController extends AbstractController
         // @TODO Change the redirect on success and handle or remove the flash message in your templates
         $this->addFlash('success', 'Your email address has been verified.');
 
-        return $this->redirectToRoute('app_login');
+        return $this->redirectToRoute('app_user_verified');
     }
 }

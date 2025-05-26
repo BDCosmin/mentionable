@@ -1,38 +1,84 @@
-{% extends 'base.html.twig' %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Welcome!{% endblock %}</title>
 
-{% block title %}Register{% endblock %}
+    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/vendors/mdi/css/materialdesignicons.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/vendors/ti-icons/css/themify-icons.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/vendors/css/vendor.bundle.base.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/vendors/font-awesome/css/font-awesome.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/vendors/jvectormap/jquery-jvectormap.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/vendors/flag-icon-css/css/flag-icons.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/vendors/owl-carousel-2/owl.carousel.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/vendors/owl-carousel-2/owl.theme.default.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.png') }}" />
 
-{% block body %}
-<div class="container">
-    <div class="row mt-5">
-        <div class="col-12">
-            {% for flash_error in app.flashes('verify_email_error') %}
-                <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
-            {% endfor %}
+    <script src="{{ asset('assets/vendors/js/vendor.bundle.base.js') }}"></script>
 
-            <h1>Register</h1>
+    <script src="{{ asset('assets/vendors/chart.js/chart.umd.js') }}"></script>
+    <script src="{{ asset('assets/vendors/progressbar.js/progressbar.min.js') }}"></script>
+    <script src="{{ asset('assets/vendors/jvectormap/jquery-jvectormap.min.js') }}"></script>
+    <script src="{{ asset('assets/vendors/jvectormap/jquery-jvectormap-world-mill-en.js') }}"></script>
+    <script src="{{ asset('assets/vendors/owl-carousel-2/owl.carousel.min.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery.cookie.js') }}"></script>
 
-            {{ form_errors(registrationForm) }}
+    <script src="{{ asset('assets/js/off-canvas.js') }}"></script>
+    <script src="{{ asset('assets/js/misc.js') }}"></script>
+    <script src="{{ asset('assets/js/settings.js') }}"></script>
+    <script src="{{ asset('assets/js/todolist.js') }}"></script>
 
-            {{ form_start(registrationForm) }}
-                {{ form_row(registrationForm.email, {
-                    label: false
-                }) }}
-                {{ form_row(registrationForm.plainPassword, {
-                    label: false
-                }) }}
-                {{ form_row(registrationForm.nametag, {
-                    label: false
-                }) }}
-                {{ form_row(registrationForm.avatar) }}
-                {{ form_widget(registrationForm.agreeTerms, { attr: { class: 'form-check-input' } }) }}
-                {{ form_label(registrationForm.agreeTerms, 'I agree to the terms', { label_attr: { class: 'form-check-label' } }) }}
-                {{ form_errors(registrationForm.agreeTerms) }}
-
-                <button type="submit" class="btn btn-primary">Register</button>
-            {{ form_end(registrationForm) }}
-            <p>Already a member? <a href="{{ path('app_login') }}">Go to login</a></p>
+    <script src="{{ asset('assets/js/proBanner.js') }}"></script>
+    <script src="{{ asset('assets/js/dashboard.js') }}"></script>
+</head>
+<body>
+<div class="container-scroller">
+    <div class="container-fluid page-body-wrapper full-page-wrapper">
+        <div class="row w-100">
+            <div class="content-wrapper full-page-wrapper d-flex align-items-center auth login-bg">
+                <div class="card col-lg-4 mx-auto">
+                    <div class="card-body px-5 py-5">
+                        <h3 class="card-title text-start mb-3">Register</h3>
+                        {{ form_start(registrationForm, {'attr': {'class': 'forms-sample'}}) }}
+                        {{ form_errors(registrationForm) }}
+                        <div class="form-group">
+                            {{ form_label(registrationForm.email) }}
+                            {{ form_widget(registrationForm.email, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(registrationForm.email) }}
+                        </div>
+                        <div class="form-group">
+                            {{ form_label(registrationForm.plainPassword) }}
+                            {{ form_widget(registrationForm.plainPassword, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(registrationForm.plainPassword) }}
+                        </div>
+                        <div class="form-group">
+                            {{ form_label(registrationForm.nametag) }}
+                            {{ form_widget(registrationForm.nametag, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(registrationForm.nametag) }}
+                        </div>
+                        <div class="form-group">
+                            {{ form_label(registrationForm.avatar) }}
+                            {{ form_widget(registrationForm.avatar, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(registrationForm.avatar) }}
+                        </div>
+                        <div class="form-check form-group">
+                            {{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'form-check-input'}}) }}
+                            {{ form_label(registrationForm.agreeTerms, 'I agree to the terms', {'label_attr': {'class': 'form-check-label'}}) }}
+                            {{ form_errors(registrationForm.agreeTerms) }}
+                        </div>
+                        <button type="submit" class="btn btn-primary me-2">Create account</button>
+                        {{ form_end(registrationForm) }}
+                        <br/>
+                        <p>Already a member? <a href="{{ path('app_login') }}">Login here</a></p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-{% endblock %}
+</body>
+</html>
+
