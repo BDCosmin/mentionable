@@ -15,49 +15,45 @@ class NoteController extends AbstractController
     #[Route('/note/new', name: 'app_note_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $em): Response
     {
-        // Verifică dacă utilizatorul este autentificat
+
         $user = $this->getUser();
-        if (!$user) {
-            throw $this->createAccessDeniedException('Trebuie să fii logat pentru a crea o notă.');
-        }
+        $currentUserNametag = $this->getUser()->getNametag();
 
         if ($request->isMethod('POST')) {
             $content = $request->request->get('content');
-            $nametag = $request->request->get('nametag'); // îl poți folosi cum dorești
-
-            // Poți adăuga validări simple:
-            if (empty(trim($content))) {
-                $this->addFlash('error', 'Conținutul notei nu poate fi gol!');
-                return $this->redirectToRoute('app_note_new');
-            }
-
-            $userMentioned = $em->getRepository(User::class)->findOneBy(['nametag' => $nametag]);
-            if (!$userMentioned) {
-                $this->addFlash('error', 'Utilizatorul mentionat nu există!');
-                return $this->redirectToRoute('app_note_new');
-            }
-
-            $note = new Note();
-            $note->setContent($content);
-            $note->setUser($user);
             $nametag = $request->request->get('nametag');
-            $note->setNametag($nametag);
-            // poți salva sau folosi $nametag cum dorești
 
-            $em->persist($note);
-            $em->flush();
+            if (empty(trim($content)) || empty(trim($nametag)) || ($nametag == $currentUserNametag)) {
+                return $this->render('default/index.html.twig', [
+                    'errorMentionToYourself' => 'Error: Invalid input or you can’t post a note to yourself.',
+                    'notes' => $em->getRepository(Note::class)->findBy([], ['id' => 'DESC']),
+                    'currentUserNametag' => $currentUserNametag,
+                    'divVisibility' => 'block'
+                ]);
+            } else {
 
-            $this->addFlash('success', 'Notă creată cu succes!');
+                $note = new Note();
+                $note->setContent($content);
+                $note->setNametag($nametag);
+                $note->setUser($user);
+                $author = $note->getUser()->getNametag();
+                $avatar = $note->getUser()->getAvatar();
 
-            // Redirecționează unde vrei, ex. pagina notei create
-            return $this->redirectToRoute('app_note_new');
+                $em->persist($note);
+                $em->flush();
+
+                return $this->redirectToRoute('app_note_new');
+
+            }
+
         }
 
-        $notes = $em->getRepository(Note::class)->findBy(['user' => $user], ['id' => 'DESC']);
+        $notes = $em->getRepository(Note::class)->findBy([], ['id' => 'DESC']);
 
-        // Dacă este GET, afișează formularul
         return $this->render('default/index.html.twig', [
             'notes' => $notes,
-        ]);
+            'currentUserNametag' => $currentUserNametag,
+            'divVisibility' => 'none'
+            ]);
     }
 }
