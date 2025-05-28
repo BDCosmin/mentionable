@@ -1,20 +1,20 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Home - Mentionable{% endblock %}
+{% block title %}Feed - Mentionable{% endblock %}
 
 {% block body %}
 <div class="main-panel">
     <div class="content-wrapper">
         {# CENTERED CONTAINER #}
         <div class="row justify-content-center mb-4">
-            {# ADD POST CONTAINER #}
+            {# ADD NOTE CONTAINER #}
             <div class="col-7 p-3" style="background-color: #181b20; border-radius: 5px;">
                 <h4 class="mb-3">
                     What's on your mind?
                 </h4>
                 <form class="forms-sample" method="POST" {# action="{{ path('post_create') }}" #}>
                     <div class="form-group" style="margin-bottom: 1rem;">
-                        <textarea name="post-content" id="post-content" placeholder="Write a post..."  style="height: 85px" class="form-control" required></textarea>
+                        <textarea name="post-content" id="post-content" placeholder="Write a note..."  style="height: 85px" class="form-control" required></textarea>
                     </div>
                     <div class="form-group d-flex flex-row" style="margin-bottom: 1rem;">
                         <a class="btn" style="height: 2.575rem; background-color: #2A3038; border-top-right-radius: 0; border-bottom-right-radius: 0;" tabindex="-1" role="button" aria-disabled="true">
@@ -35,46 +35,83 @@
             <nav class="col-7 m-0 p-0" aria-label="breadcrumb" style="border-radius: 5px;">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item active" style="font-size: 12px; font-family: Bahnschrift" aria-current="page">
-                        <b>-- POSTS --</b>
+                        <b>-- NOTES --</b>
                     </li>
                 </ol>
             </nav>
-            {# POST #}
+            {# NOTE #}
             <div class="col-7 pt-4 ps-4 pe-4" style="background-color: #181b20; border-radius: 5px;">
+                {# NOTE PROFILE #}
                 <div class="navbar-profile d-flex flex-row text-light mb-3">
-                    <a class="nav-link me-2" id="avatarPost" href="#">
-                        <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ app.user.avatar) }}" alt="avatar">
+                    <a class="nav-link me-2" id="avatarNote" href="#">
+                        <img class="img-sm rounded-circle" src="{{ asset('uploads/avatars/' ~ app.user.avatar) }}" alt="avatar">
                     </a>
-                    <a class="nav-link mt-1" id="nametagPost" href="#">
+                    <a class="nav-link mt-3" id="nametagNote" href="#">
                         <h5 class="mb-0 d-none d-sm-block navbar-profile-name">@{{ app.user.nametag }}</h5>
                     </a>
                 </div>
+                {# NOTE CONTENT #}
                 <div class="d-flex flex-row text-gray mb-2">
                     <p>
-{#                      {{ app.user.post }}#}
-                        This is just an example of post content.
+{#                      {{ app.user.note }}#}
+                        This is just an example of note content.
                     </p>
                 </div>
+                {# NOTE MENTION #}
                 <div class="d-inline-block text-gray mb-1" style="background-color: #2A3038">
                     <p style="margin-bottom: -2px;">
-{#                       mentioned @{{ app.user.post.nametag }}#}
+{#                       mentioned @{{ app.user.note.nametag }}#}
                          mentioned <b>@{{ app.user.nametag }}</b>
                     </p>
                 </div>
-                <div class="d-flex flex-row text-gray mt-3" style="margin-left: -1.2rem; margin-right: -1.5rem;">
-                    <div class="btn-group" role="group" aria-label="Basic radio toggle button group" style="height: 2rem">
-                        <input type="radio" class="btn-check" id="btnradio1" name="btnradio" {# value="{{ csrf_token('vote' ~ post.id) }}" #} autocomplete="off" checked>
-                        <label type="submit" class="btn btn-sm btn-outline-light d-flex flex-row border-0" for="btnradio1">
+                {# NOTE NAV VOTES & COMMENTS #}
+                <div class="d-flex flex-row text-gray mt-3 mb-2">
+                    <div class="btn-group me-3" role="group" aria-label="Basic radio toggle button group" style="height: 2rem">
+                        <input type="radio" class="btn-check" id="btnradio1" name="btnradio" autocomplete="off">
+                        <label type="submit" class="btn btn-sm btn-outline-light d-flex flex-row border-0 ps-0" for="btnradio1">
                             <i class='bx bx-arrow-up' style="font-size: 24px"></i>
-                            <p> UPVOTE </p>
+                            <p> 2,4K </p>
                         </label>
 
-                        <input type="radio" class="btn-check" id="btnradio2" name="btnradio" {# value="{{ csrf_token('vote' ~ post.id) }}" #} autocomplete="off">
-                        <label type="submit" class="btn btn-sm btn-outline-light d-flex flex-row border-0" for="btnradio2">
+                        <input type="radio" class="btn-check" id="btnradio2" name="btnradio" autocomplete="off">
+                        <label type="submit" class="btn btn-sm btn-outline-light d-flex flex-row border-0 ps-0" for="btnradio2">
                             <i class='bx bx-arrow-down' style="font-size: 24px"></i>
                             <p> DOWNVOTE </p>
                         </label>
+
+                        <input type="radio" class="btn-check" id="btnradio3" name="btnradio" autocomplete="off" hidden checked>
+                        <label class="d-flex flex-row border-0" for="btnradio3">
+                        </label>
                     </div>
+                    <div class="btn btn-outline-light btn-sm btn-outline-light d-flex flex-row border-0 ps-0" style="height: 2rem">
+                        <i class='bx bx-message-circle-reply pt-1 pe-2' style='color: white'></i>
+                        <p>
+                            COMMENTS
+                        </p>
+                    </div>
+                </div>
+
+                {# NOTE DIVIDER #}
+                <div class="d-flex flex-row text-gray mt-3 mb-2">
+                    <hr style="border: 1px solid #757575; width: 100%;">
+                </div>
+                {# NOTE COMMENT #}
+                <div class="d-flex flex-row mb-0">
+                    <a class="nav-link me-2" id="avatarPostComment" href="#">
+                        <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ app.user.avatar) }}" alt="avatarComment">
+                    </a>
+                    <div class="navbar-profile d-flex flex-column">
+                        <a class="nav-link text-white mt-1" id="nametagPostComment" href="#">
+                            <p class="mb-0 d-none d-sm-block navbar-profile-name">@{{ app.user.nametag }}</p>
+                        </a>
+                        <p class="text-gray">
+                            This is a very rude comment.
+                        </p>
+                    </div>
+                </div>
+                {# NOTE DIVIDER COMMENT #}
+                <div class="d-flex flex-row text-gray m-0">
+                    <hr style="border: 1px solid rgba(117,117,117,0.58); width: 100%;">
                 </div>
             </div>
         </div>
