@@ -55,6 +55,10 @@
                                 <input type="password" name="_password" id="password" class="form-control" autocomplete="current-password" required>
                                 <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
                             </div>
+                            <div class="form-group" style="display: flex; align-items: center; gap: 5px;">
+                                <input type="checkbox" id="remember-me" name="_remember_me">
+                                <label for="remember-me">Remember me</label>
+                            </div>
                             <button type="submit" class="btn btn-primary me-2">Submit</button>
                         </form>
                         <br/>
