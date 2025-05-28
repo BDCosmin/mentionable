@@ -12,9 +12,9 @@
                 <h4 class="mb-3">
                     What's on your mind?
                 </h4>
-                <form class="forms-sample" method="POST" {# action="{{ path('post_create') }}" #}>
+                <form class="forms-sample" method="POST"  action="{{ path('app_note_new') }}">
                     <div class="form-group" style="margin-bottom: 1rem;">
-                        <textarea name="post-content" id="post-content" placeholder="Write a post..."  style="height: 85px" class="form-control" required></textarea>
+                        <textarea name="content" id="post-content" placeholder="Write a post..."  style="height: 85px" class="form-control" required></textarea>
                     </div>
                     <div class="form-group d-flex flex-row" style="margin-bottom: 1rem;">
                         <a class="btn" style="height: 2.575rem; background-color: #2A3038; border-top-right-radius: 0; border-bottom-right-radius: 0;" tabindex="-1" role="button" aria-disabled="true">
@@ -34,48 +34,51 @@
         <div class="row justify-content-center mb-4">
             <nav class="col-7 m-0 p-0" aria-label="breadcrumb" style="border-radius: 5px;">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item active" style="font-size: 12px; font-family: Bahnschrift" aria-current="page">
+                    <li class="breadcrumb-item active" style="font-size: 20px; font-family: Bahnschrift; margin-left: 200px;" aria-current="page">
                         <b>-- POSTS --</b>
                     </li>
                 </ol>
             </nav>
-            {# POST #}
-            <div class="col-7 pt-4 ps-4 pe-4" style="background-color: #181b20; border-radius: 5px;">
-                <div class="navbar-profile d-flex flex-row text-light mb-3">
-                    <a class="nav-link me-2" id="avatarPost" href="#">
-                        <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ app.user.avatar) }}" alt="avatar">
-                    </a>
-                    <a class="nav-link mt-1" id="nametagPost" href="#">
-                        <h5 class="mb-0 d-none d-sm-block navbar-profile-name">@{{ app.user.nametag }}</h5>
-                    </a>
-                </div>
-                <div class="d-flex flex-row text-gray mb-2">
-                    <p>
-{#                      {{ app.user.post }}#}
-                        This is just an example of post content.
-                    </p>
-                </div>
-                <div class="d-inline-block text-gray mb-1" style="background-color: #2A3038">
-                    <p style="margin-bottom: -2px;">
-{#                       mentioned @{{ app.user.post.nametag }}#}
-                         mentioned <b>@{{ app.user.nametag }}</b>
-                    </p>
-                </div>
-                <div class="d-flex flex-row text-gray mt-3" style="margin-left: -1.2rem; margin-right: -1.5rem;">
-                    <div class="btn-group" role="group" aria-label="Basic radio toggle button group" style="height: 2rem">
-                        <input type="radio" class="btn-check" id="btnradio1" name="btnradio" {# value="{{ csrf_token('vote' ~ post.id) }}" #} autocomplete="off" checked>
-                        <label type="submit" class="btn btn-sm btn-outline-light d-flex flex-row border-0" for="btnradio1">
-                            <i class='bx bx-arrow-up' style="font-size: 24px"></i>
-                            <p> UPVOTE </p>
-                        </label>
-
-                        <input type="radio" class="btn-check" id="btnradio2" name="btnradio" {# value="{{ csrf_token('vote' ~ post.id) }}" #} autocomplete="off">
-                        <label type="submit" class="btn btn-sm btn-outline-light d-flex flex-row border-0" for="btnradio2">
-                            <i class='bx bx-arrow-down' style="font-size: 24px"></i>
-                            <p> DOWNVOTE </p>
-                        </label>
+            {# Lista postărilor #}
+            <div class="col-7 pt-4 ps-4 pe-4" style="background-color: #181b20; border-radius: 5px; margin-top: 2rem;">
+                {% if notes is defined %}
+                {% for note in notes %}
+                    <div class="navbar-profile d-flex flex-row text-light mb-3">
+                        <a class="nav-link me-2" id="avatarPost" href="#">
+                            <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ app.user.avatar) }}" alt="avatar">
+                        </a>
+                        <a class="nav-link mt-1" id="nametagPost" href="#">
+                            <h5 class="mb-0 d-none d-sm-block navbar-profile-name">@{{ app.user.nametag }}</h5>
+                        </a>
                     </div>
-                </div>
+                    <div class="d-flex flex-row text-gray mb-2">
+                        <p>{{ note.content }}</p>
+                    </div>
+                    <div class="d-inline-block text-gray mb-1" style="background-color: #2A3038">
+                        <p style="margin-bottom: -2px;">
+                            mentioned <b>@{{ note.nametag }}</b> {# Sau folosește $note->nametag dacă ai salvat #}
+                        </p>
+                    </div>
+                    <div class="d-flex flex-row text-gray mt-3" style="margin-left: -1.2rem; margin-right: -1.5rem;">
+                        <div class="btn-group" role="group" aria-label="Basic radio toggle button group" style="height: 2rem">
+                            <input type="radio" class="btn-check" id="btnradio1" name="btnradio"  value=""  autocomplete="off" checked>
+                            <label type="submit" class="btn btn-sm btn-outline-light d-flex flex-row border-0" for="btnradio1">
+                                <i class='bx bx-arrow-up' style="font-size: 24px"></i>
+                                <p> UPVOTE </p>
+                            </label>
+
+                            <input type="radio" class="btn-check" id="btnradio2" name="btnradio"  value=""  autocomplete="off">
+                            <label type="submit" class="btn btn-sm btn-outline-light d-flex flex-row border-0" for="btnradio2">
+                                <i class='bx bx-arrow-down' style="font-size: 24px"></i>
+                                <p> DOWNVOTE </p>
+                            </label>
+                        </div>
+                    </div>
+                    <hr style="border-color: #444;">
+                    {% endfor %}
+                {% else %}
+                    <p class="text-light">Nu sunt postări disponibile.</p>
+                {% endif %}
             </div>
         </div>
     </div>
