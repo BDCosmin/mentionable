@@ -15,7 +15,7 @@ class NoteController extends AbstractController
     #[Route('/note/new', name: 'app_note_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $em): Response
     {
-
+        $error = '';
         $user = $this->getUser();
         $currentUserNametag = $this->getUser()->getNametag();
 
@@ -23,9 +23,20 @@ class NoteController extends AbstractController
             $content = $request->request->get('content');
             $nametag = $request->request->get('nametag');
 
+            $userMentioned = $em->getRepository(User::class)->findOneBy(['nametag' => $nametag]);
+
             if (empty(trim($content)) || empty(trim($nametag)) || ($nametag == $currentUserNametag)) {
+                $error = 'Error: Invalid input or you can’t post a note to yourself.';
                 return $this->render('default/index.html.twig', [
-                    'errorMentionToYourself' => 'Error: Invalid input or you can’t post a note to yourself.',
+                    'error' => $error,
+                    'notes' => $em->getRepository(Note::class)->findBy([], ['id' => 'DESC']),
+                    'currentUserNametag' => $currentUserNametag,
+                    'divVisibility' => 'block'
+                ]);
+            } else if(!$userMentioned) {
+                $error = 'Error: The nametag you entered does not exist.';
+                return $this->render('default/index.html.twig', [
+                    'error' => $error,
                     'notes' => $em->getRepository(Note::class)->findBy([], ['id' => 'DESC']),
                     'currentUserNametag' => $currentUserNametag,
                     'divVisibility' => 'block'
@@ -53,6 +64,7 @@ class NoteController extends AbstractController
         return $this->render('default/index.html.twig', [
             'notes' => $notes,
             'currentUserNametag' => $currentUserNametag,
+            'error' => $error,
             'divVisibility' => 'none'
             ]);
     }

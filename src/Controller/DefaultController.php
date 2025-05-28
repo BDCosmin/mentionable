@@ -16,6 +16,7 @@ final class DefaultController extends AbstractController
     #[Route('/', name: 'homepage')]
     public function index(EntityManagerInterface $em): Response
     {
+        $error = '';
         if (!$this->getUser()) {
             return $this->redirectToRoute('app_login');
         }
@@ -29,7 +30,7 @@ final class DefaultController extends AbstractController
             'notes' => $notes,
             'currentUserNametag' => $currentUserNametag,
             'divVisibility' => 'none',
-            'errorMentionToYourself' => 'Error: Invalid input or you can’t post a note to yourself.'
+            'error' => $error,
         ]);
     }
 }
