@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Home - Mentionable{% endblock %}
+
+{% block body %}
+<div class="col-7 p-3" style="background-color: #181b20; border-radius: 5px;">
+    <h4 class="mb-3">
+        What's on your mind?
+    </h4>
+    <form class="forms-sample" method="POST" action="{{ path('app_note_new') }}">
+        <div class="form-group" style="margin-bottom: 1rem;">
+            <textarea name="content" id="post-content" placeholder="Write a post..."  style="height: 85px" class="form-control" required></textarea>
+        </div>
+        <div class="form-group d-flex flex-row" style="margin-bottom: 1rem;">
+            <a class="btn" style="height: 2.575rem; background-color: #2A3038; border-top-right-radius: 0; border-bottom-right-radius: 0;" tabindex="-1" role="button" aria-disabled="true">
+                <p style="font-size: 20px; color: #eaeaea">@</p>
+            </a>
+            <input type="text" placeholder="Address to someone" name="nametag" id="nametag" class="form-control" style="border-top-left-radius: 0; border-bottom-left-radius: 0;" required>
+        </div>
+        <div class="d-flex justify-content-end">
+            <button type="submit" class="btn btn-light" style="width: 120px">
+                Post
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
