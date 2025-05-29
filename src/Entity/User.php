@@ -54,9 +54,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Note::class, mappedBy: 'user', orphanRemoval: true)]
     private Collection $notes;
 
+    #[ORM\OneToMany(targetEntity: Notification::class, mappedBy: 'sender')]
+    private Collection $senderNotifications;
+
+    #[ORM\OneToMany(targetEntity: Notification::class, mappedBy: 'receiver')]
+    private Collection $receiverNotifications;
+
     public function __construct()
     {
         $this->notes = new ArrayCollection();
+        $this->senderNotifications = new ArrayCollection();
+        $this->receiverNotifications = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -209,4 +217,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
+    public function getSenderNotifications(): Collection
+    {
+        return $this->senderNotifications;
+    }
+
+    public function setSenderNotifications(Collection $senderNotifications): void
+    {
+        $this->senderNotifications = $senderNotifications;
+    }
+
+    public function getReceiverNotifications(): Collection
+    {
+        return $this->receiverNotifications;
+    }
+
+    public function setReceiverNotifications(Collection $receiverNotifications): void
+    {
+        $this->receiverNotifications = $receiverNotifications;
+    }
+
 }
