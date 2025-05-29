@@ -108,4 +108,20 @@ class Notification
 
         return $this;
     }
+
+    public function getHumanTime(): string
+    {
+        $notifiedDate = $this->getNotifiedDate(); // assumes this property exists
+        $now = new \DateTime();
+        $interval = $notifiedDate->diff($now);
+
+        if ($interval->d === 0 && $interval->h === 0 && $interval->i < 60) {
+            return $interval->i === 0 ? 'just now' : $interval->i . ' minute' . ($interval->i > 1 ? 's' : '') . ' ago';
+        } elseif ($interval->d === 0 && $interval->h < 24) {
+            return $interval->h . ' hour' . ($interval->h > 1 ? 's' : '') . ' ago';
+        } else {
+            return $notifiedDate->format('M d');
+        }
+    }
+
 }

@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Comment;
 use App\Entity\Note;
+use App\Entity\Notification;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,54 +18,58 @@ class NoteController extends AbstractController
     public function new(Request $request, EntityManagerInterface $em): Response
     {
         $error = '';
-        $user = $this->getUser();
-        $currentUserNametag = $this->getUser()->getNametag();
 
         if ($request->isMethod('POST')) {
             $content = $request->request->get('content');
-            $nametag = $request->request->get('nametag');
+            $mentionedNametag = $request->request->get('nametag');
 
-            $userMentioned = $em->getRepository(User::class)->findOneBy(['nametag' => $nametag]);
+            $receiver = $em->getRepository(User::class)->findOneBy(['nametag' => $mentionedNametag]);
 
-            if (empty(trim($content)) || empty(trim($nametag)) || ($nametag == $currentUserNametag)) {
+            if (empty(trim($content)) || empty(trim($mentionedNametag)) || ($mentionedNametag == $this->getUser()->getNametag())) {
                 $error = 'Error: Invalid input or you can’t post a note to yourself.';
                 return $this->render('default/index.html.twig', [
                     'error' => $error,
                     'notes' => $em->getRepository(Note::class)->findBy([], ['id' => 'DESC']),
-                    'currentUserNametag' => $currentUserNametag,
                     'divVisibility' => 'block'
                 ]);
-            } else if(!$userMentioned) {
+            } else if(!$receiver) {
                 $error = 'Error: The nametag you entered does not exist.';
                 return $this->render('default/index.html.twig', [
                     'error' => $error,
                     'notes' => $em->getRepository(Note::class)->findBy([], ['id' => 'DESC']),
-                    'currentUserNametag' => $currentUserNametag,
                     'divVisibility' => 'block'
                 ]);
             } else {
-
                 $note = new Note();
+                $note->setUser($this->getUser());
                 $note->setContent($content);
-                $note->setNametag($nametag);
-                $note->setUser($user);
-                $author = $note->getUser()->getNametag();
-                $avatar = $note->getUser()->getAvatar();
+                $note->setNametag($mentionedNametag);
 
                 $em->persist($note);
                 $em->flush();
 
-                return $this->redirectToRoute('app_note_new');
+                $notification = new Notification();
+                $notification->setNote($note);
+                $notification->setSender($this->getUser());
+                $notification->setReceiver($receiver);
+                $notification->setType('mentioned');
+                $notification->setNotifiedDate(new \DateTime());
 
+                $em->persist($notification);
+                $em->flush();
+
+                $notification->getHumanTime();
+
+                return $this->redirectToRoute('homepage');
             }
-
         }
 
         $notes = $em->getRepository(Note::class)->findBy([], ['id' => 'DESC']);
+        $notifications = $em->getRepository(Notification::class)->findBy([], ['id' => 'DESC']);
 
         return $this->render('default/index.html.twig', [
             'notes' => $notes,
-            'currentUserNametag' => $currentUserNametag,
+            'notifications' => $notifications,
             'error' => $error,
             'divVisibility' => 'none'
             ]);
@@ -93,10 +98,14 @@ class NoteController extends AbstractController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
+        $sender = $this->getUser();
+
         $comment = new Comment();
         $comment->setNote($note);
         $comment->setUser($this->getUser());
         $comment->setMessage($request->request->get('message'));
+
+        $receiver = $note->getUser();
 
         $em->persist($comment);
         $em->flush();

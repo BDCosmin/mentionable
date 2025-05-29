@@ -17,28 +17,59 @@
                 </form>
             </li>
         </ul>
+        {# NOTIFICATIONS LIST #}
         <ul class="navbar-nav navbar-nav-right">
             <li class="nav-item dropdown border-left">
+                {% set hasNotification = false %}
+
+                {% if notifications is defined %}
+                    {% for notification in notifications %}
+                        {% if notification.receiver.nametag == app.user.nametag %}
+                            {% set hasNotification = true %}
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+
                 <a class="nav-link count-indicator dropdown-toggle" id="notificationDropdown" href="#" data-bs-toggle="dropdown">
                     <i class="fa fa-bell"></i>
-                    {# NEW NOTIFICATION BADGE #}
-{#                    <span class="count bg-danger"></span>#}
+                    {% if hasNotification %}
+                        <span class="count bg-danger"></span>
+                    {% endif %}
                 </a>
                 <div class="dropdown-menu dropdown-menu-end navbar-dropdown preview-list" aria-labelledby="notificationDropdown">
                     <h6 class="p-3 mb-0">Latest notifications</h6>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item preview-item">
-                        <div class="preview-thumbnail">
-                            <div class="preview-icon bg-dark rounded-circle">
-                                <i class="fa fa-heart"></i>
+                    {# NOTIFICATION #}
+                    {% if notifications is defined %}
+                        {% set hasNotifications = false %}
+                        {% for notification in notifications %}
+                            {% if notification.receiver.nametag == app.user.nametag %}
+                            <a class="dropdown-item preview-item">
+                                <div class="preview-thumbnail">
+                                    <div class="preview-icon bg-dark rounded-circle">
+                                        <img src="{{ asset('uploads/avatars/' ~ notification.sender.avatar) }}" alt="avatarNotif">
+                                    </div>
+                                </div>
+                                <div class="preview-item-content">
+                                    <p class="preview-subject mb-1">{{ notification.sender.nametag }} mentioned you!</p>
+                                    <p class="text-muted ellipsis mb-0"> Tap to see what's the note about. </p>
+                                    <small class="text-gray">{{ notification.getHumanTime }}</small>
+                                </div>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            {% endif %}
+                        {% endfor %}
+                        {% if not hasNotifications %}
+                            <div class="d-flex flex-row">
+                                <div class="preview-thumbnail pt-2 pe-2 ps-3">
+                                    <i class="fa fa-eye"></i>
+                                </div>
+                                <div class="preview-item-content pt-2">
+                                    <p class="preview-subject" style="user-select: none">Nothing new.</p>
+                                </div>
                             </div>
-                        </div>
-                        <div class="preview-item-content">
-                            <p class="preview-subject mb-1">Hello there</p>
-                            <p class="text-muted ellipsis mb-0"> The Mentionable team wish you a good stay, thank you for joining us! </p>
-                        </div>
-                    </a>
-                    <div class="dropdown-divider"></div>
+                        {% endif %}
+                    {% endif %}
                 </div>
             </li>
             <li class="nav-item dropdown">

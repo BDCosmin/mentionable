@@ -6,100 +6,102 @@
 <div class="main-panel">
     <div class="content-wrapper">
         <div class="row justify-content-center mb-4">
-            <h1 class="text-center">Postările lui {{ user.nametag }}</h1>  {# Sau alt atribut care afișează numele #}
-
-            <p class="text-center">Număr total de postări: {{ adsCount }}</p>
-{#            <div class="col-lg-10 p-3 justify-content-center" style="border-radius: 5px;">#}
-
+            <div class="col-lg-8 p-3 justify-content-center">
+                <div class="d-flex flex-row justify-content-center">
+                    <h1 class="text-center">
+                        Your notes
+                    </h1>
+                    <span class="badge badge-light text-dark mt-2 ms-2" style="height: 25px">{{ adsCount }}</span>
+                </div>
                 {% if notes is not empty %}
-                    <ul class="w-100 d-flex flex-column align-items-center p-0">
-                        {% for note in notes %}
-                            <div class="col-lg-8 pt-4 ps-4 pe-4 pb-3" style="background-color: #181b20; border-radius: 5px; margin-top: 2rem;">
-                                {# NOTE PROFILE #}
-                                <div class="navbar-profile d-flex flex-row text-light mb-3">
-                                    <a class="nav-link me-2" id="avatarNote" href="#">
-                                        <img class="img-sm rounded-circle" src="{{ asset('uploads/avatars/' ~ note.user.avatar) }}" alt="avatar">
-                                    </a>
-                                    <a class="nav-link mt-3" id="nametagNote" href="#">
-                                        <h5 class="mb-0 d-none d-sm-block navbar-profile-name">@{{ note.user.nametag }}</h5>
-                                    </a>
-                                </div>
-                                {# NOTE CONTENT #}
-                                <div class="d-flex flex-row text-gray mb-2">
-                                    <p>{{ note.content }}</p>
-                                </div>
-                                {# NOTE MENTIONED #}
-                                <div class="d-inline-block text-gray mb-1" style="background-color: #2A3038">
-                                    <p style="margin-bottom: -2px;">
-                                        mentioned <b>@{{ note.nametag }}</b>
-                                    </p>
-                                </div>
-                                {# NOTE NAV VOTES & COMMENTS #}
-                                <div class="d-flex flex-row text-gray mt-3 mb-2">
-                                    {# UPVOTE FORM #}
-                                    <button class="btn btn-sm btn-outline-light d-flex align-items-center border-0" type="submit">
-                                        <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
-                                        <span class="ms-1">{{ note.upVote ?? 0 }}</span>
-                                    </button>
+                        <ul class="w-100 d-flex flex-column align-items-center p-0">
+                            {% for note in notes %}
+                                <div class="col-lg-8 pt-4 ps-4 pe-4 pb-3" style="background-color: #181b20; border-radius: 5px; margin-top: 2rem;">
+                                    {# NOTE PROFILE #}
+                                    <div class="navbar-profile d-flex flex-row text-light mb-3">
+                                        <a class="nav-link me-2" id="avatarNote" href="#">
+                                            <img class="img-sm rounded-circle" src="{{ asset('uploads/avatars/' ~ note.user.avatar) }}" alt="avatar">
+                                        </a>
+                                        <a class="nav-link mt-3" id="nametagNote" href="#">
+                                            <h5 class="mb-0 d-none d-sm-block navbar-profile-name">@{{ note.user.nametag }}</h5>
+                                        </a>
+                                    </div>
+                                    {# NOTE CONTENT #}
+                                    <div class="d-flex flex-row text-gray mb-2">
+                                        <p>{{ note.content }}</p>
+                                    </div>
+                                    {# NOTE MENTIONED #}
+                                    <div class="d-inline-block text-gray mb-1" style="background-color: #2A3038">
+                                        <p style="margin-bottom: -2px;">
+                                            mentioned <b>@{{ note.nametag }}</b>
+                                        </p>
+                                    </div>
+                                    {# NOTE NAV VOTES & COMMENTS #}
+                                    <div class="d-flex flex-row text-gray mt-3 mb-2">
+                                        {# UPVOTE FORM #}
+                                        <button class="btn btn-sm btn-outline-light d-flex align-items-center border-0" type="submit">
+                                            <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
+                                            <span class="ms-1">{{ note.upVote ?? 0 }}</span>
+                                        </button>
 
-                                    {# DOWNVOTE FORM #}
-                                    <button class="btn btn-sm btn-outline-light d-flex align-items-center border-0" type="submit">
-                                        <i class='bx bx-arrow-down' style="font-size: 20px;"></i>
-                                        <span class="ms-1">{{ note.downVote ?? 0 }}</span>
-                                    </button>
+                                        {# DOWNVOTE FORM #}
+                                        <button class="btn btn-sm btn-outline-light d-flex align-items-center border-0" type="submit">
+                                            <i class='bx bx-arrow-down' style="font-size: 20px;"></i>
+                                            <span class="ms-1">{{ note.downVote ?? 0 }}</span>
+                                        </button>
 
-                                    {# COMMENTS BUTTON #}
-                                    <button type="button"
-                                            class="btn btn-outline-light btn-sm d-flex flex-row border-0 ps-0 toggle-comments"
-                                            data-note-id="{{ note.id }}"
-                                            style="height: 2rem">
-                                        <i class='bx bx-message-circle-reply pt-1 pe-2' style='color: white'></i>
-                                        <p class="mb-0">COMMENTS</p>
-                                    </button>
-                                </div>
-                                {# NOTE DIVIDER #}
-                                <div class="d-flex flex-row text-gray mt-3 mb-2">
-                                    <hr style="border: 1px solid #757575; width: 100%;">
-                                </div>
+                                        {# COMMENTS BUTTON #}
+                                        <button type="button"
+                                                class="btn btn-outline-light btn-sm d-flex flex-row border-0 ps-0 toggle-comments"
+                                                data-note-id="{{ note.id }}"
+                                                style="height: 2rem">
+                                            <i class='bx bx-message-circle-reply pt-1 pe-2' style='color: white'></i>
+                                            <p class="mb-0">COMMENTS</p>
+                                        </button>
+                                    </div>
+                                    {# NOTE DIVIDER #}
+                                    <div class="d-flex flex-row text-gray mt-3 mb-2">
+                                        <hr style="border: 1px solid #757575; width: 100%;">
+                                    </div>
 
-                                {# NOTE COMMENT #}
-                                <div class="note-comments" id="comments-{{ note.id }}" style="display: none;">
-                                    {# FORMULAR COMENTARIU #}
-                                    <form method="POST" action="{{ path('note_comment', {id: note.id}) }}">
-                                        <div class="d-flex flex-row mb-3">
-                                            <a class="nav-link me-2" href="#">
-                                                <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ app.user.avatar) }}" alt="avatar">
-                                            </a>
-                                            <div class="d-flex flex-row w-100">
-                                                <input type="text" name="message" class="form-control mb-1" placeholder="Write a comment..." required>
-                                                <div class="d-flex justify-content-end">
-                                                    <button type="submit" class="btn btn-light btn-sm px-3" style="height: 40px;">Post</button>
+                                    {# NOTE COMMENT #}
+                                    <div class="note-comments" id="comments-{{ note.id }}" style="display: none;">
+                                        {# FORMULAR COMENTARIU #}
+                                        <form method="POST" action="{{ path('note_comment', {id: note.id}) }}">
+                                            <div class="d-flex flex-row mb-3">
+                                                <a class="nav-link me-2" href="#">
+                                                    <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ app.user.avatar) }}" alt="avatar">
+                                                </a>
+                                                <div class="d-flex flex-row w-100">
+                                                    <input type="text" name="message" class="form-control mb-1" placeholder="Write a comment..." required>
+                                                    <div class="d-flex justify-content-end">
+                                                        <button type="submit" class="btn btn-light btn-sm px-3" style="height: 40px;">Post</button>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </form>
+                                        </form>
 
-                                    {# LISTA DE COMENTARII #}
-                                    {% for comment in note.comments %}
-                                        <div class="d-flex flex-row mb-3">
-                                            <a class="nav-link me-2" href="#">
-                                                <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ comment.user.avatar) }}" alt="avatar">
-                                            </a>
-                                            <div class="text-white">
-                                                <p class="mb-0">@{{ comment.user.nametag }}</p>
-                                                <small class="text-muted">{{ comment.message }}</small>
+                                        {# LISTA DE COMENTARII #}
+                                        {% for comment in note.comments %}
+                                            <div class="d-flex flex-row mb-3">
+                                                <a class="nav-link me-2" href="#">
+                                                    <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ comment.user.avatar) }}" alt="avatar">
+                                                </a>
+                                                <div class="text-white">
+                                                    <p class="mb-0">@{{ comment.user.nametag }}</p>
+                                                    <small class="text-muted">{{ comment.message }}</small>
+                                                </div>
                                             </div>
-                                        </div>
-                                    {% endfor %}
+                                        {% endfor %}
+                                    </div>
                                 </div>
-                            </div>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                <div class="col-lg-8 pt-4 ps-4 pe-4" style="background-color: #181b20; border-radius: 5px; margin-top: 2rem;">
-                    <p class="text-light">Oops. No notes available here.</p>
-                </div>
-            {% endif %}
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                    <div class="col-lg-8 pt-4 ps-4 pe-4" style="background-color: #181b20; border-radius: 5px; margin-top: 2rem;">
+                        <p class="text-gray">Oops. You have no posts yet.</p>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>
