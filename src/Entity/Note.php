@@ -136,4 +136,17 @@ class Note
 
         return $this;
     }
+
+    public function incrementUpVote(): static
+    {
+        $this->upVote = ($this->upVote ?? 0) + 1;
+        return $this;
+    }
+
+    public function incrementDownVote(): static
+    {
+        $this->downVote = ($this->downVote ?? 0) + 1;
+        return $this;
+    }
+
 }

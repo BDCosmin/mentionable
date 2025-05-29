@@ -44,11 +44,10 @@
                     </li>
                 </ol>
             </nav>
-
             {# NOTE #}
             {% if notes is defined %}
                 {% for note in notes %}
-                    <div class="col-lg-7 pt-4 ps-4 pe-4" style="background-color: #181b20; border-radius: 5px; margin-top: 2rem;">
+                    <div class="col-lg-7 pt-4 ps-4 pe-4 pb-3" style="background-color: #181b20; border-radius: 5px; margin-top: 2rem;">
                         {# NOTE PROFILE #}
                         <div class="navbar-profile d-flex flex-row text-light mb-3">
                             <a class="nav-link me-2" id="avatarNote" href="#">
@@ -70,29 +69,29 @@
                         </div>
                         {# NOTE NAV VOTES & COMMENTS #}
                         <div class="d-flex flex-row text-gray mt-3 mb-2">
-                            <div class="btn-group me-3" role="group" aria-label="Basic radio toggle button group" style="height: 2rem">
-                                <input type="radio" class="btn-check" id="btnradio1" name="btnradio" autocomplete="off">
-                                <label type="submit" class="btn btn-sm btn-outline-light d-flex flex-row border-0 ps-0" for="btnradio1">
-                                    <i class='bx bx-arrow-up' style="font-size: 24px"></i>
-                                    <p> 2,4K </p>
-                                </label>
+                                {# UPVOTE FORM #}
+                                <form method="POST" action="{{ path('note_upvote', {id: note.id}) }}" class="me-2">
+                                    <button class="btn btn-sm btn-outline-light d-flex align-items-center border-0" type="submit">
+                                        <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
+                                        <span class="ms-1">{{ note.upVote ?? 0 }}</span>
+                                    </button>
+                                </form>
 
-                                <input type="radio" class="btn-check" id="btnradio2" name="btnradio" autocomplete="off">
-                                <label type="submit" class="btn btn-sm btn-outline-light d-flex flex-row border-0 ps-0" for="btnradio2">
-                                    <i class='bx bx-arrow-down' style="font-size: 24px"></i>
-                                    <p> DOWNVOTE </p>
-                                </label>
-
-                                <input type="radio" class="btn-check" id="btnradio3" name="btnradio" autocomplete="off" hidden checked>
-                                <label class="d-flex flex-row border-0" for="btnradio3">
-                                </label>
-                            </div>
-                            <div class="btn btn-outline-light btn-sm btn-outline-light d-flex flex-row border-0 ps-0" style="height: 2rem">
+                                {# DOWNVOTE FORM #}
+                                <form method="POST" action="{{ path('note_downvote', {id: note.id}) }}" class="me-2">
+                                    <button class="btn btn-sm btn-outline-light d-flex align-items-center border-0" type="submit">
+                                        <i class='bx bx-arrow-down' style="font-size: 20px;"></i>
+                                        <span class="ms-1">{{ note.downVote ?? 0 }}</span>
+                                    </button>
+                                </form>
+                            {# COMMENTS BUTTON #}
+                            <button type="button"
+                                    class="btn btn-outline-light btn-sm d-flex flex-row border-0 ps-0 toggle-comments"
+                                    data-note-id="{{ note.id }}"
+                                    style="height: 2rem">
                                 <i class='bx bx-message-circle-reply pt-1 pe-2' style='color: white'></i>
-                                <p>
-                                    COMMENTS
-                                </p>
-                            </div>
+                                <p class="mb-0">COMMENTS</p>
+                            </button>
                         </div>
                         {# NOTE DIVIDER #}
                         <div class="d-flex flex-row text-gray mt-3 mb-2">
@@ -100,22 +99,34 @@
                         </div>
 
                         {# NOTE COMMENT #}
-                        <div class="d-flex flex-row mb-0">
-                            <a class="nav-link me-2" id="avatarPostComment" href="#">
-                                <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ app.user.avatar) }}" alt="avatarComment">
-                            </a>
-                            <div class="navbar-profile d-flex flex-column">
-                                <a class="nav-link text-white mt-1" id="nametagPostComment" href="#">
-                                    <p class="mb-0 d-none d-sm-block navbar-profile-name">@{{ app.user.nametag }}</p>
-                                </a>
-                                <p class="text-gray">
-                                    This is a very rude comment.
-                                </p>
-                            </div>
-                        </div>
-                        {# NOTE DIVIDER COMMENT #}
-                        <div class="d-flex flex-row text-gray m-0">
-                            <hr style="border: 1px solid rgba(117,117,117,0.58); width: 100%;">
+                        <div class="note-comments" id="comments-{{ note.id }}" style="display: none;">
+                            {# FORMULAR COMENTARIU #}
+                            <form method="POST" action="{{ path('note_comment', {id: note.id}) }}">
+                                <div class="d-flex flex-row mb-3">
+                                    <a class="nav-link me-2" href="#">
+                                        <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ app.user.avatar) }}" alt="avatar">
+                                    </a>
+                                    <div class="d-flex flex-row w-100">
+                                        <input type="text" name="message" class="form-control mb-1" placeholder="Write a comment..." required>
+                                        <div class="d-flex justify-content-end">
+                                            <button type="submit" class="btn btn-light btn-sm px-3" style="height: 40px;">Post</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+
+                            {# LISTA DE COMENTARII #}
+                            {% for comment in note.comments %}
+                                <div class="d-flex flex-row mb-3">
+                                    <a class="nav-link me-2" href="#">
+                                        <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ comment.user.avatar) }}" alt="avatar">
+                                    </a>
+                                    <div class="text-white">
+                                        <p class="mb-0">@{{ comment.user.nametag }}</p>
+                                        <small class="text-muted">{{ comment.message }}</small>
+                                    </div>
+                                </div>
+                            {% endfor %}
                         </div>
                     </div>
                 {% endfor %}
@@ -128,3 +139,31 @@
     </div>
 </div>
 {% endblock %}
+
+{% block javascript %}
+{{ parent() }}
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const buttons = document.querySelectorAll(".toggle-comments");
+
+    buttons.forEach(button => {
+        button.addEventListener("click", function () {
+            const noteId = this.getAttribute("data-note-id");
+            const commentSection = document.getElementById("comments-" + noteId);
+
+            if (commentSection) {
+                if (commentSection.style.display === "none" || commentSection.style.display === "") {
+                    commentSection.style.display = "block";
+                } else {
+                    commentSection.style.display = "none";
+                }
+            } else {
+                console.error("Nu s-a găsit elementul pentru comentarii cu id: comments-" + noteId);
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
+

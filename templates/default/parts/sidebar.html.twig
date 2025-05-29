@@ -27,44 +27,19 @@
                             {% endif %}
                         </div>
                     </div>
-                    <a href="#" id="profile-dropdown" data-bs-toggle="dropdown"><i class="mdi mdi-dots-vertical"></i></a>
-                    <div class="dropdown-menu dropdown-menu-right sidebar-dropdown preview-list" aria-labelledby="profile-dropdown">
-                        <a href="#" class="dropdown-item preview-item">
-                            <div class="preview-thumbnail">
-                                <div class="preview-icon bg-dark rounded-circle">
-                                    <i class="mdi mdi-cog text-primary"></i>
-                                </div>
-                            </div>
-                            <div class="preview-item-content">
-                                <p class="preview-subject ellipsis mb-1 text-small">Account settings</p>
-                            </div>
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item preview-item">
-                            <div class="preview-thumbnail">
-                                <div class="preview-icon bg-dark rounded-circle">
-                                    <i class="mdi mdi-onepassword  text-info"></i>
-                                </div>
-                            </div>
-                            <div class="preview-item-content">
-                                <p class="preview-subject ellipsis mb-1 text-small">Change Password</p>
-                            </div>
-                        </a>
-                        <div class="dropdown-divider"></div>
-                    </div>
                 </div>
             </li>
         <li class="nav-item nav-category">
             <span class="nav-link">Menu</span>
         </li>
-        <li class="nav-item menu-items">
-            <a class="nav-link" href="{{ path('homepage') }}">
+            <li class="nav-item menu-items">
+                <a class="nav-link" href="{{ path('homepage') }}">
               <span class="menu-icon">
-                <i class="fa fa-home"></i>
+                <i class="fa fa-user-circle"></i>
               </span>
-                <span class="menu-title">Feed</span>
-            </a>
-        </li>
+                    <span class="menu-title">My profile</span>
+                </a>
+            </li>
         {% endif %}
     </ul>
 </nav>

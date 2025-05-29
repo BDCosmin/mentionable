@@ -51,14 +51,14 @@
                 </a>
                 <div class="dropdown-menu dropdown-menu-end navbar-dropdown preview-list" aria-labelledby="profileDropdown">
                     <div class="dropdown-divider"></div>
-                        <a class="dropdown-item preview-item" href="#">
+                        <a class="dropdown-item preview-item" href="{{ path('app_user', {'id': app.user.id}) }}">
                             <div class="preview-thumbnail">
                                 <div class="preview-icon bg-dark rounded-circle">
-                                <i class="fa fa-user"  ></i>
+                                    <i class='bx bx-note'  style='color:#ffffff;font-size: 20px;'></i>
                                 </div>
                             </div>
                             <div class="preview-item-content">
-                                <p class="preview-subject mb-1">My profile</p>
+                                <p class="preview-subject mb-1">My notes</p>
                             </div>
                         </a>
                     <div class="dropdown-divider"></div>

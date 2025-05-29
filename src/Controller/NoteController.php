@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Comment;
 use App\Entity\Note;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
@@ -68,4 +69,40 @@ class NoteController extends AbstractController
             'divVisibility' => 'none'
             ]);
     }
+
+    #[Route('/note/{id}/upvote', name: 'note_upvote', methods: ['POST'])]
+    public function upvote(Note $note, EntityManagerInterface $em): Response
+    {
+        $note->incrementUpVote();
+        $em->flush();
+
+        return $this->redirectToRoute('homepage');
+    }
+
+    #[Route('/note/{id}/downvote', name: 'note_downvote', methods: ['POST'])]
+    public function downvote(Note $note, EntityManagerInterface $em): Response
+    {
+        $note->incrementDownVote();
+        $em->flush();
+
+        return $this->redirectToRoute('homepage');
+    }
+
+    #[Route('/note/{id}/comment', name: 'note_comment', methods: ['POST'])]
+    public function comment(Note $note, Request $request, EntityManagerInterface $em): Response
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        $comment = new Comment();
+        $comment->setNote($note);
+        $comment->setUser($this->getUser());
+        $comment->setMessage($request->request->get('message'));
+
+        $em->persist($comment);
+        $em->flush();
+
+        return $this->redirectToRoute('homepage');
+    }
+
+
 }
