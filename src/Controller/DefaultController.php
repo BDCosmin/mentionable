@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Note;
 use App\Entity\Notification;
+use App\Service\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,7 +13,7 @@ use Symfony\Component\Routing\Attribute\Route;
 final class DefaultController extends AbstractController
 {
     #[Route('/', name: 'homepage')]
-    public function index(EntityManagerInterface $em): Response
+    public function index(EntityManagerInterface $em, NotificationService $notificationService): Response
     {
         $error = '';
         if (!$this->getUser()) {
@@ -22,19 +23,15 @@ final class DefaultController extends AbstractController
         $user = $this->getUser();
 
         $notes = $em->getRepository(Note::class)->findBy([], ['publicationDate' => 'DESC']);
-        $notifications = $em->getRepository(Notification::class)->findBy([], ['notifiedDate' => 'DESC']);
 
-        $notificationsForUser = array_filter($notifications, function ($n) use ($user) {
-            return $n->getReceiver()->getNametag() === $user->getNametag();
-        });
+        $notifications = $notificationService->getLatestUserNotifications();
 
         return $this->render('default/index.html.twig', [
             'notes' => $notes,
             'notifications' => $notifications,
             'currentUserNametag' => $user->getNametag(),
             'divVisibility' => 'none',
-            'error' => $error,
-            'notificationsForUser' => $notificationsForUser
+            'error' => $error
         ]);
     }
 }

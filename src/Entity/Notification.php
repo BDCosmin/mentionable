@@ -13,10 +13,10 @@ class Notification
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'receiverNotifications')]
+    #[ORM\ManyToOne(inversedBy: 'notifications')]
     private ?Note $note = null;
 
-    #[ORM\ManyToOne(inversedBy: 'senderNotifications')]
+    #[ORM\ManyToOne(inversedBy: 'notifications')]
     private ?Comment $comment = null;
 
     #[ORM\Column(length: 255)]
@@ -109,19 +109,20 @@ class Notification
         return $this;
     }
 
-    public function getHumanTimeNotif(): string
+    public function getHumanTimeNotification(): string
     {
-        $notifiedDate = $this->getNotifiedDate();
         $now = new \DateTime();
-        $interval = $notifiedDate->diff($now);
+        $interval = $now->diff($this->notifiedDate);
 
-        if ($interval->d === 0 && $interval->h === 0 && $interval->i < 60) {
-            return $interval->i === 0 ? 'just now' : $interval->i . ' minute' . ($interval->i > 1 ? 's' : '') . ' ago';
-        } elseif ($interval->d === 0 && $interval->h < 24) {
-            return $interval->h . ' hour' . ($interval->h > 1 ? 's' : '') . ' ago';
-        } else {
-            return $notifiedDate->format('M d');
+        if ($interval->d > 0) {
+            return $interval->d . 'd ago';
+        } elseif ($interval->h > 0) {
+            return $interval->h . 'h ago';
+        } elseif ($interval->i > 0) {
+            return $interval->i . 'min ago';
         }
+
+        return 'just now';
     }
 
 }

@@ -6,6 +6,7 @@ use App\Entity\Comment;
 use App\Entity\Note;
 use App\Entity\Notification;
 use App\Entity\User;
+use App\Service\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,7 +17,7 @@ use function Webmozart\Assert\Tests\StaticAnalysis\boolean;
 class NoteController extends AbstractController
 {
     #[Route('/note/new', name: 'app_note_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $em): Response
+    public function new(Request $request, EntityManagerInterface $em, NotificationService $notificationService): Response
     {
         $error = '';
 
@@ -46,20 +47,9 @@ class NoteController extends AbstractController
                 $note->setPublicationDate(new \DateTime());
 
                 $em->persist($note);
-
-                $note->getHumanTimePost();
-
-                $notification = new Notification();
-                $notification->setNote($note);
-                $notification->setSender($this->getUser());
-                $notification->setReceiver($receiver);
-                $notification->setType('mentioned');
-                $notification->setNotifiedDate(new \DateTime());
-
-                $em->persist($notification);
                 $em->flush();
 
-                $notification->getHumanTimeNotif();
+                $notificationService->notifyNote($this->getUser(), $receiver, $note);
 
                 return $this->redirectToRoute('homepage');
             }
@@ -90,7 +80,7 @@ class NoteController extends AbstractController
     }
 
     #[Route('/note/{id}/comment', name: 'note_comment', methods: ['POST'])]
-    public function comment(Note $note, Request $request, EntityManagerInterface $em): Response
+    public function comment(Note $note, Request $request, EntityManagerInterface $em, NotificationService $notificationService): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
@@ -99,25 +89,13 @@ class NoteController extends AbstractController
         $comment->setMessage($request->request->get('message'));
         $comment->setNote($note);
 
-        $receiver = $note->getUser();
-
         $em->persist($comment);
-
-        $notification = new Notification();
-        $notification->setComment($comment);
-        $notification->setNote($note);
-        $notification->setSender($this->getUser());
-        $notification->setReceiver($receiver);
-        $notification->setType('commented');
-        $notification->setNotifiedDate(new \DateTime());
-
-        $em->persist($notification);
         $em->flush();
 
-        $notification->getHumanTimeNotif();
+        $receiver = $note->getUser();
+
+        $notificationService->notifyComment($this->getUser(), $receiver, $comment);
 
         return $this->redirectToRoute('homepage');
     }
-
-
 }
