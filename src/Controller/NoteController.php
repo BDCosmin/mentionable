@@ -11,6 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use function Webmozart\Assert\Tests\StaticAnalysis\boolean;
 
 class NoteController extends AbstractController
 {
@@ -29,14 +30,12 @@ class NoteController extends AbstractController
                 $error = 'Error: Invalid input or you can’t post a note to yourself.';
                 return $this->render('default/index.html.twig', [
                     'error' => $error,
-                    'notes' => $em->getRepository(Note::class)->findBy([], ['id' => 'DESC']),
                     'divVisibility' => 'block'
                 ]);
             } else if(!$receiver) {
                 $error = 'Error: The nametag you entered does not exist.';
                 return $this->render('default/index.html.twig', [
                     'error' => $error,
-                    'notes' => $em->getRepository(Note::class)->findBy([], ['id' => 'DESC']),
                     'divVisibility' => 'block'
                 ]);
             } else {
@@ -44,9 +43,11 @@ class NoteController extends AbstractController
                 $note->setUser($this->getUser());
                 $note->setContent($content);
                 $note->setNametag($mentionedNametag);
+                $note->setPublicationDate(new \DateTime());
 
                 $em->persist($note);
-                $em->flush();
+
+                $note->getHumanTimePost();
 
                 $notification = new Notification();
                 $notification->setNote($note);
@@ -58,18 +59,13 @@ class NoteController extends AbstractController
                 $em->persist($notification);
                 $em->flush();
 
-                $notification->getHumanTime();
+                $notification->getHumanTimeNotif();
 
                 return $this->redirectToRoute('homepage');
             }
         }
 
-        $notes = $em->getRepository(Note::class)->findBy([], ['id' => 'DESC']);
-        $notifications = $em->getRepository(Notification::class)->findBy([], ['id' => 'DESC']);
-
         return $this->render('default/index.html.twig', [
-            'notes' => $notes,
-            'notifications' => $notifications,
             'error' => $error,
             'divVisibility' => 'none'
             ]);
@@ -98,17 +94,27 @@ class NoteController extends AbstractController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
-        $sender = $this->getUser();
-
         $comment = new Comment();
-        $comment->setNote($note);
         $comment->setUser($this->getUser());
         $comment->setMessage($request->request->get('message'));
+        $comment->setNote($note);
 
         $receiver = $note->getUser();
 
         $em->persist($comment);
+
+        $notification = new Notification();
+        $notification->setComment($comment);
+        $notification->setNote($note);
+        $notification->setSender($this->getUser());
+        $notification->setReceiver($receiver);
+        $notification->setType('commented');
+        $notification->setNotifiedDate(new \DateTime());
+
+        $em->persist($notification);
         $em->flush();
+
+        $notification->getHumanTimeNotif();
 
         return $this->redirectToRoute('homepage');
     }

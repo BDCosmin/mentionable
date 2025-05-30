@@ -53,9 +53,12 @@
                             <a class="nav-link me-2" id="avatarNote" href="#">
                                 <img class="img-sm rounded-circle" src="{{ asset('uploads/avatars/' ~ note.user.avatar) }}" alt="avatar">
                             </a>
-                            <a class="nav-link mt-3" id="nametagNote" href="#">
-                                <h5 class="mb-0 d-none d-sm-block navbar-profile-name">@{{ note.user.nametag }}</h5>
-                            </a>
+                            <div class="d-flex flex-column">
+                                <a class="nav-link mt-3" id="nametagNote" href="#">
+                                    <h5 class="mb-0 d-none d-sm-block navbar-profile-name">@{{ note.user.nametag }}</h5>
+                                </a>
+                                <p class="m-0" style="font-size: 12px">{{ note.getHumanTimePost }}</p>
+                            </div>
                         </div>
                         {# NOTE CONTENT #}
                         <div class="d-flex flex-row text-gray mb-2">
