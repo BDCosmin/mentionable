@@ -31,7 +31,7 @@ class Note
     /**
      * @var Collection<int, Comment>
      */
-    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'note', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'note', cascade: ['persist'], orphanRemoval: true)]
     private Collection $comments;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -199,6 +199,21 @@ class Note
     {
         $this->downVote = ($this->downVote ?? 0) + 1;
         return $this;
+    }
+
+    public function getHumanTimePost(): string
+    {
+        $publishedDate = $this->getPublicationDate();
+        $now = new \DateTime();
+        $interval = $publishedDate->diff($now);
+
+        if ($interval->d === 0 && $interval->h === 0 && $interval->i < 60) {
+            return $interval->i === 0 ? 'just now' : $interval->i . ' minute' . ($interval->i > 1 ? 's' : '') . ' ago';
+        } elseif ($interval->d === 0 && $interval->h < 24) {
+            return $interval->h . ' hour' . ($interval->h > 1 ? 's' : '') . ' ago';
+        } else {
+            return $publishedDate->format('M d');
+        }
     }
 
 }

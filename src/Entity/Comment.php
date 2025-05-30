@@ -18,7 +18,7 @@ class Comment
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $message = null;
 
-    #[ORM\ManyToOne(inversedBy: 'comments')]
+    #[ORM\ManyToOne(targetEntity: Note::class, inversedBy: 'comments')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Note $note = null;
 

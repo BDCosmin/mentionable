@@ -40,35 +40,47 @@
                     <h6 class="p-3 mb-0">Latest notifications</h6>
                     <div class="dropdown-divider"></div>
                     {# NOTIFICATION #}
-                    {% if notifications is defined %}
-                        {% set hasNotifications = false %}
-                        {% for notification in notifications %}
+                    {% if notificationsForUser is not empty %}
+                        {% for notification in notificationsForUser %}
                             {% if notification.receiver.nametag == app.user.nametag %}
-                            <a class="dropdown-item preview-item">
-                                <div class="preview-thumbnail">
-                                    <div class="preview-icon bg-dark rounded-circle">
-                                        <img src="{{ asset('uploads/avatars/' ~ notification.sender.avatar) }}" alt="avatarNotif">
+                                <a class="dropdown-item preview-item">
+                                    <div class="preview-thumbnail">
+                                        <div class="preview-icon bg-dark rounded-circle">
+                                            <img src="{{ asset('uploads/avatars/' ~ notification.sender.avatar) }}" alt="avatarNotif">
+                                        </div>
+                                    </div>
+                                    <div class="preview-item-content">
+                                        {% if notification.type == 'mentioned' %}
+                                            <p class="preview-subject mb-1">{{ notification.sender.nametag }} mentioned you!</p>
+                                            <p class="text-muted ellipsis mb-0"> Tap to see what's the note about. </p>
+                                        {% else %}
+                                            <p class="preview-subject mb-1">{{ notification.sender.nametag }} commented to your note!</p>
+                                            <p class="text-muted ellipsis mb-0"> Tap to see what's the comment about. </p>
+                                        {% endif %}
+                                        <small class="text-gray">{{ notification.getHumanTimeNotif }}</small>
+                                    </div>
+                                </a>
+                                <div class="dropdown-divider"></div>
+                            {% else %}
+                                <div class="d-flex flex-row">
+                                    <div class="preview-thumbnail pt-2 pe-2 ps-3">
+                                        <i class="fa fa-eye"></i>
+                                    </div>
+                                    <div class="preview-item-content pt-2">
+                                        <p class="preview-subject" style="user-select: none">Nothing new.</p>
                                     </div>
                                 </div>
-                                <div class="preview-item-content">
-                                    <p class="preview-subject mb-1">{{ notification.sender.nametag }} mentioned you!</p>
-                                    <p class="text-muted ellipsis mb-0"> Tap to see what's the note about. </p>
-                                    <small class="text-gray">{{ notification.getHumanTime }}</small>
-                                </div>
-                            </a>
-                            <div class="dropdown-divider"></div>
                             {% endif %}
                         {% endfor %}
-                        {% if not hasNotifications %}
-                            <div class="d-flex flex-row">
-                                <div class="preview-thumbnail pt-2 pe-2 ps-3">
-                                    <i class="fa fa-eye"></i>
-                                </div>
-                                <div class="preview-item-content pt-2">
-                                    <p class="preview-subject" style="user-select: none">Nothing new.</p>
-                                </div>
+                    {% else %}
+                        <div class="d-flex flex-row">
+                            <div class="preview-thumbnail pt-2 pe-2 ps-3">
+                                <i class="fa fa-eye"></i>
                             </div>
-                        {% endif %}
+                            <div class="preview-item-content pt-2">
+                                <p class="preview-subject" style="user-select: none">Nothing new.</p>
+                            </div>
+                        </div>
                     {% endif %}
                 </div>
             </li>

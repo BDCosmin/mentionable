@@ -109,9 +109,9 @@ class Notification
         return $this;
     }
 
-    public function getHumanTime(): string
+    public function getHumanTimeNotif(): string
     {
-        $notifiedDate = $this->getNotifiedDate(); // assumes this property exists
+        $notifiedDate = $this->getNotifiedDate();
         $now = new \DateTime();
         $interval = $notifiedDate->diff($now);
 

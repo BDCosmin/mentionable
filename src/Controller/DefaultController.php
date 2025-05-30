@@ -19,15 +19,22 @@ final class DefaultController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        $notes = $em->getRepository(Note::class)->findBy([], ['id' => 'DESC']);
-        $notifications = $em->getRepository(Notification::class)->findBy([], ['id' => 'DESC']);
+        $user = $this->getUser();
+
+        $notes = $em->getRepository(Note::class)->findBy([], ['publicationDate' => 'DESC']);
+        $notifications = $em->getRepository(Notification::class)->findBy([], ['notifiedDate' => 'DESC']);
+
+        $notificationsForUser = array_filter($notifications, function ($n) use ($user) {
+            return $n->getReceiver()->getNametag() === $user->getNametag();
+        });
 
         return $this->render('default/index.html.twig', [
             'notes' => $notes,
             'notifications' => $notifications,
-            'currentUserNametag' => $this->getUser()->getNametag(),
+            'currentUserNametag' => $user->getNametag(),
             'divVisibility' => 'none',
             'error' => $error,
+            'notificationsForUser' => $notificationsForUser
         ]);
     }
 }
