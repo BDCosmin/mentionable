@@ -10,7 +10,7 @@
                 <div class="profile-desc">
                     <div class="profile-pic">
                         <div class="count-indicator">
-                            <img class="img-xs rounded-circle " src="{{ asset('uploads/avatars/' ~ app.user.avatar) }}" alt="avatar-sidebar">
+                            <img class="img-xs rounded-circle " src="{{ asset('uploads/avatars/' ~ app.user.avatar) }}" alt="avatar-sidebar" onerror="showDefaultIcon(this)">
                             {% if app.user.isVerified %}
                                 <i class='count fa fa-check-circle'></i>
                             {% endif %}
