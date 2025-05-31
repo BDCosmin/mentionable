@@ -6,17 +6,20 @@ use App\Entity\Note;
 use App\Entity\Notification;
 use App\Entity\Comment;
 use App\Entity\User;
+use App\Repository\NotificationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class NotificationService
 {
     private EntityManagerInterface $em;
 
-    public function __construct(EntityManagerInterface $em, Security $security)
+    public function __construct(EntityManagerInterface $em, Security $security, NotificationRepository $notificationRepository)
     {
         $this->em = $em;
         $this->security = $security;
+        $this->notificationRepository = $notificationRepository;
     }
 
     public function notifyNote(?User $sender, ?User $receiver, Note $note): void
@@ -31,6 +34,7 @@ class NotificationService
         $notification->setNote($note);
         $notification->setType('mentioned');
         $notification->setNotifiedDate(new \DateTime());
+        $notification->setIsRead(false);
 
         $this->em->persist($notification);
         $this->em->flush();
@@ -47,7 +51,9 @@ class NotificationService
         $notification->setReceiver($receiver);
         $notification->setComment($comment);
         $notification->setType('commented');
+        $notification->setNote($comment->getNote());
         $notification->setNotifiedDate(new \DateTime());
+        $notification->setIsRead(false);
 
         $this->em->persist($notification);
         $this->em->flush();
@@ -66,6 +72,20 @@ class NotificationService
             ['notifiedDate' => 'DESC'],
             $limit
         );
+    }
+
+    public function markAllAsRead(UserInterface $user): void
+    {
+        $notifications = $this->notificationRepository->findBy([
+            'receiver' => $user,
+            'isRead' => false,
+        ]);
+
+        foreach ($notifications as $notification) {
+            $notification->setIsRead(true);
+        }
+
+        $this->em->flush();
     }
 
 }

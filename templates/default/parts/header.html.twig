@@ -21,10 +21,9 @@
         <ul class="navbar-nav navbar-nav-right">
             <li class="nav-item dropdown border-left">
                 {% set hasNotification = false %}
-
                 {% if notifications is defined %}
                     {% for notification in notifications %}
-                        {% if notification.receiver.nametag == app.user.nametag %}
+                        {% if notification.receiver.nametag == app.user.nametag and not notification.isRead %}
                             {% set hasNotification = true %}
                         {% endif %}
                     {% endfor %}
@@ -37,7 +36,13 @@
                     {% endif %}
                 </a>
                 <div class="dropdown-menu dropdown-menu-end navbar-dropdown preview-list" aria-labelledby="notificationDropdown">
-                    <h6 class="p-3 mb-0">Latest notifications</h6>
+                    <div class="d-flex flex-row">
+                        <h6 class="p-3 mb-0">Latest notifications</h6>
+                        {# MARK AS READ #}
+                        <a href="{{ path('mark_notifications_read') }}" class="ms-auto mt-3 me-3">
+                            <i class='bx bx-message-circle-check' style='color:#ffffff; font-size: 18px'></i>
+                        </a>
+                    </div>
                     <div class="dropdown-divider"></div>
                     {# NOTIFICATION #}
                     {% if notifications is not empty %}
@@ -45,7 +50,7 @@
                             <a class="dropdown-item preview-item">
                                 <div class="preview-thumbnail">
                                     <div class="preview-icon bg-dark rounded-circle">
-                                        <img src="{{ asset('uploads/avatars/' ~ notification.sender.avatar) }}" alt="avatarNotif">
+                                        <img src="{{ asset('uploads/avatars/' ~ notification.sender.avatar) }}" alt="avatarNotif" onerror="showDefaultIcon(this)">
                                     </div>
                                 </div>
                                 <div class="preview-item-content">
@@ -84,7 +89,7 @@
             <li class="nav-item dropdown">
                 <a class="nav-link" id="profileDropdown" href="#" data-bs-toggle="dropdown">
                     <div class="navbar-profile">
-                        <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ app.user.avatar) }}" alt="avatar">
+                        <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ app.user.avatar) }}" alt="avatar" onerror="showDefaultIcon(this)">
                         <p class="mb-0 d-none d-sm-block navbar-profile-name">@{{ app.user.nametag }}</p>
                         <i class="mdi mdi-menu-down d-none d-sm-block"></i>
                     </div>

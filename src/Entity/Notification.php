@@ -32,6 +32,9 @@ class Notification
     #[ORM\Column]
     private ?\DateTime $notifiedDate = null;
 
+    #[ORM\Column]
+    private ?bool $isRead = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -123,6 +126,18 @@ class Notification
         }
 
         return 'just now';
+    }
+
+    public function isRead(): ?bool
+    {
+        return $this->isRead;
+    }
+
+    public function setIsRead(bool $isRead): static
+    {
+        $this->isRead = $isRead;
+
+        return $this;
     }
 
 }
