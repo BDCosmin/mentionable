@@ -47,6 +47,13 @@
                     </div>
                 </div>
             </div>
-            {% block javascript %}{% endblock %}
+            {% block javascript %}
+                <script>
+                    function showDefaultIcon(img) {
+                        const wrapper = img.parentNode;
+                        wrapper.innerHTML = '<i class="fa fa-user-circle" style="font-size: 32px; color: #ccc;"></i>';
+                    }
+                </script>
+            {% endblock %}
     </body>
 </html>
