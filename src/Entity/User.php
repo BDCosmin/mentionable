@@ -60,11 +60,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Notification::class, mappedBy: 'receiver')]
     private Collection $receiverNotifications;
 
+    /**
+     * @var Collection<int, NoteVote>
+     */
+    #[ORM\OneToMany(targetEntity: NoteVote::class, mappedBy: 'user')]
+    private Collection $noteVotes;
+
     public function __construct()
     {
         $this->notes = new ArrayCollection();
         $this->senderNotifications = new ArrayCollection();
         $this->receiverNotifications = new ArrayCollection();
+        $this->noteVotes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -236,6 +243,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setReceiverNotifications(Collection $receiverNotifications): void
     {
         $this->receiverNotifications = $receiverNotifications;
+    }
+
+    /**
+     * @return Collection<int, NoteVote>
+     */
+    public function getNoteVotes(): Collection
+    {
+        return $this->noteVotes;
     }
 
 }

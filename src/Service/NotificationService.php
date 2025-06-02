@@ -46,12 +46,60 @@ class NotificationService
             throw new \LogicException('Sender and receiver must be instances of App\Entity\User.');
         }
 
+        if ($sender === $comment->getNote()->getUser()) {
+            return;
+        }
+
         $notification = new Notification();
         $notification->setSender($sender);
         $notification->setReceiver($receiver);
         $notification->setComment($comment);
         $notification->setType('commented');
         $notification->setNote($comment->getNote());
+        $notification->setNotifiedDate(new \DateTime());
+        $notification->setIsRead(false);
+
+        $this->em->persist($notification);
+        $this->em->flush();
+    }
+
+    public function notifyUpvote(?User $sender, ?User $receiver, Note $note): void
+    {
+        if (!$sender instanceof User || !$receiver instanceof User) {
+            throw new \LogicException('Sender and receiver must be instances of App\Entity\User.');
+        }
+
+        if ($sender === $note->getUser()) {
+            return;
+        }
+
+        $notification = new Notification();
+        $notification->setSender($sender);
+        $notification->setReceiver($receiver);
+        $notification->setType('upvoted');
+        $notification->setNote($note);
+        $notification->setNotifiedDate(new \DateTime());
+        $notification->setIsRead(false);
+
+        $this->em->persist($notification);
+        $this->em->flush();
+    }
+
+    public function notifyDownvote(?User $sender, ?User $receiver, Note $note): void
+    {
+        if (!$sender instanceof User || !$receiver instanceof User) {
+            throw new \LogicException('Sender and receiver must be instances of App\Entity\User.');
+        }
+
+        if ($sender === $note->getUser()) {
+            return;
+        }
+
+        $notification = new Notification();
+        $notification->setSender($sender);
+        $notification->setReceiver($receiver);
+        $notification->setType('downvoted');
+        $notification->setNote($note);
         $notification->setNotifiedDate(new \DateTime());
         $notification->setIsRead(false);
 
@@ -72,6 +120,18 @@ class NotificationService
             ['notifiedDate' => 'DESC'],
             $limit
         );
+    }
+
+    public function markOneAsRead(UserInterface $user, Notification $notification): void
+    {
+        if ($notification->getReceiver() !== $user) {
+            throw new \LogicException('You are not allowed to mark this notification.');
+        }
+
+        if (!$notification->isRead()) {
+            $notification->setIsRead(true);
+            $this->em->flush();
+        }
     }
 
     public function markAllAsRead(UserInterface $user): void
