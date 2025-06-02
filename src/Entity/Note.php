@@ -46,10 +46,17 @@ class Note
     #[ORM\Column]
     private ?\DateTime $publicationDate = null;
 
+    /**
+     * @var Collection<int, NoteVote>
+     */
+    #[ORM\OneToMany(targetEntity: NoteVote::class, mappedBy: 'note')]
+    private Collection $noteVotes;
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
         $this->notifications = new ArrayCollection();
+        $this->noteVotes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -195,9 +202,21 @@ class Note
         return $this;
     }
 
+    public function decrementUpVote(): static
+    {
+        $this->upVote = ($this->upVote ?? 0) - 1;
+        return $this;
+    }
+
     public function incrementDownVote(): static
     {
         $this->downVote = ($this->downVote ?? 0) + 1;
+        return $this;
+    }
+
+    public function decrementDownVote(): static
+    {
+        $this->downVote = ($this->downVote ?? 0) - 1;
         return $this;
     }
 
@@ -214,6 +233,36 @@ class Note
         } else {
             return $publishedDate->format('M d');
         }
+    }
+
+    /**
+     * @return Collection<int, NoteVote>
+     */
+    public function getNoteVotes(): Collection
+    {
+        return $this->noteVotes;
+    }
+
+    public function addNoteVote(NoteVote $noteVote): static
+    {
+        if (!$this->noteVotes->contains($noteVote)) {
+            $this->noteVotes->add($noteVote);
+            $noteVote->setNote($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNoteVote(NoteVote $noteVote): static
+    {
+        if ($this->noteVotes->removeElement($noteVote)) {
+            // set the owning side to null (unless already changed)
+            if ($noteVote->getNote() === $this) {
+                $noteVote->setNote(null);
+            }
+        }
+
+        return $this;
     }
 
 }
