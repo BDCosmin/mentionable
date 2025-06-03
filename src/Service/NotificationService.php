@@ -11,6 +11,10 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\User\UserInterface;
 
+/**
+ * @property NotificationRepository $notificationRepository
+ * @property Security $security
+ */
 class NotificationService
 {
     private EntityManagerInterface $em;
@@ -115,11 +119,7 @@ class NotificationService
             return [];
         }
 
-        return $this->em->getRepository(Notification::class)->findBy(
-            ['receiver' => $user],
-            ['notifiedDate' => 'DESC'],
-            $limit
-        );
+        return $this->notificationRepository->findLatestByReceiverWithSender($user, $limit);
     }
 
     public function markOneAsRead(UserInterface $user, Notification $notification): void

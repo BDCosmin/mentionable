@@ -15,14 +15,18 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use function Webmozart\Assert\Tests\StaticAnalysis\boolean;
 
 class NoteController extends AbstractController
 {
     #[Route('/note/new', name: 'app_note_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $em, NotificationService $notificationService): Response
+    #[IsGranted('ROLE_USER')]
+    public function new(Request $request, EntityManagerInterface $em, NotificationService $notificationService,NoteRepository $noteRepository): Response
     {
         $error = '';
+
+        $notes = $noteRepository->findBy([], ['publicationDate' => 'DESC']);
 
         if ($request->isMethod('POST')) {
             $content = $request->request->get('content');
@@ -35,14 +39,16 @@ class NoteController extends AbstractController
                 return $this->render('default/index.html.twig', [
                     'notifications' => $notificationService->getLatestUserNotifications(),
                     'error' => $error,
-                    'divVisibility' => 'block'
+                    'divVisibility' => 'block',
+                    'notes' => $notes
                 ]);
             } else if(!$receiver) {
                 $error = 'Error: The nametag you entered does not exist.';
                 return $this->render('default/index.html.twig', [
                     'notifications' => $notificationService->getLatestUserNotifications(),
                     'error' => $error,
-                    'divVisibility' => 'block'
+                    'divVisibility' => 'block',
+                    'notes' => $notes
                 ]);
             } else {
                 $note = new Note();

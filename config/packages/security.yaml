@@ -34,9 +34,13 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        - { path: ^/login$, roles:  }
-        - { path: ^/$, roles:  }
-        - { path: ^/, roles:  }
+        - { path: ^/login$, roles: PUBLIC_ACCESS }
+        - { path: ^/$, roles: PUBLIC_ACCESS }
+        - { path: ^/note/new, roles: ROLE_USER }
+        - { path: ^/note/\d+/upvote, roles: ROLE_USER }
+        - { path: ^/note/\d+/downvote, roles: ROLE_USER }
+        - { path: ^/note/\d+/comment, roles: ROLE_USER }
+        - { path: ^/, roles: PUBLIC_ACCESS } # Mutată la final
 
 when@test:
     security:
