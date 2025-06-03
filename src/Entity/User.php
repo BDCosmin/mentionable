@@ -85,13 +85,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var Collection<int, FriendRequest>
      */
-    #[ORM\OneToMany(targetEntity: FriendRequest::class, mappedBy: 'sender')]
+    #[ORM\OneToMany(targetEntity: FriendRequest::class, mappedBy: 'sender', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $sentFriendRequests;
 
     /**
      * @var Collection<int, FriendRequest>
      */
-    #[ORM\OneToMany(targetEntity: FriendRequest::class, mappedBy: 'receiver')]
+    #[ORM\OneToMany(targetEntity: FriendRequest::class, mappedBy: 'receiver', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $receivedFriendRequests;
 
     public function __construct()
