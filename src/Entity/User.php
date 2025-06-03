@@ -60,11 +60,39 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Notification::class, mappedBy: 'receiver')]
     private Collection $receiverNotifications;
 
+
     /**
      * @var Collection<int, NoteVote>
      */
     #[ORM\OneToMany(targetEntity: NoteVote::class, mappedBy: 'user')]
     private Collection $noteVotes;
+
+    /**
+     * @var Collection<int, User>
+     */
+    #[ORM\ManyToMany(targetEntity: self::class, inversedBy: 'friendsWithMe')]
+    #[ORM\JoinTable(name: 'user_friends')]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id')]
+    #[ORM\InverseJoinColumn(name: 'friend_id', referencedColumnName: 'id')]
+    private Collection $friends;
+
+    /**
+     * @var Collection<int, User>
+     */
+    #[ORM\ManyToMany(targetEntity: self::class, mappedBy: 'friends')]
+    private Collection $friendsWithMe;
+
+    /**
+     * @var Collection<int, FriendRequest>
+     */
+    #[ORM\OneToMany(targetEntity: FriendRequest::class, mappedBy: 'sender')]
+    private Collection $sentFriendRequests;
+
+    /**
+     * @var Collection<int, FriendRequest>
+     */
+    #[ORM\OneToMany(targetEntity: FriendRequest::class, mappedBy: 'receiver')]
+    private Collection $receivedFriendRequests;
 
     public function __construct()
     {
@@ -72,6 +100,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->senderNotifications = new ArrayCollection();
         $this->receiverNotifications = new ArrayCollection();
         $this->noteVotes = new ArrayCollection();
+        $this->friends = new ArrayCollection();
+        $this->friendsWithMe = new ArrayCollection();
+        $this->sentFriendRequests = new ArrayCollection();
+        $this->receivedFriendRequests = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -98,7 +130,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function getUserIdentifier(): string
     {
-        return (string) $this->email;
+        return (string)$this->email;
     }
 
     /**
@@ -252,5 +284,62 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         return $this->noteVotes;
     }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getFriends(): Collection
+    {
+        return $this->friends;
+    }
+
+    public function addFriend(User $friend): static
+    {
+        if (!$this->friends->contains($friend)) {
+            $this->friends->add($friend);
+            if (!$friend->getFriends()->contains($this)) {
+                $friend->addFriend($this); // simetrie reală
+            }
+        }
+
+        return $this;
+    }
+
+    public function removeFriend(User $friend): static
+    {
+        if ($this->friends->contains($friend)) {
+            $this->friends->removeElement($friend);
+            if ($friend->getFriends()->contains($this)) {
+                $friend->removeFriend($this); // elimină și din partea cealaltă
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getFriendsWithMe(): Collection
+    {
+        return $this->friendsWithMe;
+    }
+
+    /**
+     * @return Collection<int, FriendRequest>
+     */
+    public function getSentFriendRequests(): Collection
+    {
+        return $this->sentFriendRequests;
+    }
+
+    /**
+     * @return Collection<int, FriendRequest>
+     */
+    public function getReceivedFriendRequests(): Collection
+    {
+        return $this->receivedFriendRequests;
+    }
+
 
 }
