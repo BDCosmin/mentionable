@@ -45,29 +45,38 @@
                     </div>
                     <div class="dropdown-divider"></div>
                     {# NOTIFICATION #}
-                    {% if notifications is not empty %}
+                    {% if notifications is defined and notifications is not empty %}
                         {% for notification in notifications %}
                             <a class="dropdown-item preview-item" href="{{ path('app_note_redirect', {'notificationId': notification.id}) }}">
                                 <div class="preview-thumbnail">
                                     <div class="preview-icon bg-dark rounded-circle">
-                                        <img src="{{ asset('uploads/avatars/' ~ notification.sender.avatar) }}" alt="avatarNotif" onerror="showDefaultIcon(this)">
+                                        {% if notification.sender %}
+                                            <img src="{{ asset('uploads/avatars/' ~ notification.sender.avatar) }}" alt="avatarNotif" onerror="showDefaultIcon(this)">
+                                        {% else %}
+                                            <i class="fa fa-user text-white pt-2 ps-2"></i>
+                                        {% endif %}
                                     </div>
                                 </div>
                                 <div class="preview-item-content">
-                                    {% if notification.type == 'mentioned' %}
-                                        <p class="preview-subject mb-1">{{ notification.sender.nametag }} mentioned you!</p>
-                                        <p class="text-muted ellipsis mb-0"> Tap to see what's the note about. </p>
-                                    {% elseif notification.type == 'commented' %}
-                                        <p class="preview-subject mb-1">{{ notification.sender.nametag }} commented to your note!</p>
-                                        <p class="text-muted ellipsis mb-0"> Tap to see what's the comment about. </p>
-                                    {% elseif notification.type == 'upvoted' %}
-                                        <p class="preview-subject mb-1">{{ notification.sender.nametag }} agrees with you!</p>
-                                        <p class="text-muted ellipsis mb-0"> Tap to see what's the comment about. </p>
-                                    {% elseif notification.type == 'downvoted' %}
-                                        <p class="preview-subject mb-1">{{ notification.sender.nametag }} disagrees with you!</p>
-                                        <p class="text-muted ellipsis mb-0"> Tap to see what's the comment about. </p>
+                                    {% if notification.sender %}
+                                        {% if notification.type == 'mentioned' %}
+                                            <p class="preview-subject mb-1">{{ notification.sender.nametag }} mentioned you!</p>
+                                            <p class="text-muted ellipsis mb-0">Tap to see what's the note about.</p>
+                                        {% elseif notification.type == 'commented' %}
+                                            <p class="preview-subject mb-1">{{ notification.sender.nametag }} commented on your note!</p>
+                                            <p class="text-muted ellipsis mb-0">Tap to see what's the comment about.</p>
+                                        {% elseif notification.type == 'upvoted' %}
+                                            <p class="preview-subject mb-1">{{ notification.sender.nametag }} agrees with you!</p>
+                                            <p class="text-muted ellipsis mb-0">Tap to see what's the comment about.</p>
+                                        {% elseif notification.type == 'downvoted' %}
+                                            <p class="preview-subject mb-1">{{ notification.sender.nametag }} disagrees with you!</p>
+                                            <p class="text-muted ellipsis mb-0">Tap to see what's the comment about.</p>
+                                        {% else %}
+                                            <p class="text-muted ellipsis mb-0">Unknown notification type.</p>
+                                        {% endif %}
                                     {% else %}
-                                        <p class="text-muted ellipsis mb-0"> An error has occurred. Refresh the page and try again!</p>
+                                        <p class="preview-subject mb-1">Unknown user triggered this notification.</p>
+                                        <p class="text-muted ellipsis mb-0">Details unavailable.</p>
                                     {% endif %}
                                     <i class="fa fa-clock-o" style="color: gray"></i>
                                     <small class="text-gray">{{ notification.humanTimeNotification }}</small>
