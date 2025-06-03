@@ -84,19 +84,49 @@
                         <div class="d-flex flex-row text-gray mt-3 mb-2 ms-0 ps-0">
                                 {# UPVOTE FORM #}
                                 <form method="POST" action="{{ path('note_upvote', {id: note.id}) }}" class="me-2">
-                                    <button class="btn btn-sm btn-outline-light d-flex align-items-center border-0" type="submit">
-                                        <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
-                                        <span class="ms-1">{{ note.upVote ?? 0 }}</span>
+                                    <button class="btn btn-sm
+                                    {% set voted = false %}
+                                    {% for noteVote in noteVotes %}
+                                        {% if noteVote.note.id == note.id %}
+                                            {% if noteVote.isUpvoted %}
+                                                btn-light
+                                            {% else %}
+                                                btn-outline-light
+                                            {% endif %}
+                                            {% set voted = true %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% if not voted %}
+                                        btn-outline-light
+                                    {% endif %}
+                                    d-flex align-items-center border-0" type="submit">
+                                            <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
+                                            <span class="ms-1">{{ note.upVote ?? 0 }}</span>
                                     </button>
                                 </form>
 
                                 {# DOWNVOTE FORM #}
-                                <form method="POST" action="{{ path('note_downvote', {id: note.id}) }}" class="me-2">
-                                    <button class="btn btn-sm btn-outline-light d-flex align-items-center border-0" type="submit">
-                                        <i class='bx bx-arrow-down' style="font-size: 20px;"></i>
-                                        <span class="ms-1">{{ note.downVote ?? 0 }}</span>
-                                    </button>
-                                </form>
+                            <form method="POST" action="{{ path('note_downvote', {id: note.id}) }}" class="me-2">
+                                <button class="btn btn-sm
+                                {% set voted = false %}
+                                {% for noteVote in noteVotes %}
+                                    {% if noteVote.note.id == note.id %}
+                                        {% if noteVote.isDownvoted %}
+                                            btn-light
+                                        {% else %}
+                                            btn-outline-light
+                                        {% endif %}
+                                        {% set voted = true %}
+                                    {% endif %}
+                                {% endfor %}
+                                {% if not voted %}
+                                    btn-outline-light
+                                {% endif %}
+                                d-flex align-items-center border-0" type="submit">
+                                    <i class='bx bx-arrow-down' style="font-size: 20px;"></i>
+                                    <span class="ms-1">{{ note.downVote ?? 0 }}</span>
+                                </button>
+                            </form>
                             {# COMMENTS BUTTON #}
                             <button type="button"
                                     class="btn btn-outline-light btn-sm d-flex flex-row border-0 ps-0 toggle-comments"

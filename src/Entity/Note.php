@@ -18,11 +18,11 @@ class Note
     #[ORM\Column(length: 255)]
     private ?string $content = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?int $upVote = null;
+    #[ORM\Column(type: 'integer', nullable: false)]
+    private ?int $upVote = 0;
 
-    #[ORM\Column(nullable: true)]
-    private ?int $downVote = null;
+    #[ORM\Column(type: 'integer', nullable: false)]
+    private ?int $downVote = 0;
 
     #[ORM\ManyToOne(inversedBy: 'notes')]
     #[ORM\JoinColumn(nullable: false)]
@@ -198,25 +198,29 @@ class Note
 
     public function incrementUpVote(): static
     {
-        $this->upVote = ($this->upVote ?? 0) + 1;
+        $this->upVote++;
         return $this;
     }
 
     public function decrementUpVote(): static
     {
-        $this->upVote = ($this->upVote ?? 0) - 1;
+        if ($this->upVote > 0) {
+            $this->upVote--;
+        }
         return $this;
     }
 
     public function incrementDownVote(): static
     {
-        $this->downVote = ($this->downVote ?? 0) + 1;
+        $this->downVote++;
         return $this;
     }
 
     public function decrementDownVote(): static
     {
-        $this->downVote = ($this->downVote ?? 0) - 1;
+        if ($this->downVote > 0) {
+            $this->downVote--;
+        }
         return $this;
     }
 

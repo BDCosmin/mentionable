@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Note;
 use App\Entity\Notification;
+use App\Repository\NoteVoteRepository;
 use App\Repository\NotificationRepository;
 use App\Service\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -14,7 +15,11 @@ use Symfony\Component\Routing\Attribute\Route;
 final class DefaultController extends AbstractController
 {
     #[Route('/', name: 'homepage')]
-    public function index(EntityManagerInterface $em, NotificationService $notificationService, NotificationRepository $notificationRepository): Response
+    public function index(EntityManagerInterface $em,
+                          NotificationService $notificationService,
+                          NotificationRepository $notificationRepository,
+                          NoteVoteRepository $noteVoteRepository,
+    ): Response
     {
         $error = '';
         $user = $this->getUser();
@@ -24,6 +29,7 @@ final class DefaultController extends AbstractController
         }
 
         $notes = $em->getRepository(Note::class)->findBy([], ['publicationDate' => 'DESC']);
+        $noteVotes = $noteVoteRepository->findBy([]);
 
         $notifications = $notificationService->getLatestUserNotifications();
 
@@ -32,7 +38,8 @@ final class DefaultController extends AbstractController
             'notifications' => $notifications,
             'currentUserNametag' => $user->getNametag(),
             'divVisibility' => 'none',
-            'error' => $error
+            'error' => $error,
+            'noteVotes' => $noteVotes,
         ]);
     }
 
