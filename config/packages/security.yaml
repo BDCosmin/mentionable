@@ -40,6 +40,7 @@ security:
         - { path: ^/note/\d+/upvote, roles: ROLE_USER }
         - { path: ^/note/\d+/downvote, roles: ROLE_USER }
         - { path: ^/note/\d+/comment, roles: ROLE_USER }
+        - { path: ^/profile, roles: ROLE_USER}
         - { path: ^/, roles: PUBLIC_ACCESS } # Mutată la final
 
 when@test:
