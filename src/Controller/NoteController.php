@@ -22,11 +22,17 @@ class NoteController extends AbstractController
 {
     #[Route('/note/new', name: 'app_note_new', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_USER')]
-    public function new(Request $request, EntityManagerInterface $em, NotificationService $notificationService,NoteRepository $noteRepository): Response
+    public function new(Request $request,
+                        EntityManagerInterface $em,
+                        NotificationService $notificationService,
+                        NoteRepository $noteRepository,
+                        NoteVoteRepository $noteVoteRepository
+    ): Response
     {
         $error = '';
 
         $notes = $noteRepository->findBy([], ['publicationDate' => 'DESC']);
+        $noteVotes = $noteVoteRepository->findBy([]);
 
         if ($request->isMethod('POST')) {
             $content = $request->request->get('content');
@@ -40,7 +46,8 @@ class NoteController extends AbstractController
                     'notifications' => $notificationService->getLatestUserNotifications(),
                     'error' => $error,
                     'divVisibility' => 'block',
-                    'notes' => $notes
+                    'notes' => $notes,
+                    'noteVotes' => $noteVotes
                 ]);
             } else if(!$receiver) {
                 $error = 'Error: The nametag you entered does not exist.';
@@ -48,7 +55,8 @@ class NoteController extends AbstractController
                     'notifications' => $notificationService->getLatestUserNotifications(),
                     'error' => $error,
                     'divVisibility' => 'block',
-                    'notes' => $notes
+                    'notes' => $notes,
+                    'noteVotes' => $noteVotes
                 ]);
             } else {
                 $note = new Note();
@@ -69,7 +77,8 @@ class NoteController extends AbstractController
         return $this->render('default/index.html.twig', [
             'notifications' => $notificationService->getLatestUserNotifications(),
             'error' => $error,
-            'divVisibility' => 'none'
+            'divVisibility' => 'none',
+            'noteVotes' => $noteVotes
             ]);
     }
 
@@ -126,6 +135,7 @@ class NoteController extends AbstractController
         ]);
 
         if (!$existingVote) {
+
             $vote = new NoteVote();
             $vote->setUser($user);
             $vote->setNote($note);
@@ -133,16 +143,26 @@ class NoteController extends AbstractController
             $vote->setIsDownvoted(false);
 
             $note->incrementUpVote();
-
             $em->persist($vote);
 
-        } elseif (!$existingVote->isUpvoted()) {
-            $note->incrementUpVote();
-            if ($existingVote->isDownvoted()) {
+        } else {
+            if ($existingVote->isUpvoted() && !($existingVote->isDownvoted())) {
+
+                $existingVote->setIsUpvoted(false);
+                $note->decrementUpVote();
+
+            } elseif ($existingVote->isDownvoted() && !($existingVote->isUpvoted())) {
+
+                $existingVote->setIsDownvoted(false);
+                $existingVote->setIsUpvoted(true);
                 $note->decrementDownVote();
+                $note->incrementUpVote();
+
             }
-            $existingVote->setIsUpvoted(true);
-            $existingVote->setIsDownvoted(false);
+        }
+
+        if ($existingVote && !$existingVote->isUpvoted() && !$existingVote->isDownvoted()) {
+            $em->remove($existingVote);
         }
 
         $em->flush();
@@ -152,9 +172,9 @@ class NoteController extends AbstractController
 
     #[Route('/note/{id}/downvote', name: 'note_downvote', methods: ['POST'])]
     public function downvote(Note $note,
-                           EntityManagerInterface $em,
-                           Request $request,
-                           NoteVoteRepository $noteVoteRepository): Response
+                             EntityManagerInterface $em,
+                             Request $request,
+                             NoteVoteRepository $noteVoteRepository): Response
     {
         $user = $this->getUser();
 
@@ -164,23 +184,34 @@ class NoteController extends AbstractController
         ]);
 
         if (!$existingVote) {
+
             $vote = new NoteVote();
             $vote->setUser($user);
             $vote->setNote($note);
             $vote->setIsUpvoted(false);
             $vote->setIsDownvoted(true);
 
-            $note->incrementUpVote();
-
+            $note->incrementDownVote();
             $em->persist($vote);
 
-        } elseif (!$existingVote->isDownvoted()) {
-            $note->incrementDownVote();
-            if ($existingVote->isUpvoted()) {
+        } else {
+            if ($existingVote->isDownvoted() && !($existingVote->isUpvoted())) {
+
+                $existingVote->setIsDownvoted(false);
+                $note->decrementDownVote();
+
+            } elseif ($existingVote->isUpvoted() && !($existingVote->isDownvoted())) {
+
+                $existingVote->setIsDownvoted(true);
+                $existingVote->setIsUpvoted(false);
                 $note->decrementUpVote();
+                $note->incrementDownVote();
+
             }
-            $existingVote->setIsUpvoted(false);
-            $existingVote->setIsDownvoted(true);
+        }
+
+        if ($existingVote && !$existingVote->isUpvoted() && !$existingVote->isDownvoted()) {
+            $em->remove($existingVote);
         }
 
         $em->flush();
