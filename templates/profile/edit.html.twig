@@ -1,33 +1,48 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Modifică profil{% endblock %}
+{% block title %}Edit profile{% endblock %}
 
 {% block body %}
 <div class="main-panel">
- <div class="content-wrapper">
-  <div class="row justify-content-center mb-4">
-    <div class="col-lg-7 p-3" style="background-color: #181b20; border-radius: 5px;">
-        <h1 class="text-2xl font-bold mb-4">Modifică profilul</h1>
+    <div class="content-wrapper">
+        <div class="row justify-content-center mb-4">
+            <div class="col-12 p-3" style="background-color: #181b20; border-radius: 5px;">
+                <h2 class="mb-4 text-center">Edit my profile</h2>
 
-        {% for message in app.flashes('success') %}
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-                {{ message }}
+                {# Afișare mesaje flash #}
+                {% for message in app.flashes('success') %}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+                {% for message in app.flashes('error') %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+
+                {# Formular Bootstrap #}
+                {{ form_start(form) }}
+                <div class="mb-3">
+                    {{ form_label(form.avatar, null, {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.avatar, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.avatar) }}
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-save me-2"></i>Save
+                </button>
+                {{ form_end(form) }}
+
+                <div class="mt-4 text-center">
+                    <a href="{{ path('app_profile') }}" class="text-decoration-none text-light">
+                        <i class="fa fa-arrow-left me-2"></i>Back to my profile
+                    </a>
+                </div>
             </div>
-        {% endfor %}
-        {% for message in app.flashes('error') %}
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                {{ message }}
-            </div>
-        {% endfor %}
-
-        {{ form_start(form, {'attr': {'class': 'max-w-md'}}) }}
-        {{ form_row(form.avatar, {'attr': {'class': 'border p-2 rounded w-full'}}) }}
-        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded mt-2 hover:bg-blue-600">Salvează</button>
-        {{ form_end(form) }}
-
-        <a href="{{ path('app_profile') }}" class="text-blue-500 mt-4 inline-block hover:underline">Înapoi la profil</a>
+        </div>
     </div>
-  </div>
- </div>
 </div>
 {% endblock %}

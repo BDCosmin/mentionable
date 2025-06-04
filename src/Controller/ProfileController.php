@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 #[Route('/profile')]
 #[IsGranted('ROLE_USER')]
@@ -33,7 +34,7 @@ class ProfileController extends AbstractController
     }
 
     #[Route('/edit', name: 'app_profile_edit')]
-    public function edit(Request $request, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
         $user = $this->getUser();
         $form = $this->createForm(ProfileType::class, $user);
@@ -41,21 +42,27 @@ class ProfileController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $avatarFile = $form->get('avatar')->getData();
+
             if ($avatarFile) {
-                $newFilename = uniqid().'.'.$avatarFile->guessExtension();
+                $originalFilename = pathinfo($avatarFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $avatarFile->guessExtension();
+
                 $avatarFile->move(
                     $this->getParameter('avatars_directory'),
                     $newFilename
                 );
+
                 $user->setAvatar($newFilename);
             }
+
 
             $entityManager->persist($user);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Avatarul a fost actualizat cu succes!');
+            $this->addFlash('success', 'The avatar has been updated successfully!');
 
-            return $this->redirectToRoute('app_profile');
+            return $this->redirectToRoute('app_profile_edit');
         }
 
         return $this->render('profile/edit.html.twig', [
@@ -79,9 +86,9 @@ class ProfileController extends AbstractController
             $entityManager->persist($user);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Parola a fost schimbată cu succes!');
+            $this->addFlash('success', 'Password has been changed successfully!');
 
-            return $this->redirectToRoute('app_profile');
+            return $this->redirectToRoute('app_profile_change_password');
         }
 
         return $this->render('profile/change_password.html.twig', [
@@ -96,28 +103,45 @@ class ProfileController extends AbstractController
         $friend = $userRepository->findOneBy(['nametag' => $nametag]);
 
         if (!$friend) {
-            $this->addFlash('error', 'Utilizatorul cu acest nametag nu există.');
+            $this->addFlash('error', 'User with this nametag does not exist.');
             return $this->redirectToRoute('app_profile');
         }
 
         $user = $this->getUser();
-        if ($user === $friend) {
-            $this->addFlash('error', 'Nu te poți adăuga pe tine ca prieten!');
+        if ($user->getId() === $friend->getId()) {
+            $this->addFlash('error', 'You cannot add yourself as a friend.');
             return $this->redirectToRoute('app_profile');
         }
 
-        // Verificăm dacă cererea de prietenie există deja
+        // Check if already friends
+        if ($user->getFriends()->contains($friend)) {
+            $this->addFlash('error', 'You are already friends.');
+            return $this->redirectToRoute('app_profile');
+        }
+
+        // Check if friend request already sent
         $existingRequest = $entityManager->getRepository(FriendRequest::class)->findOneBy([
             'sender' => $user,
             'receiver' => $friend,
         ]);
 
         if ($existingRequest) {
-            $this->addFlash('error', 'O cerere de prietenie a fost deja trimisă acestui utilizator.');
+            $this->addFlash('error', 'Friend request already sent to this user.');
             return $this->redirectToRoute('app_profile');
         }
 
-        // Creăm o nouă cerere de prietenie
+        // Check if incoming friend request exists (friend sent request to user)
+        $incomingRequest = $entityManager->getRepository(FriendRequest::class)->findOneBy([
+            'sender' => $friend,
+            'receiver' => $user,
+        ]);
+
+        if ($incomingRequest) {
+            $this->addFlash('error', 'This user has already sent you a friend request.');
+            return $this->redirectToRoute('app_profile');
+        }
+
+        // Create new friend request
         $friendRequest = new FriendRequest();
         $friendRequest->setSender($user);
         $friendRequest->setReceiver($friend);
@@ -125,7 +149,7 @@ class ProfileController extends AbstractController
         $entityManager->persist($friendRequest);
         $entityManager->flush();
 
-        $this->addFlash('success', 'Cererea de prietenie a fost trimisă!');
+        $this->addFlash('success', 'Friend request sent successfully!');
 
         return $this->redirectToRoute('app_profile');
     }
@@ -137,7 +161,7 @@ class ProfileController extends AbstractController
         $sender = $friendRequest->getSender();
 
         if ($friendRequest->getReceiver() !== $user) {
-            $this->addFlash('error', 'Nu ai permisiunea de a accepta această cerere.');
+            $this->addFlash('error', 'You do not have permission to accept this request.');
             return $this->redirectToRoute('app_profile');
         }
 
@@ -152,7 +176,7 @@ class ProfileController extends AbstractController
         $entityManager->persist($sender);
         $entityManager->flush();
 
-        $this->addFlash('success', 'Cererea de prietenie a fost acceptată!');
+        $this->addFlash('success', 'The friend request has been accepted!');
 
         return $this->redirectToRoute('app_profile');
     }
@@ -162,7 +186,7 @@ class ProfileController extends AbstractController
     {
         $user = $this->getUser();
         if ($friendRequest->getReceiver() !== $user) {
-            $this->addFlash('error', 'Nu ai permisiunea de a respinge această cerere.');
+            $this->addFlash('error', 'You do not have permission to reject this request.');
             return $this->redirectToRoute('app_profile');
         }
 
@@ -170,7 +194,7 @@ class ProfileController extends AbstractController
         $entityManager->remove($friendRequest);
         $entityManager->flush();
 
-        $this->addFlash('success', 'Cererea de prietenie a fost respinsă.');
+        $this->addFlash('success', 'The friend request has been rejected.');
 
         return $this->redirectToRoute('app_profile');
     }
@@ -183,7 +207,7 @@ class ProfileController extends AbstractController
         $entityManager->persist($user);
         $entityManager->flush();
 
-        $this->addFlash('success', 'Prieten eliminat cu succes!');
+        $this->addFlash('success', 'Friend removed successfully!');
 
         return $this->redirectToRoute('app_profile');
     }

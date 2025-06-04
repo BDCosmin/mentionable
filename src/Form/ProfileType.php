@@ -15,14 +15,22 @@ class ProfileType extends AbstractType
     {
         $builder
             ->add('avatar', FileType::class, [
-                'label' => 'Avatar (imagine PNG/JPG)',
+                'label' => 'Avatar',
                 'mapped' => false,
                 'required' => false,
+                'attr' => [
+                    'accept' => 'image/*'
+                ],
                 'constraints' => [
                     new File([
-                        'maxSize' => '2m',
-                        'mimeTypes' => ['image/png', 'image/jpeg'],
-                        'mimeTypesMessage' => 'Încarcă o imagine validă (PNG sau JPG)',
+                        'maxSize' => '2M',
+                        'mimeTypes' => [
+                            'image/jpeg',
+                            'image/png',
+                            'image/webp',
+                            'image/gif',
+                        ],
+                        'mimeTypesMessage' => 'Please upload a valid image (JPEG, PNG, GIF, WEBP)',
                     ]),
                 ],
             ]);
