@@ -48,12 +48,14 @@
                 </div>
             </div>
             {% block javascript %}
+                {% verbatim %}
                 <script>
                     function showDefaultIcon(img) {
                         const wrapper = img.parentNode;
                         wrapper.innerHTML = '<i class="fa fa-user-circle" style="font-size: 32px; color: #ccc;"></i>';
                     }
                 </script>
+                {% endverbatim %}
             {% endblock %}
     </body>
 </html>
