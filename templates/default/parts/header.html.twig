@@ -71,6 +71,9 @@
                                         {% elseif notification.type == 'downvoted' %}
                                             <p class="preview-subject mb-1">{{ notification.sender.nametag }} disagrees with you!</p>
                                             <p class="text-muted ellipsis mb-0">Tap to see what's the comment about.</p>
+                                        {% elseif notification.type == 'friend_request' %}
+                                            <p class="preview-subject mb-1">{{ notification.sender.nametag }} send you a friend request!</p>
+                                            <p class="text-muted ellipsis mb-0">Tap to see what's the freidn request about.</p>
                                         {% else %}
                                             <p class="text-muted ellipsis mb-0">Unknown notification type.</p>
                                         {% endif %}

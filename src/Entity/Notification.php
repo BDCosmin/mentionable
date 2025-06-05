@@ -29,6 +29,12 @@ class Notification
     #[ORM\JoinColumn(nullable: false)]
     private ?User $receiver = null;
 
+//    #[ORM\Column(length: 255, nullable: true)]
+//    private ?string $message = null;
+//
+//    #[ORM\Column(length: 255, nullable: true)]
+//    private ?string $link = null;
+
     #[ORM\Column]
     private ?\DateTime $notifiedDate = null;
 
@@ -99,6 +105,19 @@ class Notification
 
         return $this;
     }
+
+//    public function getMessage(): ?string { return $this->message; }
+//    public function setMessage(?string $message): static {
+//        $this->message = $message;
+//        return $this;
+//    }
+//
+//    public function getLink(): ?string { return $this->link; }
+//    public function setLink(?string $link): static {
+//        $this->link = $link;
+//        return $this;
+//    }
+
 
     public function getNotifiedDate(): ?\DateTime
     {
