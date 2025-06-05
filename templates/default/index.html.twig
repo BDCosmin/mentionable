@@ -59,7 +59,13 @@
                                 </a>
                                 <div class="d-flex flex-row m-0 p-0" style="font-size: 12px; color: gray">
                                     <i class="fa fa-clock-o mt-1 me-1"></i>
-                                    <p>{{ note.humanTimePost  }}</p>
+                                    <div class="d-flex flex-row m-0 p-0">
+                                        <p>{{ note.humanTimePost  }}</p>
+                                        <p class="ms-1 me-1">•</p>
+                                        <a class="m-0 p-0" style="text-decoration: none; color: #d1d0d0" href="{{ path('app_note_show', {'noteId': note.id}) }}">
+                                            <p>View post</p>
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                             <div class="dropdown ms-auto mt-1 me-1">
@@ -84,22 +90,7 @@
                         <div class="d-flex flex-row text-gray mt-3 mb-2 ms-0 ps-0">
                                 {# UPVOTE FORM #}
                                 <form method="POST" action="{{ path('note_upvote', {id: note.id}) }}" class="me-2">
-                                    <button class="btn btn-sm
-                                    {% set voted = false %}
-                                    {% for noteVote in noteVotes %}
-                                        {% if noteVote.note.id == note.id %}
-                                            {% if noteVote.isUpvoted %}
-                                                btn-light
-                                            {% else %}
-                                                btn-outline-light
-                                            {% endif %}
-                                            {% set voted = true %}
-                                        {% endif %}
-                                    {% endfor %}
-                                    {% if not voted %}
-                                        btn-outline-light
-                                    {% endif %}
-                                    d-flex align-items-center border-0" type="submit">
+                                    <button class="btn btn-sm btn-outline-light d-flex align-items-center border-0" type="submit">
                                             <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
                                             <span class="ms-1">{{ note.upVote ?? 0 }}</span>
                                     </button>
@@ -107,22 +98,7 @@
 
                                 {# DOWNVOTE FORM #}
                             <form method="POST" action="{{ path('note_downvote', {id: note.id}) }}" class="me-2">
-                                <button class="btn btn-sm
-                                {% set voted = false %}
-                                {% for noteVote in noteVotes %}
-                                    {% if noteVote.note.id == note.id %}
-                                        {% if noteVote.isDownvoted %}
-                                            btn-light
-                                        {% else %}
-                                            btn-outline-light
-                                        {% endif %}
-                                        {% set voted = true %}
-                                    {% endif %}
-                                {% endfor %}
-                                {% if not voted %}
-                                    btn-outline-light
-                                {% endif %}
-                                d-flex align-items-center border-0" type="submit">
+                                <button class="btn btn-sm btn btn-sm btn-outline-light d-flex align-items-center border-0" type="submit">
                                     <i class='bx bx-arrow-down' style="font-size: 20px;"></i>
                                     <span class="ms-1">{{ note.downVote ?? 0 }}</span>
                                 </button>
