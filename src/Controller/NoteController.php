@@ -83,7 +83,7 @@ class NoteController extends AbstractController
     }
 
     #[Route('/notification/{notificationId}/redirect', name: 'app_note_redirect')]
-    public function redirectToNote(int $notificationId, NotificationService $notificationService): Response
+    public function redirectToNotification(int $notificationId, NotificationService $notificationService): Response
     {
         $user = $this->getUser();
         $notification = $notificationService->notificationRepository->find($notificationId);
@@ -96,10 +96,33 @@ class NoteController extends AbstractController
             $notificationService->markOneAsRead($user, $notification);
         }
 
-        $note = $notification->getNote();
+        // Logică de redirect în funcție de conținutul notificării
+        if ($notification->getNote()) {
+            return $this->redirectToRoute('app_note_show', ['noteId' => $notification->getNote()->getId()]);
+        }
 
-        return $this->redirectToRoute('app_note_show', ['noteId' => $note->getId()]);
+        if ($notification->getComment()) {
+            // Poți adăuga o pagină specifică pentru comentariu, dacă ai
+            return $this->redirectToRoute('app_note_show', [
+                'noteId' => $notification->getComment()->getNote()->getId()
+            ]);
+        }
+
+        if ($notification->getType() === 'friend_request') {
+            return $this->redirectToRoute('app_profile', [
+                'nametag' => $user->getNametag()
+            ]);
+        }
+
+        if ($notification->getLink()) {
+            return $this->redirect($notification->getLink());
+        }
+
+        $this->addFlash('error', 'Notificarea nu are un link valid.');
+        return $this->redirectToRoute('homepage');
     }
+
+
 
     #[Route('/note/{noteId}', name: 'app_note_show')]
     public function show(int $noteId, NoteRepository $noteRepository, NotificationService $notificationService): Response

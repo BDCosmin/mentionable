@@ -44,6 +44,19 @@ class NotificationService
         $this->em->flush();
     }
 
+    public function createNotification(User $sender, User $receiver, string $message, string $link): void
+    {
+        $notification = new Notification();
+        $notification->setSender($sender);
+        $notification->setReceiver($receiver);
+        $notification->setType('friend_request');
+        $notification->setNotifiedDate(new \DateTime());
+        $notification->setIsRead(false);
+
+        $this->em->persist($notification);
+        $this->em->flush();
+    }
+
     public function notifyComment(?User $sender, ?User $receiver, Comment $comment): void
     {
         if (!$sender instanceof User || !$receiver instanceof User) {
