@@ -1,9 +1,9 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Home - Mentionable{% endblock %}
+{% block title %}Update post - Mentionable{% endblock %}
 
 {% block body %}
-<div class="main-panel">
+    <div class="main-panel">
         <div class="content-wrapper">
             <div class="row justify-content-center mb-4">
                 {# NOTES LIST #}
@@ -30,25 +30,28 @@
                                         <i class="fa fa-sort-desc" style="color: white"></i>
                                     </a>
                                     <ul class="dropdown-menu">
-                                        {% if app.user.nametag == note.user.nametag %}
-                                            <li><a class="dropdown-item" href="#">Edit...</a></li>
-                                            <li><a class="dropdown-item" href="#">Delete note</a></li>
-                                        {% else %}
-                                            <li><a class="dropdown-item" href="#">Report</a></li>
-                                        {% endif %}
+                                        <li><a class="dropdown-item" href="#">Delete note</a></li>
                                     </ul>
                                 </div>
                             </div>
-                            {# NOTE CONTENT #}
-                            <div class="d-flex flex-row text-gray mb-2">
-                                <p style="font-size: 16px">{{ note.content }}</p>
-                            </div>
-                            {# NOTE IMAGE #}
-                            {% if note.image %}
-                                <div class="d-flex flex-row text-gray justify-content-center mb-2">
-                                    <img src="{{ asset('uploads/notes/' ~ note.image)}}" id="noteImage" alt="noteImage"/>
+                            {# EDIT NOTE CONTENT & IMAGE #}
+                            <form method="POST" action="{{ path('app_note_update', {id: note.id}) }}" enctype="multipart/form-data">
+                                <div class="d-flex flex-column text-gray mb-3">
+                                    <textarea name="content" id="content" class="form-control" rows="4" required>{{ note.content }}</textarea>
                                 </div>
-                            {% endif %}
+
+                                <div class="d-flex flex-column text-gray mb-3">
+                                    <label for="image" class="text-light mb-2">Change Image (optional)</label>
+                                    {% if note.image %}
+                                        <img src="{{ asset('uploads/notes/' ~ note.image)}}" alt="noteImage" class="mb-2" style="max-width: 100%;">
+                                    {% endif %}
+                                    <input type="file" name="image" id="image" class="form-control">
+                                </div>
+
+                                <div class="d-flex justify-content-end">
+                                    <button type="submit" class="btn btn-success">Save</button>
+                                </div>
+                            </form>
                             {# NOTE NAV VOTES & COMMENTS #}
                             <div class="d-flex flex-row text-gray mt-3 mb-2 ms-0 ps-0">
                                 {# UPVOTE FORM #}
@@ -66,14 +69,6 @@
                                         <span class="ms-1">{{ note.downVote ?? 0 }}</span>
                                     </button>
                                 </form>
-                                {# COMMENTS BUTTON #}
-                                <button type="button"
-                                        class="btn btn-outline-light btn-sm d-flex flex-row border-0 ps-0 toggle-comments"
-                                        data-note-id="{{ note.id }}"
-                                        style="height: 2rem">
-                                    <i class='bx bx-message-circle-reply pt-1 pe-2' style='color: white'></i>
-                                    <p class="mb-0">COMMENTS ({{ note.comments|length }})</p>
-                                </button>
                                 {# NOTE MENTIONED #}
                                 <div class="d-block d-md-inline-block w-100 w-md-auto text-gray ms-2 mt-1 mb-1 ps-1 pe-1">
                                     <p style="margin-bottom: -2px">
@@ -84,37 +79,6 @@
                             {# NOTE DIVIDER #}
                             <div class="d-flex flex-row text-gray mt-3 mb-2">
                                 <hr style="border: 1px solid #757575; width: 100%;">
-                            </div>
-
-                            {# NOTE COMMENT #}
-                            <div class="note-comments" id="comments-{{ note.id }}">
-                                {# FORMULAR COMENTARIU #}
-                                <form method="POST" action="{{ path('note_comment', {id: note.id}) }}">
-                                    <div class="d-flex flex-row mb-3">
-                                        <a class="nav-link me-2" href="#">
-                                            <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ note.user.avatar) }}" alt="avatar">
-                                        </a>
-                                        <div class="d-flex flex-row w-100">
-                                            <input type="text" name="message" class="form-control mb-1" placeholder="Write a comment..." required>
-                                            <div class="d-flex justify-content-end">
-                                                <button type="submit" class="btn btn-light btn-sm px-3" style="height: 40px;">Post</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </form>
-
-                                {# LISTA DE COMENTARII #}
-                                {% for comment in note.comments %}
-                                    <div class="d-flex flex-row mb-3">
-                                        <a class="nav-link me-2" href="#">
-                                            <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ comment.user.avatar) }}" alt="avatar">
-                                        </a>
-                                        <div class="text-white">
-                                            <p class="mb-0">@{{ comment.user.nametag }}</p>
-                                            <small class="text-muted">{{ comment.message }}</small>
-                                        </div>
-                                    </div>
-                                {% endfor %}
                             </div>
                         </div>
                     {% else %}
