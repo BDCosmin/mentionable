@@ -13,6 +13,7 @@ use App\Service\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -65,6 +66,7 @@ class NoteController extends AbstractController
                 $note = new Note();
                 $note->setUser($this->getUser());
                 $note->setContent($content);
+                $note->setIsEdited(false);
                 $note->setNametag($mentionedNametag);
                 $note->setPublicationDate(new \DateTime());
 
@@ -101,49 +103,62 @@ class NoteController extends AbstractController
             ]);
     }
 
-    #[Route('/note/{id}/update', name: 'app_note_update', methods: ['GET','POST'])]
+    #[Route('/note/{id}/update', name: 'app_note_update', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_USER')]
     public function update(Request $request, Note $note, EntityManagerInterface $em, SluggerInterface $slugger): Response
     {
         $error = '';
-        $newContent = trim((string) $request->request->get('content'));
-        $currentContent = trim((string) $note->getContent());
+        $divVisibility = 'none';
 
-        if (empty($newContent) || $newContent === $currentContent) {
-            $error = 'Error: Invalid content.';
-            return $this->render('note/update.html.twig', [
-                'error' => $error,
-                'divVisibility' => 'block',
-                'note' => $note
-            ]);
-        } else {
+        if ($request->isMethod('POST')) {
+            $newContent = trim((string) $request->request->get('content'));
+            $currentContent = trim((string) $note->getContent());
+            $newImageFile = $request->files->get('image');
 
-            $note->setContent($newContent);
+            $isContentInvalid = empty($newContent) || $newContent === $currentContent;
+            $isImageInvalid = !$newImageFile instanceof UploadedFile;
 
-            $imageFile = $request->files->get('image');
-            if ($imageFile) {
-                $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
-                $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
+            if ($isContentInvalid && $isImageInvalid) {
+                $error = 'Error: Invalid content and/or image.';
+                $divVisibility = 'block';
+            } else {
 
-                try {
-                    $imageFile->move(
-                        $this->getParameter('notes_directory'),
-                        $newFilename
-                    );
-                    $note->setImage($newFilename);
-                } catch (FileException $e) {
-                    // handle exception
+                if (!$isContentInvalid) {
+                    $note->setContent($newContent);
+                }
+
+                if (!$isImageInvalid) {
+                    $originalFilename = pathinfo($newImageFile->getClientOriginalName(), PATHINFO_FILENAME);
+                    $safeFilename = $slugger->slug($originalFilename);
+                    $newFilename = $safeFilename . '-' . uniqid() . '.' . $newImageFile->guessExtension();
+
+                    try {
+                        $newImageFile->move(
+                            $this->getParameter('notes_directory'),
+                            $newFilename
+                        );
+                        $note->setImage($newFilename);
+                    } catch (FileException $e) {
+                        $error = 'Error: Failed to upload image.';
+                        $divVisibility = 'block';
+                    }
+                }
+
+                if (empty($error)) {
+                    $note->setIsEdited(true);
+                    $note->setPublicationDate(new \DateTime());
+
+                    $em->persist($note);
+                    $em->flush();
+
+                    return $this->redirectToRoute('app_note_show', ['noteId' => $note->getId()]);
                 }
             }
-
-            $em->flush();
-
         }
 
-        return $this->render('default/index.html.twig', [
+        return $this->render('note/update.html.twig', [
             'error' => $error,
-            'divVisibility' => 'none',
+            'divVisibility' => $divVisibility,
             'note' => $note,
         ]);
     }
@@ -287,6 +302,44 @@ class NoteController extends AbstractController
         return $this->redirectToRoute('homepage');
     }
 
+    #[Route('post/comment/{id}-{noteId}/update', name: 'app_comment_update', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function updateComment(Request $request, Comment $comment, EntityManagerInterface $em, SluggerInterface $slugger): Response
+    {
+        $error = '';
+        $divVisibility = 'none';
+
+        if ($request->isMethod('POST')) {
+            $newMessage = trim((string) $request->request->get('message'));
+            $currentMessage = trim((string) $comment->getMessage());
+
+            $isMessageInvalid = empty($newMessage) || $newMessage === $currentMessage;
+
+            if ($isMessageInvalid) {
+                $error = 'Error: Invalid content.';
+                $divVisibility = 'block';
+            } else {
+
+                $comment->setMessage($newMessage);
+                $comment->setIsEdited(true);
+                $comment->setPublicationDate(new \DateTime());
+
+                $em->persist($comment);
+                $em->flush();
+
+                return $this->redirectToRoute('app_note_show', ['noteId' => $comment->getNote()->getId()]);
+            }
+        }
+
+        return $this->render('note/comment_update.html.twig', [
+            'error' => $error,
+            'divVisibility' => $divVisibility,
+            'comment' => $comment,
+            'note' => $comment->getNote(),
+            'noteId' => $comment->getNote()->getId()
+        ]);
+    }
+
     #[Route('/notification/{notificationId}/redirect', name: 'app_note_redirect')]
     public function redirectToNotification(int $notificationId, NotificationService $notificationService): Response
     {
@@ -301,13 +354,11 @@ class NoteController extends AbstractController
             $notificationService->markOneAsRead($user, $notification);
         }
 
-        // Logică de redirect în funcție de conținutul notificării
         if ($notification->getNote()) {
             return $this->redirectToRoute('app_note_show', ['noteId' => $notification->getNote()->getId()]);
         }
 
         if ($notification->getComment()) {
-            // Poți adăuga o pagină specifică pentru comentariu, dacă ai
             return $this->redirectToRoute('app_note_show', [
                 'noteId' => $notification->getComment()->getNote()->getId()
             ]);

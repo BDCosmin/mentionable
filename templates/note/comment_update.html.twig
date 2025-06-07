@@ -1,11 +1,12 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Home - Mentionable{% endblock %}
+{% block title %}Update comment - Mentionable{% endblock %}
 
 {% block body %}
-<div class="main-panel">
+    <div class="main-panel">
         <div class="content-wrapper">
             <div class="row justify-content-center mb-4">
+                {# NOTES LIST #}
                 <div class="row justify-content-center mb-4">
                     {# NOTE #}
                     {% if note is defined %}
@@ -20,11 +21,8 @@
                                         <h5 class="mb-0 d-none d-sm-block navbar-profile-name">@{{ note.user.nametag }}</h5>
                                     </a>
                                     <div class="d-flex flex-row m-0 p-0" style="font-size: 12px; color: gray">
-                                        {% if note.isEdited %}
-                                            <p class="ms-1" style="margin-right: 6px"><i>Edited</i></p>
-                                            <i class="fa fa-clock-o mt-1 me-1"></i>
-                                        {% endif %}
-                                        <p>{{ note.humanTimePost }}</p>
+                                        <i class="fa fa-clock-o mt-1 me-1"></i>
+                                        <p>{{ note.humanTimePost  }}</p>
                                     </div>
                                 </div>
                                 <div class="dropdown ms-auto mt-1 me-1">
@@ -32,23 +30,20 @@
                                         <i class="fa fa-sort-desc" style="color: white"></i>
                                     </a>
                                     <ul class="dropdown-menu">
-                                        {% if app.user.nametag == note.user.nametag %}
-                                            <li><a class="dropdown-item" href="#">Edit...</a></li>
-                                            <li><a class="dropdown-item" href="#">Delete note</a></li>
-                                        {% else %}
-                                            <li><a class="dropdown-item" href="#">Report</a></li>
-                                        {% endif %}
+                                        <li><a class="dropdown-item" href="#">Delete note</a></li>
                                     </ul>
                                 </div>
                             </div>
                             {# NOTE CONTENT #}
-                            <div class="d-flex flex-row text-gray mb-2">
+                            <div class="d-flex flex-row text-gray mb-1">
                                 <p style="font-size: 16px">{{ note.content }}</p>
                             </div>
                             {# NOTE IMAGE #}
                             {% if note.image %}
                                 <div class="d-flex flex-row text-gray justify-content-center mb-2">
-                                    <img src="{{ asset('uploads/notes/' ~ note.image)}}" id="noteImage" alt="noteImage"/>
+                                    <a href="{{ path('app_note_show', {'noteId': note.id}) }}">
+                                        <img src="{{ asset('uploads/notes/' ~ note.image)}}" id="noteImage" alt="noteImage"/>
+                                    </a>
                                 </div>
                             {% endif %}
                             {# NOTE NAV VOTES & COMMENTS #}
@@ -87,59 +82,30 @@
                             <div class="d-flex flex-row text-gray mt-3 mb-2">
                                 <hr style="border: 1px solid #757575; width: 100%;">
                             </div>
-
                             {# NOTE COMMENT #}
                             <div class="note-comments" id="comments-{{ note.id }}">
-                                {# FORMULAR COMENTARIU #}
-                                <form method="POST" action="{{ path('note_comment', {id: note.id}) }}">
-                                    <div class="d-flex flex-row mb-3">
-                                        <a class="nav-link me-2" href="#">
-                                            <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ note.user.avatar) }}" alt="avatar">
-                                        </a>
-                                        <div class="d-flex flex-row w-100">
-                                            <input type="text" name="message" class="form-control mb-1" placeholder="Write a comment..." required>
-                                            <div class="d-flex justify-content-end">
-                                                <button type="submit" class="btn btn-light btn-sm px-3" style="height: 40px;">Post</button>
-                                            </div>
+                                {# COMMENT #}
+                                <div class="d-flex flex-row mb-3">
+                                    <a class="nav-link me-2" href="#">
+                                        <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ comment.user.avatar) }}" alt="avatarComment" onerror="showDefaultIcon(this)">
+                                    </a>
+                                    <div class="m-0 p-0" style="width: 100%">
+                                        <div class="d-flex flex-row" style="height: 30px;">
+                                            <p class="text-white m-0" style="font-size: 18px;">@{{ comment.user.nametag }}</p>
+                                            <p class="text-gray ms-1 me-1 mt-1">•</p>
+                                            <p class="text-gray mt-1">{{ comment.humanTimeComment  }}</p>
                                         </div>
-                                    </div>
-                                </form>
+                                        <form method="POST" style="width: 100%" action="{{ path('app_comment_update', {id: comment.id, noteId: note.id}) }}" enctype="multipart/form-data">
+                                            <div class="d-inline-flex" style="width: 100%">
+                                                <textarea name="message" id="message" class="form-control" rows="4" required>{{ comment.message }}</textarea>
+                                            </div>
 
-                                {# COMMENTS LIST #}
-                                {% for comment in note.comments %}
-                                    <div class="d-flex flex-row mb-3">
-                                        <a class="nav-link me-2" href="#">
-                                            <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ comment.user.avatar) }}" alt="avatarComment" onerror="showDefaultIcon(this)">
-                                        </a>
-                                        <div class="m-0 p-0">
-                                            <div class="d-flex flex-row" style="height: 30px;">
-                                                <p class="text-white m-0 me-2" style="font-size: 18px;">@{{ comment.user.nametag }}</p>
-                                                {% if comment.isEdited %}
-                                                    <i class="fa fa-clock-o text-gray me-1" style="margin-top: 6px"></i>
-                                                {% else %}
-                                                    <p class="text-gray mt-1 me-2">•</p>
-                                                {% endif %}
-                                                <p class="text-gray mt-1">{{ comment.humanTimeComment  }}</p>
+                                            <div class="d-flex justify-content-end">
+                                                <button type="submit" class="btn btn-success" name="update_comment_btn">Save</button>
                                             </div>
-                                            <div class="d-inline-flex">
-                                                <small style="font-size: 16px; color: white; background-color: #757575; border-radius: 8px; opacity: 0.5; padding: 5px;">{{ comment.message }}</small>
-                                            </div>
-                                        </div>
-                                        <div class="dropdown ms-auto me-1 d-inline-flex justify-content-end">
-                                            <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="height: 30px;">
-                                                <i class='bx bx-dots-horizontal-rounded' style='color:#ffffff'></i>
-                                            </a>
-                                            <ul class="dropdown-menu m-0">
-                                                {% if app.user.nametag == comment.user.nametag %}
-                                                    <li><a class="dropdown-item" href="{{ path('app_comment_update', {id: comment.id, noteId: note.id}) }}">Edit...</a></li>
-                                                    <li><a class="dropdown-item" href="#">Delete comment</a></li>
-                                                {% else %}
-                                                    <li><a class="dropdown-item" href="#">Report</a></li>
-                                                {% endif %}
-                                            </ul>
-                                        </div>
+                                        </form>
                                     </div>
-                                {% endfor %}
+                                </div>
                             </div>
                         </div>
                     {% else %}

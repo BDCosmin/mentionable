@@ -26,3 +26,4 @@
 /.env.dev
 /.env.test
 /public/uploads/avatars/
+/public/uploads/notes/
