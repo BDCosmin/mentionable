@@ -7,8 +7,6 @@
     <div class="content-wrapper">
         <div class="row justify-content-center mb-4">
             <div class="col-12 p-3" style="background-color: #181b20; border-radius: 5px;">
-                <h1 class="text-center text-white mb-5">My Profile</h1>
-
                 {% for label, messages in app.flashes %}
                     {% set bootstrap_class = label == 'error' ? 'danger' : label %}
                     {% for message in messages %}
@@ -19,36 +17,31 @@
                     {% endfor %}
                 {% endfor %}
 
-                <!-- Informații + Setări -->
-                <div class="row g-4 bg-dark rounded p-4 shadow">
-                    <!-- Col stânga: Informații -->
-                    <div class="col-md-6 text-center text-md-start">
-                        <h4 class="text-white">Profile Information</h4>
-                        <p class="text-muted"><strong>Nametag:</strong> {{ user.nametag }}</p>
-                        <p class="text-muted"><strong>Avatar:</strong></p>
+                <div class="row g-4 bg-dark rounded ps-4 pe-4 pb-4 shadow" style="margin-top: -7px">
+                    <div class="col-md-4 text-center text-md-start">
                         {% if user.avatar %}
                             <img src="{{ asset('uploads/avatars/' ~ user.avatar) }}"
                                  alt="Avatar"
                                  class="img-thumbnail rounded-circle mt-3"
-                                 style="width: 120px; height: 120px;"
+                                 style="width: 400px; height: 400px;"
                                  onerror="this.style.display='none'; this.insertAdjacentHTML('afterend', '<i class=\'fa fa-user-circle\' style=\'font-size: 32px; color: #ccc;\'></i>')">
                         {% else %}
                             <i class="fa fa-user-circle" style="font-size: 32px; color: #ccc;"></i>
                         {% endif %}
-
                     </div>
 
-                    <!-- Col dreapta: Setări -->
                     <div class="col-md-6">
-                        <h4 class="text-white text-center">Profile Settings</h4>
-                        <div class="d-grid gap-3 mt-3">
-                            <a href="{{ path('app_profile_change_password') }}" class="btn btn-primary">Change Password</a>
-                            <a href="{{ path('app_profile_edit') }}" class="btn btn-secondary">Change Avatar</a>
-                        </div>
+                        <h2 class="mt-5 mb-2 text-white"><strong>@</strong>{{ user.nametag }}</h2>
+                        <h4 class="text-gray">Profile Information</h4>
+                        {% if user.isVerified %}
+                            <div class="d-flex flex-row">
+                                <i class='count fa fa-check-circle me-2'></i>
+                                <p>verified</p>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
 
-                <!-- Prieteni -->
                 <div class="mt-5 bg-dark rounded p-4 shadow text-white">
                     <h4 class="mb-4">My Friends</h4>
                     {% if user.friends is not empty %}

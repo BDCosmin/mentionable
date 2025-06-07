@@ -55,6 +55,9 @@ class Note
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $image = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $isEdited = null;
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
@@ -280,6 +283,18 @@ class Note
     public function setImage(?string $image): static
     {
         $this->image = $image;
+
+        return $this;
+    }
+
+    public function isEdited(): ?bool
+    {
+        return $this->isEdited;
+    }
+
+    public function setIsEdited(?bool $isEdited): static
+    {
+        $this->isEdited = $isEdited;
 
         return $this;
     }

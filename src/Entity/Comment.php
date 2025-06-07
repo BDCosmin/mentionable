@@ -35,6 +35,9 @@ class Comment
     #[ORM\Column]
     private ?\DateTime $publicationDate = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $isEdited = null;
+
     public function __construct()
     {
         $this->notifications = new ArrayCollection();
@@ -136,5 +139,17 @@ class Comment
         } else {
             return $publishedDate->format('M d');
         }
+    }
+
+    public function isEdited(): ?bool
+    {
+        return $this->isEdited;
+    }
+
+    public function setIsEdited(?bool $isEdited): static
+    {
+        $this->isEdited = $isEdited;
+
+        return $this;
     }
 }

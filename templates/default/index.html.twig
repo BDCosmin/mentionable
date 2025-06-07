@@ -64,7 +64,10 @@
                                 <div class="d-flex flex-row m-0 p-0" style="font-size: 12px; color: gray">
                                     <i class="fa fa-clock-o mt-1 me-1"></i>
                                     <div class="d-flex flex-row m-0 p-0">
-                                        <p>{{ note.humanTimePost  }}</p>
+                                        {% if note.isEdited %}
+                                            <p class="ms-1" style="margin-right: 6px"><i>Edited</i></p>
+                                        {% endif %}
+                                        <p>{{ note.humanTimePost }}</p>
                                         <p class="ms-1 me-1">•</p>
                                         <a class="m-0 p-0" style="text-decoration: none; color: #d1d0d0" href="{{ path('app_note_show', {'noteId': note.id}) }}">
                                             <p>View post</p>
@@ -93,7 +96,9 @@
                         {# NOTE IMAGE #}
                         {% if note.image %}
                             <div class="d-flex flex-row text-gray justify-content-center mb-2">
-                                <img src="{{ asset('uploads/notes/' ~ note.image)}}" id="noteImage" alt="noteImage"/>
+                                <a href="{{ path('app_note_show', {'noteId': note.id}) }}">
+                                    <img src="{{ asset('uploads/notes/' ~ note.image)}}" id="noteImage" alt="noteImage"/>
+                                </a>
                             </div>
                         {% endif %}
                         {# NOTE NAV VOTES & COMMENTS #}
@@ -156,13 +161,32 @@
                                     <a class="nav-link me-2" href="#">
                                         <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ comment.user.avatar) }}" alt="avatarComment" onerror="showDefaultIcon(this)">
                                     </a>
-                                    <div class="text-white m-0 p-0">
-                                        <div class="d-flex flex-row">
-                                            <p class="m-0" style="font-size: 18px;">@{{ comment.user.nametag }}</p>
-                                            <p class="ms-1 me-1 mt-1">•</p>
-                                            <p class="mt-1">{{ comment.humanTimeComment  }}</p>
+                                    <div class="m-0 p-0">
+                                        <div class="d-flex flex-row" style="height: 30px;">
+                                            <p class="text-white me-2" style="font-size: 18px;">@{{ comment.user.nametag }}</p>
+                                            {% if comment.isEdited %}
+                                                <i class="fa fa-clock-o text-gray me-1" style="margin-top: 6px"></i>
+                                            {% else %}
+                                                <p class="text-gray mt-1 me-2">•</p>
+                                            {% endif %}
+                                            <p class="text-gray mt-1">{{ comment.humanTimeComment }}</p>
                                         </div>
-                                        <small class="text-muted" style="font-size: 16px;">{{ comment.message }}</small>
+                                        <div class="d-inline-flex">
+                                            <small style="font-size: 16px; color: white; background-color: #757575; border-radius: 8px; opacity: 0.5; padding: 5px;">{{ comment.message }}</small>
+                                        </div>
+                                    </div>
+                                    <div class="dropdown ms-auto me-1 d-inline-flex justify-content-end">
+                                        <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="height: 30px;">
+                                            <i class='bx bx-dots-horizontal-rounded' style='color:#ffffff'></i>
+                                        </a>
+                                        <ul class="dropdown-menu m-0">
+                                            {% if app.user.nametag == comment.user.nametag %}
+                                                <li><a class="dropdown-item" href="{{ path('app_comment_update', {id: comment.id, noteId: note.id}) }}">Edit...</a></li>
+                                                <li><a class="dropdown-item" href="#">Delete comment</a></li>
+                                            {% else %}
+                                                <li><a class="dropdown-item" href="#">Report</a></li>
+                                            {% endif %}
+                                        </ul>
                                     </div>
                                 </div>
                             {% endfor %}
