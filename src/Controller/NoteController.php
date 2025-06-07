@@ -12,10 +12,12 @@ use App\Repository\NoteVoteRepository;
 use App\Service\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\String\Slugger\SluggerInterface;
 use function Webmozart\Assert\Tests\StaticAnalysis\boolean;
 
 class NoteController extends AbstractController
@@ -26,7 +28,8 @@ class NoteController extends AbstractController
                         EntityManagerInterface $em,
                         NotificationService $notificationService,
                         NoteRepository $noteRepository,
-                        NoteVoteRepository $noteVoteRepository
+                        NoteVoteRepository $noteVoteRepository,
+                        SluggerInterface $slugger,
     ): Response
     {
         $error = '';
@@ -65,6 +68,22 @@ class NoteController extends AbstractController
                 $note->setNametag($mentionedNametag);
                 $note->setPublicationDate(new \DateTime());
 
+                $noteImageFile = $request->files->get('image');
+                if ($noteImageFile) {
+                    $originalFilename = pathinfo($noteImageFile->getClientOriginalName(), PATHINFO_FILENAME);
+                    $safeFilename = $slugger->slug($originalFilename);
+                    $newFilename = $safeFilename . '-' . uniqid() . '.' . $noteImageFile->guessExtension();
+
+                    $noteImageFile->move(
+                        $this->getParameter('notes_directory'),
+                        $newFilename
+                    );
+
+
+                    $note->setImage($newFilename);
+
+                }
+
                 $em->persist($note);
                 $em->flush();
 
@@ -82,47 +101,52 @@ class NoteController extends AbstractController
             ]);
     }
 
-    #[Route('/notification/{notificationId}/redirect', name: 'app_note_redirect')]
-    public function redirectToNotification(int $notificationId, NotificationService $notificationService): Response
+    #[Route('/note/{id}/update', name: 'app_note_update', methods: ['GET','POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function update(Request $request, Note $note, EntityManagerInterface $em, SluggerInterface $slugger): Response
     {
-        $user = $this->getUser();
-        $notification = $notificationService->notificationRepository->find($notificationId);
+        $error = '';
+        $newContent = trim((string) $request->request->get('content'));
+        $currentContent = trim((string) $note->getContent());
 
-        if (!$notification) {
-            throw $this->createNotFoundException('Notification not found');
-        }
-
-        if ($user) {
-            $notificationService->markOneAsRead($user, $notification);
-        }
-
-        // Logică de redirect în funcție de conținutul notificării
-        if ($notification->getNote()) {
-            return $this->redirectToRoute('app_note_show', ['noteId' => $notification->getNote()->getId()]);
-        }
-
-        if ($notification->getComment()) {
-            // Poți adăuga o pagină specifică pentru comentariu, dacă ai
-            return $this->redirectToRoute('app_note_show', [
-                'noteId' => $notification->getComment()->getNote()->getId()
+        if (empty($newContent) || $newContent === $currentContent) {
+            $error = 'Error: Invalid content.';
+            return $this->render('note/update.html.twig', [
+                'error' => $error,
+                'divVisibility' => 'block',
+                'note' => $note
             ]);
+        } else {
+
+            $note->setContent($newContent);
+
+            $imageFile = $request->files->get('image');
+            if ($imageFile) {
+                $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
+
+                try {
+                    $imageFile->move(
+                        $this->getParameter('notes_directory'),
+                        $newFilename
+                    );
+                    $note->setImage($newFilename);
+                } catch (FileException $e) {
+                    // handle exception
+                }
+            }
+
+            $em->flush();
+
         }
 
-        if ($notification->getType() === 'friend_request') {
-            return $this->redirectToRoute('app_profile', [
-                'nametag' => $user->getNametag()
-            ]);
-        }
-
-        if ($notification->getLink()) {
-            return $this->redirect($notification->getLink());
-        }
-
-        $this->addFlash('error', 'Notificarea nu are un link valid.');
-        return $this->redirectToRoute('homepage');
+        return $this->render('default/index.html.twig', [
+            'error' => $error,
+            'divVisibility' => 'none',
+            'note' => $note,
+        ]);
     }
-
-
 
     #[Route('/note/{noteId}', name: 'app_note_show')]
     public function show(int $noteId, NoteRepository $noteRepository, NotificationService $notificationService): Response
@@ -250,6 +274,7 @@ class NoteController extends AbstractController
         $comment = new Comment();
         $comment->setUser($this->getUser());
         $comment->setMessage($request->request->get('message'));
+        $comment->setPublicationDate(new \DateTime());
         $comment->setNote($note);
 
         $em->persist($comment);
@@ -259,6 +284,46 @@ class NoteController extends AbstractController
 
         $notificationService->notifyComment($this->getUser(), $receiver, $comment);
 
+        return $this->redirectToRoute('homepage');
+    }
+
+    #[Route('/notification/{notificationId}/redirect', name: 'app_note_redirect')]
+    public function redirectToNotification(int $notificationId, NotificationService $notificationService): Response
+    {
+        $user = $this->getUser();
+        $notification = $notificationService->notificationRepository->find($notificationId);
+
+        if (!$notification) {
+            throw $this->createNotFoundException('Notification not found');
+        }
+
+        if ($user) {
+            $notificationService->markOneAsRead($user, $notification);
+        }
+
+        // Logică de redirect în funcție de conținutul notificării
+        if ($notification->getNote()) {
+            return $this->redirectToRoute('app_note_show', ['noteId' => $notification->getNote()->getId()]);
+        }
+
+        if ($notification->getComment()) {
+            // Poți adăuga o pagină specifică pentru comentariu, dacă ai
+            return $this->redirectToRoute('app_note_show', [
+                'noteId' => $notification->getComment()->getNote()->getId()
+            ]);
+        }
+
+        if ($notification->getType() === 'friend_request') {
+            return $this->redirectToRoute('app_profile', [
+                'nametag' => $user->getNametag()
+            ]);
+        }
+
+        if ($notification->getLink()) {
+            return $this->redirect($notification->getLink());
+        }
+
+        $this->addFlash('error', 'Notificarea nu are un link valid.');
         return $this->redirectToRoute('homepage');
     }
 }

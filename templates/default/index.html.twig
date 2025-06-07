@@ -12,7 +12,7 @@
                 <h4 class="mb-3">
                     What's on your mind?
                 </h4>
-                <form class="forms-sample" method="POST"  action="{{ path('app_note_new') }}">
+                <form class="forms-sample" method="POST" enctype="multipart/form-data" action="{{ path('app_note_new') }}">
                     <div class="form-group" style="margin-bottom: 1rem;">
                         <textarea name="content" id="post-content" placeholder="Write a note..."  style="height: 85px" class="form-control" required></textarea>
                     </div>
@@ -24,6 +24,10 @@
                     </div>
                     <div class="m-0 p-0" id="errorWhilePosting" style="display: {{ divVisibility }};">
                         <span class="badge badge-danger">{{ error }}</span>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="avatar">Add image</label>
+                        <input type="file" class="form-control" id="noteImage" name="image" accept="image/*">
                     </div>
                     <div class="d-flex justify-content-end">
                         <button type="submit" class="btn btn-light" style="width: 120px">
@@ -74,7 +78,7 @@
                                 </a>
                                 <ul class="dropdown-menu">
                                     {% if app.user.nametag == note.user.nametag %}
-                                        <li><a class="dropdown-item" href="#">Edit...</a></li>
+                                        <li><a class="dropdown-item" href="{{ path('app_note_update', {id: note.id}) }}">Edit...</a></li>
                                         <li><a class="dropdown-item" href="#">Delete note</a></li>
                                     {% else %}
                                         <li><a class="dropdown-item" href="#">Report</a></li>
@@ -83,9 +87,15 @@
                             </div>
                         </div>
                         {# NOTE CONTENT #}
-                        <div class="d-flex flex-row text-gray mb-2">
+                        <div class="d-flex flex-row text-gray mb-1">
                             <p style="font-size: 16px">{{ note.content }}</p>
                         </div>
+                        {# NOTE IMAGE #}
+                        {% if note.image %}
+                            <div class="d-flex flex-row text-gray justify-content-center mb-2">
+                                <img src="{{ asset('uploads/notes/' ~ note.image)}}" id="noteImage" alt="noteImage"/>
+                            </div>
+                        {% endif %}
                         {# NOTE NAV VOTES & COMMENTS #}
                         <div class="d-flex flex-row text-gray mt-3 mb-2 ms-0 ps-0">
                                 {# UPVOTE FORM #}
@@ -125,11 +135,11 @@
 
                         {# NOTE COMMENT #}
                         <div class="note-comments" id="comments-{{ note.id }}" style="display: none;">
-                            {# FORMULAR COMENTARIU #}
+                            {# WRITING COMMENT FORM #}
                             <form method="POST" action="{{ path('note_comment', {id: note.id}) }}">
                                 <div class="d-flex flex-row mb-3">
                                     <a class="nav-link me-2" href="#">
-                                        <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ app.user.avatar) }}" alt="avatar">
+                                        <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ app.user.avatar)}}" alt="avatar">
                                     </a>
                                     <div class="d-flex flex-row w-100">
                                         <input type="text" name="message" class="form-control mb-1" placeholder="Write a comment..." required>
@@ -140,15 +150,19 @@
                                 </div>
                             </form>
 
-                            {# LISTA DE COMENTARII #}
+                            {# COMMENTS LIST #}
                             {% for comment in note.comments %}
                                 <div class="d-flex flex-row mb-3">
                                     <a class="nav-link me-2" href="#">
-                                        <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ comment.user.avatar) }}" alt="avatar">
+                                        <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ comment.user.avatar) }}" alt="avatarComment" onerror="showDefaultIcon(this)">
                                     </a>
-                                    <div class="text-white">
-                                        <p class="mb-0">@{{ comment.user.nametag }}</p>
-                                        <small class="text-muted">{{ comment.message }}</small>
+                                    <div class="text-white m-0 p-0">
+                                        <div class="d-flex flex-row">
+                                            <p class="m-0" style="font-size: 18px;">@{{ comment.user.nametag }}</p>
+                                            <p class="ms-1 me-1 mt-1">•</p>
+                                            <p class="mt-1">{{ comment.humanTimeComment  }}</p>
+                                        </div>
+                                        <small class="text-muted" style="font-size: 16px;">{{ comment.message }}</small>
                                     </div>
                                 </div>
                             {% endfor %}

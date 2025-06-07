@@ -23032,6 +23032,10 @@ dl li {
   font-size: 20px;
 }
 
+input[type="file"]::file-selector-button {
+  color: black;
+}
+
 .icon {
   display: flex;
   align-items: center;

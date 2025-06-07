@@ -32,6 +32,9 @@ class Comment
     #[ORM\OneToMany(targetEntity: Notification::class, mappedBy: 'comment')]
     private Collection $notifications;
 
+    #[ORM\Column]
+    private ?\DateTime $publicationDate = null;
+
     public function __construct()
     {
         $this->notifications = new ArrayCollection();
@@ -106,5 +109,32 @@ class Comment
         }
 
         return $this;
+    }
+
+    public function getPublicationDate(): ?\DateTime
+    {
+        return $this->publicationDate;
+    }
+
+    public function setPublicationDate(\DateTime $publicationDate): static
+    {
+        $this->publicationDate = $publicationDate;
+
+        return $this;
+    }
+
+    public function getHumanTimeComment(): string
+    {
+        $publishedDate = $this->getPublicationDate();
+        $now = new \DateTime();
+        $interval = $publishedDate->diff($now);
+
+        if ($interval->d === 0 && $interval->h === 0 && $interval->i < 60) {
+            return $interval->i === 0 ? 'just now' : $interval->i . ' minute' . ($interval->i > 1 ? 's' : '') . ' ago';
+        } elseif ($interval->d === 0 && $interval->h < 24) {
+            return $interval->h . ' hour' . ($interval->h > 1 ? 's' : '') . ' ago';
+        } else {
+            return $publishedDate->format('M d');
+        }
     }
 }

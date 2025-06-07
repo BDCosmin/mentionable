@@ -31,7 +31,13 @@
                                     </a>
                                     <div class="d-flex flex-row m-0 p-0" style="font-size: 12px; color: gray">
                                         <i class="fa fa-clock-o mt-1 me-1"></i>
-                                        <p>{{ note.humanTimePost  }}</p>
+                                        <div class="d-flex flex-row m-0 p-0">
+                                            <p>{{ note.humanTimePost  }}</p>
+                                            <p class="ms-1 me-1">•</p>
+                                            <a class="m-0 p-0" style="text-decoration: none; color: #d1d0d0" href="{{ path('app_note_show', {'noteId': note.id}) }}">
+                                                <p>View post</p>
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="dropdown ms-auto mt-1 me-1">
@@ -52,6 +58,12 @@
                             <div class="d-flex flex-row text-gray mb-2">
                                 <p style="font-size: 16px">{{ note.content }}</p>
                             </div>
+                            {# NOTE IMAGE #}
+                            {% if note.image %}
+                                <div class="d-flex flex-row text-gray justify-content-center mb-2">
+                                    <img src="{{ asset('uploads/notes/' ~ note.image)}}" id="noteImage" alt="noteImage"/>
+                                </div>
+                            {% endif %}
                             {# NOTE NAV VOTES & COMMENTS #}
                             <div class="d-flex flex-row text-gray mt-3 mb-2 ms-0 ps-0">
                                 {# UPVOTE FORM #}
