@@ -38,9 +38,16 @@ class Comment
     #[ORM\Column(nullable: true)]
     private ?bool $isEdited = null;
 
+    /**
+     * @var Collection<int, CommentReport>
+     */
+    #[ORM\OneToMany(targetEntity: CommentReport::class, mappedBy: 'comment')]
+    private Collection $commentReports;
+
     public function __construct()
     {
         $this->notifications = new ArrayCollection();
+        $this->commentReports = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -149,6 +156,36 @@ class Comment
     public function setIsEdited(?bool $isEdited): static
     {
         $this->isEdited = $isEdited;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CommentReport>
+     */
+    public function getCommentReports(): Collection
+    {
+        return $this->commentReports;
+    }
+
+    public function addCommentReport(CommentReport $commentReport): static
+    {
+        if (!$this->commentReports->contains($commentReport)) {
+            $this->commentReports->add($commentReport);
+            $commentReport->setComment($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCommentReport(CommentReport $commentReport): static
+    {
+        if ($this->commentReports->removeElement($commentReport)) {
+            // set the owning side to null (unless already changed)
+            if ($commentReport->getComment() === $this) {
+                $commentReport->setComment(null);
+            }
+        }
 
         return $this;
     }

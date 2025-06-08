@@ -16,7 +16,7 @@ class Notification
     #[ORM\ManyToOne(inversedBy: 'notifications')]
     private ?Note $note = null;
 
-    #[ORM\ManyToOne(inversedBy: 'notifications')]
+    #[ORM\ManyToOne(targetEntity: Comment::class, inversedBy: 'notifications')]
     private ?Comment $comment = null;
 
     #[ORM\Column(length: 255)]

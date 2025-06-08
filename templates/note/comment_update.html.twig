@@ -30,7 +30,12 @@
                                         <i class="fa fa-sort-desc" style="color: white"></i>
                                     </a>
                                     <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="#">Delete note</a></li>
+                                        {% if app.user.nametag == note.user.nametag %}
+                                            <li><a class="dropdown-item" href="{{ path('app_note_update', {id: note.id}) }}">Edit...</a></li>
+                                            <li><a class="dropdown-item" href="{{ path('app_note_delete', {id: note.id}) }}">Delete note</a></li>
+                                        {% else %}
+                                            <li><a class="dropdown-item" href="{{ path('app_note_report', {id: note.id}) }}">Report</a></li>
+                                        {% endif %}
                                     </ul>
                                 </div>
                             </div>
@@ -95,7 +100,7 @@
                                             <p class="text-gray ms-1 me-1 mt-1">•</p>
                                             <p class="text-gray mt-1">{{ comment.humanTimeComment  }}</p>
                                         </div>
-                                        <form method="POST" style="width: 100%" action="{{ path('app_comment_update', {id: comment.id, noteId: note.id}) }}" enctype="multipart/form-data">
+                                        <form method="POST" style="width: 100%" action="{{ path('note_comment_update', {id: comment.id, noteId: note.id}) }}" enctype="multipart/form-data">
                                             <div class="d-inline-flex" style="width: 100%">
                                                 <textarea name="message" id="message" class="form-control" rows="4" required>{{ comment.message }}</textarea>
                                             </div>

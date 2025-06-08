@@ -3,10 +3,13 @@
 namespace App\Controller;
 
 use App\Entity\Comment;
+use App\Entity\CommentReport;
 use App\Entity\Note;
+use App\Entity\NoteReport;
 use App\Entity\NoteVote;
 use App\Entity\Notification;
 use App\Entity\User;
+use App\Repository\CommentRepository;
 use App\Repository\NoteRepository;
 use App\Repository\NoteVoteRepository;
 use App\Service\NotificationService;
@@ -103,6 +106,18 @@ class NoteController extends AbstractController
             ]);
     }
 
+    #[Route('/note/{id}/delete', name: 'app_note_delete', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function delete(int $id ,Request $request, EntityManagerInterface $em, NoteRepository $noteRepository): Response
+    {
+        $note = $noteRepository->find($id);
+
+        $em->remove($note);
+        $em->flush();
+
+        return $this->redirect($request->headers->get('referer'));
+    }
+
     #[Route('/note/{id}/update', name: 'app_note_update', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_USER')]
     public function update(Request $request, Note $note, EntityManagerInterface $em, SluggerInterface $slugger): Response
@@ -170,16 +185,59 @@ class NoteController extends AbstractController
         $note = $noteRepository->find($noteId);
 
         if (!$note) {
-            throw $this->createNotFoundException('Note not found');
+            return $this->redirectToRoute('homepage');
+        } else {
+
+            $comments = $note->getComments();
+
+            return $this->render('note/index.html.twig', [
+                'divVisibility' => 'none',
+                'notifications' => $notifications,
+                'note' => $note,
+                'comments' => $comments
+            ]);
+        }
+    }
+
+    #[Route('/note/{id}/report', name: 'app_note_report', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function report(int $id ,Request $request, EntityManagerInterface $em, NoteRepository $noteRepository, NotificationService $notificationService): Response
+    {
+        $note = $noteRepository->find($id);
+
+        if ($request->isMethod('POST')) {
+            $reason = $request->request->get('reason');
+
+            if (!$reason) {
+                $this->addFlash('error', 'Please select at least one reason.');
+                return $this->redirectToRoute('app_note_report', ['id' => $note->getId()]);
+            }
+
+            $noteReport = new NoteReport();
+            $noteReport->setNote($note);
+            $noteReport->setType($reason);
+
+            $notification = new Notification();
+            $notification->setNote($note);
+            $notification->setIsRead(false);
+            $notification->setType('reported');
+            $notification->setSender($this->getUser());
+            $notification->setReceiver($this->getUser());
+            $notification->setNotifiedDate(new \DateTime());
+
+            $em->persist($noteReport);
+            $em->persist($notification);
+
+            $em->flush();
+
+            return $this->redirectToRoute('homepage');
         }
 
-        $comments = $note->getComments();
-
-        return $this->render('note/index.html.twig', [
-            'divVisibility' => 'none',
-            'notifications' => $notifications,
+        return $this->render('note/report.html.twig', [
+            'notifications' => $notificationService->getLatestUserNotifications(),
             'note' => $note,
-            'comments' => $comments
+            'formActionRoute' => 'app_note_report',
+            'routeParams' => ['id' => $id]
         ]);
     }
 
@@ -302,41 +360,105 @@ class NoteController extends AbstractController
         return $this->redirectToRoute('homepage');
     }
 
-    #[Route('post/comment/{id}-{noteId}/update', name: 'app_comment_update', methods: ['GET', 'POST'])]
+    #[Route('post/comment/{noteId}-{id}/delete', name: 'note_comment_delete', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_USER')]
-    public function updateComment(Request $request, Comment $comment, EntityManagerInterface $em, SluggerInterface $slugger): Response
+    public function deleteComment(int $id ,Request $request, EntityManagerInterface $em, CommentRepository $commentRepository): Response
+    {
+        $comment = $commentRepository->find($id);
+
+        $em->remove($comment);
+        $em->flush();
+
+        return $this->redirect($request->headers->get('referer'));
+    }
+
+    #[Route('post/comment/{noteId}-{id}/update', name: 'note_comment_update', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function updateComment(Request $request, int $id, EntityManagerInterface $em, SluggerInterface $slugger): Response
     {
         $error = '';
         $divVisibility = 'none';
 
-        if ($request->isMethod('POST')) {
-            $newMessage = trim((string) $request->request->get('message'));
-            $currentMessage = trim((string) $comment->getMessage());
+        $comment = $em->getRepository(Comment::class)->find($id);
 
-            $isMessageInvalid = empty($newMessage) || $newMessage === $currentMessage;
+        if (!$comment || !$comment->getNote()) {
+            return $this->redirectToRoute('homepage');
+        } else {
+            $note = $comment->getNote();
+            if ($request->isMethod('POST')) {
+                $newMessage = trim((string)$request->request->get('message'));
+                $currentMessage = trim((string)$comment->getMessage());
 
-            if ($isMessageInvalid) {
-                $error = 'Error: Invalid content.';
-                $divVisibility = 'block';
-            } else {
+                $isMessageInvalid = empty($newMessage) || $newMessage === $currentMessage;
 
-                $comment->setMessage($newMessage);
-                $comment->setIsEdited(true);
-                $comment->setPublicationDate(new \DateTime());
+                if ($isMessageInvalid) {
+                    $error = 'Error: Invalid content.';
+                    $divVisibility = 'block';
+                } else {
 
-                $em->persist($comment);
-                $em->flush();
+                    $comment->setMessage($newMessage);
+                    $comment->setIsEdited(true);
+                    $comment->setPublicationDate(new \DateTime());
 
-                return $this->redirectToRoute('app_note_show', ['noteId' => $comment->getNote()->getId()]);
+                    $em->persist($comment);
+                    $em->flush();
+
+                    return $this->redirectToRoute('app_note_show', ['noteId' => $comment->getNote()->getId()]);
+                }
             }
+
+            return $this->render('note/comment_update.html.twig', [
+                'error' => $error,
+                'divVisibility' => $divVisibility,
+                'comment' => $comment,
+                'note' => $note,
+                'noteId' => $note->getId()
+            ]);
+        }
+    }
+
+    #[Route('note/comment/{noteId}-{id}/report', name: 'note_comment_report', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function reportComment(int $id, int $noteId, Request $request, EntityManagerInterface $em, CommentRepository $commentRepository, NoteRepository $noteRepository, NotificationService $notificationService): Response
+    {
+
+        $note = $noteRepository->find($noteId);
+        $comment = $commentRepository->find($id);
+
+        if ($request->isMethod('POST')) {
+            $reason = $request->request->get('reason');
+
+            if (!$reason) {
+                $this->addFlash('error', 'Please select at least one reason.');
+                return $this->redirectToRoute('note_comment_report', ['id' => $id, 'noteId' => $noteId]);
+            }
+
+            $commentReport = new CommentReport();
+            $commentReport->setComment($comment);
+            $commentReport->setType($reason);
+
+            $notification = new Notification();
+            $notification->setNote($note);
+            $notification->setComment($comment);
+            $notification->setType('reported');
+            $notification->setSender($this->getUser());
+            $notification->setReceiver($this->getUser());
+            $notification->setNotifiedDate(new \DateTime());
+            $notification->setIsRead(false);
+
+            $em->persist($commentReport);
+            $em->persist($notification);
+
+            $em->flush();
+
+            return $this->redirectToRoute('homepage');
         }
 
-        return $this->render('note/comment_update.html.twig', [
-            'error' => $error,
-            'divVisibility' => $divVisibility,
-            'comment' => $comment,
-            'note' => $comment->getNote(),
-            'noteId' => $comment->getNote()->getId()
+        return $this->render('note/report.html.twig', [
+            'notifications' => $notificationService->getLatestUserNotifications(),
+            'note' => $note,
+            'formActionRoute' => 'note_comment_report',
+            'routeParams' => ['id' => $id, 'noteId' => $noteId]
         ]);
     }
 

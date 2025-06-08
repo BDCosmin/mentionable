@@ -31,7 +31,7 @@ class Note
     /**
      * @var Collection<int, Comment>
      */
-    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'note', cascade: ['persist'], orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'note', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $comments;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -40,7 +40,7 @@ class Note
     /**
      * @var Collection<int, Notification>
      */
-    #[ORM\OneToMany(targetEntity: Notification::class, mappedBy: 'note')]
+    #[ORM\OneToMany(targetEntity: Notification::class, mappedBy: 'note', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $notifications;
 
     #[ORM\Column]
@@ -58,11 +58,18 @@ class Note
     #[ORM\Column(nullable: true)]
     private ?bool $isEdited = null;
 
+    /**
+     * @var Collection<int, NoteReport>
+     */
+    #[ORM\OneToMany(targetEntity: NoteReport::class, mappedBy: 'note')]
+    private Collection $noteReports;
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
         $this->notifications = new ArrayCollection();
         $this->noteVotes = new ArrayCollection();
+        $this->noteReports = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -295,6 +302,36 @@ class Note
     public function setIsEdited(?bool $isEdited): static
     {
         $this->isEdited = $isEdited;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, NoteReport>
+     */
+    public function getNoteReports(): Collection
+    {
+        return $this->noteReports;
+    }
+
+    public function addNoteReport(NoteReport $noteReport): static
+    {
+        if (!$this->noteReports->contains($noteReport)) {
+            $this->noteReports->add($noteReport);
+            $noteReport->setNote($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNoteReport(NoteReport $noteReport): static
+    {
+        if ($this->noteReports->removeElement($noteReport)) {
+            // set the owning side to null (unless already changed)
+            if ($noteReport->getNote() === $this) {
+                $noteReport->setNote(null);
+            }
+        }
 
         return $this;
     }

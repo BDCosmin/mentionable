@@ -25,14 +25,6 @@
                                         <p>{{ note.humanTimePost  }}</p>
                                     </div>
                                 </div>
-                                <div class="dropdown ms-auto mt-1 me-1">
-                                    <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="fa fa-sort-desc" style="color: white"></i>
-                                    </a>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="#">Delete note</a></li>
-                                    </ul>
-                                </div>
                             </div>
                             {# EDIT NOTE CONTENT & IMAGE #}
                             <form method="POST" action="{{ path('app_note_update', {id: note.id}) }}" enctype="multipart/form-data">
