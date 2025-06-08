@@ -48,15 +48,17 @@
                     {% if notifications is defined and notifications is not empty %}
                         {% for notification in notifications %}
                             <a class="dropdown-item preview-item" href="{{ path('app_note_redirect', {'notificationId': notification.id}) }}">
-                                <div class="preview-thumbnail">
-                                    <div class="preview-icon bg-dark rounded-circle">
-                                        {% if notification.sender %}
-                                            <img src="{{ asset('uploads/avatars/' ~ notification.sender.avatar) }}" alt="avatarNotif" onerror="showDefaultIcon(this)">
-                                        {% else %}
-                                            <i class="fa fa-user text-white pt-2 ps-2"></i>
-                                        {% endif %}
+                                {% if notification.type != 'reported' %}
+                                    <div class="preview-thumbnail">
+                                        <div class="preview-icon bg-dark rounded-circle">
+                                            {% if notification.sender %}
+                                                <img src="{{ asset('uploads/avatars/' ~ notification.sender.avatar) }}" alt="avatarNotif" onerror="showDefaultIcon(this)">
+                                            {% else %}
+                                                <i class="fa fa-user text-white pt-2 ps-2"></i>
+                                            {% endif %}
+                                        </div>
                                     </div>
-                                </div>
+                                {% endif %}
                                 <div class="preview-item-content">
                                     {% if notification.sender %}
                                         {% if notification.type == 'mentioned' %}
@@ -73,13 +75,15 @@
                                             <p class="text-muted ellipsis mb-0">Tap to see what's the comment about.</p>
                                         {% elseif notification.type == 'friend_request' %}
                                             <p class="preview-subject mb-1">{{ notification.sender.nametag }} send you a friend request!</p>
-                                            <p class="text-muted ellipsis mb-0">Tap to see what's the freidn request about.</p>
+                                            <p class="text-muted ellipsis mb-0">Tap to see what's the friend request about.</p>
+                                        {% elseif notification.type == 'reported' %}
+                                            <p class="preview-subject mb-1">Your annonymous report has been sent!</p>
+                                            <p class="text-muted ellipsis mb-0">We will review in short time your request. Thank you!</p>
                                         {% else %}
-                                            <p class="text-muted ellipsis mb-0">Unknown notification type.</p>
+                                            <p class="text-muted ellipsis mb-0">An error has occurred. Please try again later!</p>
                                         {% endif %}
                                     {% else %}
-                                        <p class="preview-subject mb-1">Unknown user triggered this notification.</p>
-                                        <p class="text-muted ellipsis mb-0">Details unavailable.</p>
+                                        <p class="text-muted ellipsis mb-0">An error has occurred. Please try again later!</p>
                                     {% endif %}
                                     <i class="fa fa-clock-o" style="color: gray"></i>
                                     <small class="text-gray">{{ notification.humanTimeNotification }}</small>

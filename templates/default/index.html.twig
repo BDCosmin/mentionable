@@ -62,9 +62,9 @@
                                     <h5 class="mb-0 d-none d-sm-block navbar-profile-name">@{{ note.user.nametag }}</h5>
                                 </a>
                                 <div class="d-flex flex-row m-0 p-0" style="font-size: 12px; color: gray">
-                                    <i class="fa fa-clock-o mt-1 me-1"></i>
                                     <div class="d-flex flex-row m-0 p-0">
                                         {% if note.isEdited %}
+                                            <i class="fa fa-clock-o mt-1 me-1"></i>
                                             <p class="ms-1" style="margin-right: 6px"><i>Edited</i></p>
                                         {% endif %}
                                         <p>{{ note.humanTimePost }}</p>
@@ -82,9 +82,9 @@
                                 <ul class="dropdown-menu">
                                     {% if app.user.nametag == note.user.nametag %}
                                         <li><a class="dropdown-item" href="{{ path('app_note_update', {id: note.id}) }}">Edit...</a></li>
-                                        <li><a class="dropdown-item" href="#">Delete note</a></li>
+                                        <li><a class="dropdown-item" href="{{ path('app_note_delete', {id: note.id}) }}">Delete note</a></li>
                                     {% else %}
-                                        <li><a class="dropdown-item" href="#">Report</a></li>
+                                        <li><a class="dropdown-item" href="{{ path('app_note_report', {id: note.id}) }}">Report</a></li>
                                     {% endif %}
                                 </ul>
                             </div>
@@ -181,10 +181,10 @@
                                         </a>
                                         <ul class="dropdown-menu m-0">
                                             {% if app.user.nametag == comment.user.nametag %}
-                                                <li><a class="dropdown-item" href="{{ path('app_comment_update', {id: comment.id, noteId: note.id}) }}">Edit...</a></li>
-                                                <li><a class="dropdown-item" href="#">Delete comment</a></li>
+                                                <li><a class="dropdown-item" href="{{ path('note_comment_update', {id: comment.id, noteId: note.id}) }}">Edit...</a></li>
+                                                <li><a class="dropdown-item" href="{{ path('note_comment_delete', {id: comment.id, noteId: note.id}) }}">Delete comment</a></li>
                                             {% else %}
-                                                <li><a class="dropdown-item" href="#">Report</a></li>
+                                                <li><a class="dropdown-item" href="{{ path('note_comment_report', {id: comment.id, noteId: note.id}) }}">Report</a></li>
                                             {% endif %}
                                         </ul>
                                     </div>

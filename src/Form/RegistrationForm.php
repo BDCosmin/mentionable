@@ -70,7 +70,7 @@ class RegistrationForm extends AbstractType
                         'maxMessage' => 'Nametag cannot be longer than {{ limit }} characters.',
                     ]),
                     new Regex([
-                        'pattern' => '/^[a-zA-Z0-9]+$/',
+                        'pattern' => '/^[a-z0-9._]+$/',
                         'message' => 'Nametag can only contain letters, numbers, dots, and underscores.',
                     ]),
                 ],

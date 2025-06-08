@@ -33,10 +33,10 @@
                                     </a>
                                     <ul class="dropdown-menu">
                                         {% if app.user.nametag == note.user.nametag %}
-                                            <li><a class="dropdown-item" href="#">Edit...</a></li>
-                                            <li><a class="dropdown-item" href="#">Delete note</a></li>
+                                            <li><a class="dropdown-item" href="{{ path('app_note_update', {id: note.id}) }}">Edit...</a></li>
+                                            <li><a class="dropdown-item" href="{{ path('app_note_delete', {id: note.id}) }}">Delete note</a></li>
                                         {% else %}
-                                            <li><a class="dropdown-item" href="#">Report</a></li>
+                                            <li><a class="dropdown-item" href="{{ path('app_note_report', {id: note.id}) }}">Report</a></li>
                                         {% endif %}
                                     </ul>
                                 </div>
@@ -131,10 +131,10 @@
                                             </a>
                                             <ul class="dropdown-menu m-0">
                                                 {% if app.user.nametag == comment.user.nametag %}
-                                                    <li><a class="dropdown-item" href="{{ path('app_comment_update', {id: comment.id, noteId: note.id}) }}">Edit...</a></li>
-                                                    <li><a class="dropdown-item" href="#">Delete comment</a></li>
+                                                    <li><a class="dropdown-item" href="{{ path('note_comment_update', {id: comment.id, noteId: note.id}) }}">Edit...</a></li>
+                                                    <li><a class="dropdown-item" href="{{ path('note_comment_delete', {id: comment.id, noteId: note.id}) }}">Delete comment</a></li>
                                                 {% else %}
-                                                    <li><a class="dropdown-item" href="#">Report</a></li>
+                                                    <li><a class="dropdown-item" href="{{ path('note_comment_report', {id: comment.id, noteId: note.id}) }}">Report</a></li>
                                                 {% endif %}
                                             </ul>
                                         </div>
