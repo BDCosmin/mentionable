@@ -37,7 +37,7 @@ class ProfileController extends AbstractController
         $notifications = $notificationRepository->findBy(['receiver' => $user]);
 
         return $this->render('profile/index.html.twig', [
-            'user' => $user, // redenumit ca să fie mai clar în template
+            'user' => $user,
             'friendRequests' => $friendRequests,
             'notifications' => $notifications,
         ]);
@@ -123,13 +123,11 @@ class ProfileController extends AbstractController
             return $this->redirectToRoute('app_profile');
         }
 
-        // Check if already friends
         if ($user->getFriends()->contains($friend)) {
             $this->addFlash('error', 'You are already friends.');
             return $this->redirectToRoute('app_profile');
         }
 
-        // Check if friend request already sent
         $existingRequest = $entityManager->getRepository(FriendRequest::class)->findOneBy([
             'sender' => $user,
             'receiver' => $friend,
@@ -140,7 +138,6 @@ class ProfileController extends AbstractController
             return $this->redirectToRoute('app_profile');
         }
 
-        // Check if incoming friend request exists (friend sent request to user)
         $incomingRequest = $entityManager->getRepository(FriendRequest::class)->findOneBy([
             'sender' => $friend,
             'receiver' => $user,
@@ -157,7 +154,7 @@ class ProfileController extends AbstractController
         $friendRequest->setReceiver($friend);
 
         $message = sprintf('%s sent you a friend request from',$user->getNametag());
-        $link = '/profile'; // sau orice URL vrei
+        $link = '/profile';
 
         $notificationService->createNotification(
             $user,
@@ -186,11 +183,9 @@ class ProfileController extends AbstractController
             return $this->redirectToRoute('app_profile');
         }
 
-        // Adăugăm relația de prietenie ÎN AMBELE SENSURI
         $user->addFriend($sender);
         $sender->addFriend($user);
 
-        // Ștergem cererea de prietenie
         $entityManager->remove($friendRequest);
 
         $entityManager->persist($user);
@@ -211,7 +206,6 @@ class ProfileController extends AbstractController
             return $this->redirectToRoute('app_profile');
         }
 
-        // Ștergem cererea de prietenie
         $entityManager->remove($friendRequest);
         $entityManager->flush();
 

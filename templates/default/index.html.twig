@@ -173,6 +173,13 @@
                                         </div>
                                         <div class="d-inline-flex">
                                             <small style="font-size: 16px; color: white; background-color: #757575; border-radius: 8px; opacity: 0.5; padding: 5px;">{{ comment.message }}</small>
+                                            {# UPVOTE FORM #}
+                                            <form method="POST" action="{{ path('note_comment_upvote', {noteId: note.id, id: comment.id}) }}" class="me-2">
+                                                <button class="btn btn-sm btn-outline-light d-flex align-items-center border-0" type="submit">
+                                                    <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
+                                                    <span class="ms-1">{{ comment.upVote ?? 0 }}</span>
+                                                </button>
+                                            </form>
                                         </div>
                                     </div>
                                     <div class="dropdown ms-auto me-1 d-inline-flex justify-content-end">

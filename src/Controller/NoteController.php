@@ -4,12 +4,14 @@ namespace App\Controller;
 
 use App\Entity\Comment;
 use App\Entity\CommentReport;
+use App\Entity\CommentVote;
 use App\Entity\Note;
 use App\Entity\NoteReport;
 use App\Entity\NoteVote;
 use App\Entity\Notification;
 use App\Entity\User;
 use App\Repository\CommentRepository;
+use App\Repository\CommentVoteRepository;
 use App\Repository\NoteRepository;
 use App\Repository\NoteVoteRepository;
 use App\Service\NotificationService;
@@ -460,6 +462,48 @@ class NoteController extends AbstractController
             'formActionRoute' => 'note_comment_report',
             'routeParams' => ['id' => $id, 'noteId' => $noteId]
         ]);
+    }
+
+    #[Route('note/comment/{noteId}-{id}/upvote', name: 'note_comment_upvote', methods: ['POST'])]
+    public function upvoteComment(int $id, int $noteId,
+                           Comment $comment,
+                           EntityManagerInterface $em,
+                           Request $request,
+                           NoteVoteRepository $noteVoteRepository,
+                           CommentVoteRepository $commentVoteRepository,
+    ): Response
+    {
+        $user = $this->getUser();
+        $note = $comment->getNote();
+
+        $existingVote = $commentVoteRepository->findOneBy([
+            'user' => $user,
+            'comment' => $comment,
+            'note' => $note
+        ]);
+
+        if (!$existingVote) {
+            $vote = new CommentVote();
+            $vote->setUser($user);
+            $vote->setNote($note);
+            $vote->setComment($comment);
+            $vote->setIsUpvoted(true);
+
+            $comment->incrementUpVote();
+            $em->persist($vote);
+
+        } else {
+            $existingVote->setIsUpvoted(false);
+            $comment->decrementUpVote();
+        }
+
+        if ($existingVote && !$existingVote->isUpvoted()) {
+            $em->remove($existingVote);
+        }
+
+        $em->flush();
+
+        return $this->redirect($request->headers->get('referer'));
     }
 
     #[Route('/notification/{notificationId}/redirect', name: 'app_note_redirect')]
