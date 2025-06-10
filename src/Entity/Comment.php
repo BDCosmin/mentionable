@@ -44,10 +44,20 @@ class Comment
     #[ORM\OneToMany(targetEntity: CommentReport::class, mappedBy: 'comment')]
     private Collection $commentReports;
 
+    #[ORM\Column]
+    private ?int $upVote = null;
+
+    /**
+     * @var Collection<int, CommentVote>
+     */
+    #[ORM\OneToMany(targetEntity: CommentVote::class, mappedBy: 'comment', orphanRemoval: true)]
+    private Collection $commentVotes;
+
     public function __construct()
     {
         $this->notifications = new ArrayCollection();
         $this->commentReports = new ArrayCollection();
+        $this->commentVotes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -184,6 +194,62 @@ class Comment
             // set the owning side to null (unless already changed)
             if ($commentReport->getComment() === $this) {
                 $commentReport->setComment(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getUpVote(): ?int
+    {
+        return $this->upVote;
+    }
+
+    public function setUpVote(int $upVote): static
+    {
+        $this->upVote = $upVote;
+
+        return $this;
+    }
+
+    public function incrementUpVote(): static
+    {
+        $this->upVote++;
+        return $this;
+    }
+
+    public function decrementUpVote(): static
+    {
+        if ($this->upVote > 0) {
+            $this->upVote--;
+        }
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CommentVote>
+     */
+    public function getCommentVotes(): Collection
+    {
+        return $this->commentVotes;
+    }
+
+    public function addCommentVotes(CommentVote $commentVotes): static
+    {
+        if (!$this->commentVotes->contains($commentVotes)) {
+            $this->commentVotes->add($commentVotes);
+            $commentVotes->setComment($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCommentVotes(CommentVote $commentVotes): static
+    {
+        if ($this->commentVotes->removeElement($commentVotes)) {
+            // set the owning side to null (unless already changed)
+            if ($commentVotes->getComment() === $this) {
+                $commentVotes >setComment(null);
             }
         }
 
