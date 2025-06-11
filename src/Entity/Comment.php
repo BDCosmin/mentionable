@@ -7,6 +7,9 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * @property ArrayCollection $commentVotes
+ */
 #[ORM\Entity(repositoryClass: CommentRepository::class)]
 class Comment
 {
@@ -50,7 +53,7 @@ class Comment
     /**
      * @var Collection<int, CommentVote>
      */
-    #[ORM\OneToMany(targetEntity: CommentVote::class, mappedBy: 'comment', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: CommentVote::class, mappedBy: 'comment', cascade: ['remove'], orphanRemoval: true)]
     private Collection $commentVotes;
 
     public function __construct()
@@ -58,6 +61,7 @@ class Comment
         $this->notifications = new ArrayCollection();
         $this->commentReports = new ArrayCollection();
         $this->commentVotes = new ArrayCollection();
+        $this->upVote = 0;
     }
 
     public function getId(): ?int
@@ -249,7 +253,7 @@ class Comment
         if ($this->commentVotes->removeElement($commentVotes)) {
             // set the owning side to null (unless already changed)
             if ($commentVotes->getComment() === $this) {
-                $commentVotes >setComment(null);
+                $commentVotes->setComment(null);
             }
         }
 

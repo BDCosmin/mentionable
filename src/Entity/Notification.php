@@ -17,6 +17,7 @@ class Notification
     private ?Note $note = null;
 
     #[ORM\ManyToOne(targetEntity: Comment::class, inversedBy: 'notifications')]
+    #[ORM\JoinColumn(name: 'comment_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
     private ?Comment $comment = null;
 
     #[ORM\Column(length: 255)]
@@ -29,11 +30,6 @@ class Notification
     #[ORM\JoinColumn(nullable: false)]
     private ?User $receiver = null;
 
-//    #[ORM\Column(length: 255, nullable: true)]
-//    private ?string $message = null;
-//
-//    #[ORM\Column(length: 255, nullable: true)]
-//    private ?string $link = null;
 
     #[ORM\Column]
     private ?\DateTime $notifiedDate = null;

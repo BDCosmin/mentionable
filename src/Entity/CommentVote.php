@@ -21,8 +21,8 @@ class CommentVote
     #[ORM\JoinColumn(nullable: false)]
     private ?Note $note = null;
 
-    #[ORM\ManyToOne(inversedBy: 'isUpvoted')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(targetEntity: Comment::class, inversedBy: 'votes')]
+    #[ORM\JoinColumn(name: 'comment_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?Comment $comment = null;
 
     #[ORM\Column]

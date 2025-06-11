@@ -493,14 +493,15 @@ class NoteController extends AbstractController
             $em->persist($vote);
 
         } else {
-            $existingVote->setIsUpvoted(false);
-            $comment->decrementUpVote();
+            if ($existingVote->isUpvoted()) {
+                $comment->decrementUpVote();
+                $em->remove($existingVote);
+            } else {
+                $existingVote->setIsUpvoted(true);
+                $comment->incrementUpVote();
+                $em->persist($existingVote);
+            }
         }
-
-        if ($existingVote && !$existingVote->isUpvoted()) {
-            $em->remove($existingVote);
-        }
-
         $em->flush();
 
         return $this->redirect($request->headers->get('referer'));
