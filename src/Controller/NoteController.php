@@ -52,7 +52,6 @@ class NoteController extends AbstractController
             if (empty(trim($content)) || empty(trim($mentionedNametag)) || ($mentionedNametag == $this->getUser()->getNametag())) {
                 $error = 'Error: Invalid input or you can’t post a note to yourself.';
                 return $this->render('default/index.html.twig', [
-                    'notifications' => $notificationService->getLatestUserNotifications(),
                     'error' => $error,
                     'divVisibility' => 'block',
                     'notes' => $notes,
@@ -61,7 +60,6 @@ class NoteController extends AbstractController
             } else if(!$receiver) {
                 $error = 'Error: The nametag you entered does not exist.';
                 return $this->render('default/index.html.twig', [
-                    'notifications' => $notificationService->getLatestUserNotifications(),
                     'error' => $error,
                     'divVisibility' => 'block',
                     'notes' => $notes,
@@ -101,7 +99,6 @@ class NoteController extends AbstractController
         }
 
         return $this->render('default/index.html.twig', [
-            'notifications' => $notificationService->getLatestUserNotifications(),
             'error' => $error,
             'divVisibility' => 'none',
             'noteVotes' => $noteVotes
@@ -183,7 +180,6 @@ class NoteController extends AbstractController
     #[Route('/note/{noteId}', name: 'app_note_show')]
     public function show(int $noteId, NoteRepository $noteRepository, NotificationService $notificationService): Response
     {
-        $notifications = $notificationService->getLatestUserNotifications();
         $note = $noteRepository->find($noteId);
 
         if (!$note) {
@@ -194,7 +190,6 @@ class NoteController extends AbstractController
 
             return $this->render('note/index.html.twig', [
                 'divVisibility' => 'none',
-                'notifications' => $notifications,
                 'note' => $note,
                 'comments' => $comments
             ]);
@@ -236,7 +231,6 @@ class NoteController extends AbstractController
         }
 
         return $this->render('note/report.html.twig', [
-            'notifications' => $notificationService->getLatestUserNotifications(),
             'note' => $note,
             'formActionRoute' => 'app_note_report',
             'routeParams' => ['id' => $id]
@@ -457,7 +451,6 @@ class NoteController extends AbstractController
         }
 
         return $this->render('note/report.html.twig', [
-            'notifications' => $notificationService->getLatestUserNotifications(),
             'note' => $note,
             'formActionRoute' => 'note_comment_report',
             'routeParams' => ['id' => $id, 'noteId' => $noteId]

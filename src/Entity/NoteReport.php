@@ -14,7 +14,7 @@ class NoteReport
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'noteReports')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Note $note = null;
 
     #[ORM\Column(length: 255, nullable: false)]

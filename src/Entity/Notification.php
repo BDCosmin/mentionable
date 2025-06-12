@@ -24,10 +24,11 @@ class Notification
     private ?string $type = null;
 
     #[ORM\ManyToOne(inversedBy: 'senderNotifications')]
+    #[ORM\JoinColumn(onDelete: "CASCADE")]
     private ?User $sender = null;
 
     #[ORM\ManyToOne(inversedBy: 'receiverNotifications')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?User $receiver = null;
 
 

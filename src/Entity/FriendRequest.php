@@ -21,11 +21,11 @@ class FriendRequest
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'sentFriendRequests')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?User $sender = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'receivedFriendRequests')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?User $receiver = null;
 
     public function __construct()

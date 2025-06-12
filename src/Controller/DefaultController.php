@@ -2,8 +2,10 @@
 
 namespace App\Controller;
 
+use App\Entity\FriendRequest;
 use App\Entity\Note;
 use App\Entity\Notification;
+use App\Repository\FriendRequestRepository;
 use App\Repository\NoteVoteRepository;
 use App\Repository\NotificationRepository;
 use App\Service\NotificationService;
@@ -19,6 +21,7 @@ final class DefaultController extends AbstractController
                           NotificationService $notificationService,
                           NotificationRepository $notificationRepository,
                           NoteVoteRepository $noteVoteRepository,
+                          FriendRequestRepository $friendRequestRepository,
     ): Response
     {
         $error = '';
@@ -29,17 +32,16 @@ final class DefaultController extends AbstractController
         }
 
         $notes = $em->getRepository(Note::class)->findBy([], ['publicationDate' => 'DESC']);
+        $friendRequests = $friendRequestRepository->findBy(['receiver' => $user]);
         $noteVotes = $noteVoteRepository->findBy([]);
-
-        $notifications = $notificationService->getLatestUserNotifications();
 
         return $this->render('default/index.html.twig', [
             'notes' => $notes,
-            'notifications' => $notifications,
             'currentUserNametag' => $user->getNametag(),
             'divVisibility' => 'none',
             'error' => $error,
             'noteVotes' => $noteVotes,
+            'friendRequests' => $friendRequests,
         ]);
     }
 

@@ -25,7 +25,7 @@ class Note
     private ?int $downVote = 0;
 
     #[ORM\ManyToOne(inversedBy: 'notes')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?User $user = null;
 
     /**
@@ -61,7 +61,7 @@ class Note
     /**
      * @var Collection<int, NoteReport>
      */
-    #[ORM\OneToMany(targetEntity: NoteReport::class, mappedBy: 'note')]
+    #[ORM\OneToMany(targetEntity: NoteReport::class, mappedBy: 'note', cascade: ['remove'], orphanRemoval: true)]
     private Collection $noteReports;
 
     public function __construct()

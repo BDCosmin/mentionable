@@ -43,69 +43,6 @@ class ProfileController extends AbstractController
         ]);
     }
 
-    #[Route('/edit', name: 'app_profile_edit')]
-    public function edit(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
-    {
-        $user = $this->getUser();
-        $form = $this->createForm(ProfileType::class, $user);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $avatarFile = $form->get('avatar')->getData();
-
-            if ($avatarFile) {
-                $originalFilename = pathinfo($avatarFile->getClientOriginalName(), PATHINFO_FILENAME);
-                $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename . '-' . uniqid() . '.' . $avatarFile->guessExtension();
-
-                $avatarFile->move(
-                    $this->getParameter('avatars_directory'),
-                    $newFilename
-                );
-
-                $user->setAvatar($newFilename);
-            }
-
-
-            $entityManager->persist($user);
-            $entityManager->flush();
-
-            $this->addFlash('success', 'The avatar has been updated successfully!');
-
-            return $this->redirectToRoute('app_profile_edit');
-        }
-
-        return $this->render('profile/edit.html.twig', [
-            'form' => $form->createView(),
-        ]);
-    }
-
-    #[Route('/change-password', name: 'app_profile_change_password')]
-    public function changePassword(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager): Response
-    {
-        $user = $this->getUser();
-        $form = $this->createForm(ChangePasswordType::class);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $data = $form->getData();
-            $newPassword = $data['newPassword'];
-            $hashedPassword = $passwordHasher->hashPassword($user, $newPassword);
-            $user->setPassword($hashedPassword);
-
-            $entityManager->persist($user);
-            $entityManager->flush();
-
-            $this->addFlash('success', 'Password has been changed successfully!');
-
-            return $this->redirectToRoute('app_profile_change_password');
-        }
-
-        return $this->render('profile/change_password.html.twig', [
-            'form' => $form->createView(),
-        ]);
-    }
-
     #[Route('/friends/add', name: 'app_profile_add_friend_by_nametag', methods: ['POST'])]
     public function addFriendByNametag(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager,NotificationService $notificationService): Response
     {

@@ -48,6 +48,47 @@
                     <span class="menu-title">My notes</span>
                 </a>
             </li>
+            <li class="nav-item menu-items">
+                <a class="nav-link" data-bs-toggle="collapse" href="#ui-basic" aria-expanded="false" aria-controls="ui-basic">
+              <span class="menu-icon">
+                <i class="fa fa-cogs"></i>
+              </span>
+                    <span class="menu-title">Account settings</span>
+                    <i class="menu-arrow"></i>
+                </a>
+                <div class="collapse" id="ui-basic">
+                    <ul class="nav flex-column sub-menu">
+                        <li class="nav-item"> <a class="nav-link" href="{{ path('app_change_password') }}">Change password</a></li>
+                        <li class="nav-item"> <a class="nav-link" href="{{ path('app_avatar_edit') }}">Edit avatar</a></li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                                Delete account
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
         {% endif %}
     </ul>
 </nav>
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true" style="overflow-y: hidden;">
+    <div class="modal-dialog">
+        <div class="modal-content border-danger">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteAccountModalLabel">Confirm account deletion</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to permanently delete your account? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+
+                <form method="post" action="{{ path('app_delete_account') }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete_user') }}">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -14,14 +14,14 @@ class CommentVote
     private ?int $id = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?User $user = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?Note $note = null;
 
-    #[ORM\ManyToOne(targetEntity: Comment::class, inversedBy: 'votes')]
+    #[ORM\ManyToOne(targetEntity: Comment::class, inversedBy: 'commentVotes')]
     #[ORM\JoinColumn(name: 'comment_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?Comment $comment = null;
 

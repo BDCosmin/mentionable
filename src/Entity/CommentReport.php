@@ -14,7 +14,7 @@ class CommentReport
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'commentReports')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Comment $comment = null;
 
     #[ORM\Column(length: 255)]
