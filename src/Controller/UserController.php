@@ -43,7 +43,6 @@ final class UserController extends AbstractController
         $notifCount = count($allNotifications);
 
         return $this->render('default/all_notifications.html.twig', [
-            'notifications' => $notificationService->getLatestUserNotifications(),
             'allNotifications' => $allNotifications,
             'notifCount' => $notifCount
         ]);

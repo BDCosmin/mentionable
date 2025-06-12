@@ -21,8 +21,8 @@
         <ul class="navbar-nav navbar-nav-right">
             <li class="nav-item dropdown border-left">
                 {% set hasNotification = false %}
-                {% if notifications is defined %}
-                    {% for notification in notifications %}
+                {% if latest_notifications is defined %}
+                    {% for notification in latest_notifications %}
                         {% if notification.receiver.nametag == app.user.nametag and not notification.isRead %}
                             {% set hasNotification = true %}
                         {% endif %}
@@ -45,19 +45,32 @@
                     </div>
                     <div class="dropdown-divider"></div>
                     {# NOTIFICATION #}
-                    {% if notifications is defined and notifications is not empty %}
-                        {% for notification in notifications %}
+                    {% if latest_notifications is defined and latest_notifications is not empty %}
+                        {% for notification in latest_notifications %}
                             <a class="dropdown-item preview-item" href="{{ path('app_note_redirect', {'notificationId': notification.id}) }}">
                                 {% if notification.type != 'reported' %}
-                                    <div class="preview-thumbnail">
-                                        <div class="preview-icon bg-dark rounded-circle">
-                                            {% if notification.sender %}
-                                                <img src="{{ asset('uploads/avatars/' ~ notification.sender.avatar) }}" alt="avatarNotif" onerror="showDefaultIcon(this)">
-                                            {% else %}
-                                                <i class="fa fa-user text-white pt-2 ps-2"></i>
-                                            {% endif %}
-                                        </div>
+                                <div class="preview-thumbnail">
+                                    <div class="preview-icon bg-dark rounded-circle">
+                                        {% if notification.sender %}
+                                            <img src="{{ asset('uploads/avatars/' ~ notification.sender.avatar) }}" alt="avatarNotif" onerror="showDefaultIcon(this)">
+                                        {% else %}
+                                            <i class="fa fa-user text-white pt-2 ps-2"></i>
+                                        {% endif %}
                                     </div>
+                                </div>
+                                {% if notification.type == 'friend_request' %}
+                                    <p>{{ notification.sender.nametag }} send you a friend request!</p>
+                                    {% for request in friendRequests %}
+                                        <div class="d-flex flex-row ms-3 p-0">
+                                            <a href="{{ path('app_profile_accept_friend', {'id': request.id}) }}" class="ellipsis mb-0 me-2">
+                                                <i class="fa fa-check-square text-success" style="font-size: 30px"></i>
+                                            </a>
+                                            <a href="{{ path('app_profile_reject_friend', {'id': request.id}) }}" class="ellipsis mb-0 me-2">
+                                                <i class='bx bx-x text-dark' style="font-size: 28px; background-color: red; border-radius: 5px"></i>
+                                            </a>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
                                 {% endif %}
                                 <div class="preview-item-content">
                                     {% if notification.sender %}
@@ -73,17 +86,10 @@
                                         {% elseif notification.type == 'downvoted' %}
                                             <p class="preview-subject mb-1">{{ notification.sender.nametag }} disagrees with you!</p>
                                             <p class="text-muted ellipsis mb-0">Tap to see what's the comment about.</p>
-                                        {% elseif notification.type == 'friend_request' %}
-                                            <p class="preview-subject mb-1">{{ notification.sender.nametag }} send you a friend request!</p>
-                                            <p class="text-muted ellipsis mb-0">Tap to see what's the friend request about.</p>
                                         {% elseif notification.type == 'reported' %}
                                             <p class="preview-subject mb-1">Your annonymous report has been sent!</p>
                                             <p class="text-muted ellipsis mb-0">We will review in short time your request. Thank you!</p>
-                                        {% else %}
-                                            <p class="text-muted ellipsis mb-0">An error has occurred. Please try again later!</p>
                                         {% endif %}
-                                    {% else %}
-                                        <p class="text-muted ellipsis mb-0">An error has occurred. Please try again later!</p>
                                     {% endif %}
                                     <i class="fa fa-clock-o" style="color: gray"></i>
                                     <small class="text-gray">{{ notification.humanTimeNotification }}</small>
@@ -91,7 +97,7 @@
                             </a>
                             <div class="dropdown-divider"></div>
                         {% endfor %}
-                        {% if notifications|length == 3 %}
+                        {% if latest_notifications|length == 3 %}
                             <a class="dropdown-item preview-item d-flex justify-content-center align-items-center" href="{{ path('app_notifications') }}">
                                 <div class="preview-item-content">
                                     <p class="preview-subject mb-1">See all the notifications...</p>

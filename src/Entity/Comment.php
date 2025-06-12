@@ -26,7 +26,7 @@ class Comment
     private ?Note $note = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?User $user = null;
 
     /**
@@ -44,7 +44,7 @@ class Comment
     /**
      * @var Collection<int, CommentReport>
      */
-    #[ORM\OneToMany(targetEntity: CommentReport::class, mappedBy: 'comment')]
+    #[ORM\OneToMany(targetEntity: CommentReport::class, mappedBy: 'comment', cascade: ['remove'], orphanRemoval: true)]
     private Collection $commentReports;
 
     #[ORM\Column]
@@ -53,7 +53,7 @@ class Comment
     /**
      * @var Collection<int, CommentVote>
      */
-    #[ORM\OneToMany(targetEntity: CommentVote::class, mappedBy: 'comment', cascade: ['remove'], orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: CommentVote::class, mappedBy: 'comment', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $commentVotes;
 
     public function __construct()

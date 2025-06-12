@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mentionable{% endblock %}
+
+{% block body %}
+    <div class="main-panel">
+        <div class="content-wrapper">
+            <div class="row justify-content-center mb-4">
+                <div class="row justify-content-center mb-4">
+                    <div class="col-lg-7 pt-4 ps-4 pe-4 pb-3" style="background-color: #181b20; border-radius: 5px; margin-top: 2rem;">
+                        <!-- Modal-ul de confirmare -->
+                        <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="logoutModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="logoutModalLabel">Confirmare Deconectare</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Ești sigur că vrei să te deconectezi?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Anulează</button>
+                                        <a href="{{ path('app_delete_account', {'id': user.id}) }}" class="btn btn-primary">Deconectare</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
