@@ -58,6 +58,7 @@ class NotificationService
         $notification->setIsRead(false);
         $notification->setFriendRequest($friendRequest);
 
+        $this->em->persist($friendRequest);
         $this->em->persist($notification);
         $this->em->flush();
     }

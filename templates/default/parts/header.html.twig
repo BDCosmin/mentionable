@@ -152,30 +152,30 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                {% for notification in last_notification %}
-                    <div class="d-flex flex-row">
-                        {% if notification.sender %}
-                            <img src="{{ asset('uploads/avatars/' ~ notification.sender.avatar) }}" style="width: 70; height: 70px; border-radius: 5px" class="me-3" alt="avatarNotif" onerror="showDefaultIcon(this)">
-                        {% else %}
-                            <i class="fa fa-user text-white pt-2 ps-2"></i>
-                        {% endif %}
-                        <p class="mt-1" style="font-size: 22px;">{{ notification.sender.nametag }} has sent you a friend request!</p>
-                    </div>
+                {% for notification in latest_notifications %}
+                    {% if notification.type == 'friend_request' and notification.friendRequest is not null %}
+                        <div class="d-flex flex-row">
+                            {% if notification.sender %}
+                                <img src="{{ asset('uploads/avatars/' ~ notification.sender.avatar) }}" style="width: 70px; height: 70px; border-radius: 5px" class="me-3" alt="avatarNotif" onerror="showDefaultIcon(this)">
+                            {% else %}
+                                <i class="fa fa-user text-white pt-2 ps-2"></i>
+                            {% endif %}
+                            <p class="mt-1 text-white" style="font-size: 22px;">
+                                {{ notification.sender.nametag }} has sent you a friend request!
+                            </p>
+                        </div>
+                    {% endif %}
                 {% endfor %}
             </div>
             <div class="modal-footer">
-                {% if last_notification is defined and last_notification is not empty %}
-                    {% for notification in last_notification %}
-                        {% for request in friend_requests %}
-                <a href="{{ path('app_profile_accept_friend', {'id': request.id}) }}">
+                {% for notification in latest_notifications %}
+                <a href="{{ path('app_profile_accept_friend', {'id': notification.friendRequest.id}) }}">
                     <button type="button" class="btn btn-success" data-bs-dismiss="modal">Accept</button>
                 </a>
-                <a href="{{ path('app_profile_reject_friend', {'id': request.id}) }}">
+                <a href="{{ path('app_profile_reject_friend', {'id': notification.friendRequest.id}) }}">
                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Reject</button>
                 </a>
-                        {% endfor %}
-                    {% endfor %}
-                {% endif %}
+                {% endfor %}
             </div>
         </div>
     </div>
