@@ -38,6 +38,9 @@ class Notification
     #[ORM\Column]
     private ?bool $isRead = null;
 
+    #[ORM\OneToOne(targetEntity: FriendRequest::class, cascade: ['persist'])]
+    private ?FriendRequest $friendRequest = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -115,6 +118,17 @@ class Notification
 //        return $this;
 //    }
 
+    public function getFriendRequest(): ?FriendRequest
+    {
+        return $this->friendRequest;
+    }
+
+    public function setFriendRequest(?FriendRequest $friendRequest): self
+    {
+        $this->friendRequest = $friendRequest;
+
+        return $this;
+    }
 
     public function getNotifiedDate(): ?\DateTime
     {

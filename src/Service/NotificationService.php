@@ -2,10 +2,12 @@
 
 namespace App\Service;
 
+use App\Entity\FriendRequest;
 use App\Entity\Note;
 use App\Entity\Notification;
 use App\Entity\Comment;
 use App\Entity\User;
+use App\Repository\FriendRequestRepository;
 use App\Repository\NotificationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -13,17 +15,19 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @property NotificationRepository $notificationRepository
+ * @property FriendRequestRepository $friendRequestRepository
  * @property Security $security
  */
 class NotificationService
 {
     private EntityManagerInterface $em;
 
-    public function __construct(EntityManagerInterface $em, Security $security, NotificationRepository $notificationRepository)
+    public function __construct(EntityManagerInterface $em, Security $security, NotificationRepository $notificationRepository, FriendRequestRepository $friendRequestRepository)
     {
         $this->em = $em;
         $this->security = $security;
         $this->notificationRepository = $notificationRepository;
+        $this->friendRequestRepository = $friendRequestRepository;
     }
 
     public function notifyNote(?User $sender, ?User $receiver, Note $note): void
@@ -44,7 +48,7 @@ class NotificationService
         $this->em->flush();
     }
 
-    public function createNotification(User $sender, User $receiver, string $message, string $link): void
+    public function createNotification(User $sender, User $receiver, FriendRequest $friendRequest, string $message, string $link): void
     {
         $notification = new Notification();
         $notification->setSender($sender);
@@ -52,6 +56,7 @@ class NotificationService
         $notification->setType('friend_request');
         $notification->setNotifiedDate(new \DateTime());
         $notification->setIsRead(false);
+        $notification->setFriendRequest($friendRequest);
 
         $this->em->persist($notification);
         $this->em->flush();
@@ -135,6 +140,17 @@ class NotificationService
         return $this->notificationRepository->findLatestByReceiverWithSender($user, $limit);
     }
 
+    public function getLastUserNotification(int $limit = 1): array
+    {
+        $user = $this->security->getUser();
+
+        if (!$user) {
+            return [];
+        }
+
+        return $this->notificationRepository->findLatestByReceiverWithSender($user, $limit);
+    }
+
     public function markOneAsRead(UserInterface $user, Notification $notification): void
     {
         if ($notification->getReceiver() !== $user) {
@@ -159,6 +175,17 @@ class NotificationService
         }
 
         $this->em->flush();
+    }
+
+    public function getFriendRequests(UserInterface $user, FriendRequestRepository $friendRequestRepository): array
+    {
+        if($user)
+        {
+            return $friendRequestRepository->findBy(['receiver' => $user]);
+
+        } else {
+            return [];
+        }
     }
 
 }

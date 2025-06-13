@@ -47,139 +47,53 @@
                     {# NOTIFICATION #}
                     {% if latest_notifications is defined and latest_notifications is not empty %}
                         {% for notification in latest_notifications %}
-                            <a class="dropdown-item preview-item" href="{{ path('app_note_redirect', {'notificationId': notification.id}) }}">
+                            <a class="dropdown-item preview-item"
+                               {% if notification.type != 'friend_request' %}
+                                   href="{{ path('app_note_redirect', {'notificationId': notification.id}) }}"
+                               {% else %}
+                                    href="#" data-bs-toggle="modal" data-bs-target="#friendRequestModal"
+                               {% endif %}
+                            >
                                 {% if notification.type != 'reported' %}
-                                    <div class="preview-item-content">
-                                        {% if notification.sender %}
-                                            {% if notification.type == 'friend_request' %}
-                                                <div class="preview-thumbnail">
-                                                    <div class="preview-icon bg-dark rounded-circle">
-                                                        {% if notification.sender %}
-                                                            <img src="{{ asset('uploads/avatars/' ~ notification.sender.avatar) }}" alt="avatarNotif" onerror="showDefaultIcon(this)">
-                                                        {% else %}
-                                                            <i class="fa fa-user text-white pt-2 ps-2"></i>
-                                                        {% endif %}
-                                                    </div>
-                                                </div>
-                                                <div class="d-flex align-items-center">
-                                                    <div class="ms-2">
-                                                        {% if notification.type == 'friend_accepted' %}
-                                                            <p class="preview-subject mb-1">{{ notification.sender.nametag }} is now your friend!</p>
-                                                            <p class="text-muted ellipsis mb-0">You accepted the friend request.</p>
-                                                        {% else %}
-                                                            {% set hasPendingRequest = false %}
-                                                            {% if friendRequests is defined %}
-                                                                {% for request in friendRequests %}
-                                                                    {% if request.sender.id == notification.sender.id %}
-                                                                        {% set hasPendingRequest = true %}
-                                                                    {% endif %}
-                                                                {% endfor %}
-                                                            {% endif %}
-                                                            {% if hasPendingRequest %}
-                                                                <p class="preview-subject mb-1">{{ notification.sender.nametag }} sent you a friend request!</p>
-                                                                <p class="text-muted ellipsis mb-0">Tap to respond to the request.</p>
-                                                            {% else %}
-                                                                <p class="preview-subject mb-1">{{ notification.sender.nametag }} is now your friend!</p>
-                                                                <p class="text-muted ellipsis mb-0">You accepted the friend request.</p>
-                                                            {% endif %}
-                                                        {% endif %}
-                                                    </div>
-                                                </div>
-                                                <div class="d-flex justify-content-between align-items-center mt-2">
-                                                    <div>
-                                                        <i class="fa fa-clock-o" style="color: gray"></i>
-                                                        <small class="text-gray">{{ notification.humanTimeNotification }}</small>
-                                                    </div>
-                                                    {% if notification.type == 'friend_request' %}
-                                                        {% if friendRequests is defined %}
-                                                            {% for request in friendRequests %}
-                                                                {% if request.sender.id == notification.sender.id %}
-                                                                <div class="d-flex">
-                                                                    <a href="{{ path('app_profile_accept_friend', {'id': request.id}) }}" class="me-2">
-                                                                        <i class="fa fa-check-square text-success" style="font-size: 24px;"></i>
-                                                                    </a>
-                                                                    <a href="{{ path('app_profile_reject_friend', {'id': request.id}) }}">
-                                                                        <i class='bx bx-x text-white' style="font-size: 24px; background-color: red; border-radius: 5px;"></i>
-                                                                    </a>
-                                                                </div>
-                                                                {% endif %}
-                                                            {% endfor %}
-                                                        {% endif %}
-                                                    {% endif %}
-                                                </div>
-                                            {% elseif notification.type == 'mentioned' %}
-                                                <div class="d-flex align-items-center">
-                                                    <div class="preview-thumbnail">
-                                                        <div class="preview-icon bg-dark rounded-circle">
-                                                            <img src="{{ asset('Uploads/avatars/' ~ notification.sender.avatar) }}" alt="avatarNotif" onerror="showDefaultIcon(this)">
-                                                        </div>
-                                                    </div>
-                                                    <div class="ms-2">
-                                                        <p class="preview-subject mb-1">{{ notification.sender.nametag }} mentioned you!</p>
-                                                        <p class="text-muted ellipsis mb-0">Tap to see what's the note about.</p>
-                                                    </div>
-                                                </div>
-                                                <div class="mt-2">
-                                                    <i class="fa fa-clock-o" style="color: gray"></i>
-                                                    <small class="text-gray">{{ notification.humanTimeNotification }}</small>
-                                                </div>
-                                            {% elseif notification.type == 'commented' %}
-                                                <div class="d-flex align-items-center">
-                                                    <div class="preview-thumbnail">
-                                                        <div class="preview-icon bg-dark rounded-circle">
-                                                            <img src="{{ asset('Uploads/avatars/' ~ notification.sender.avatar) }}" alt="avatarNotif" onerror="showDefaultIcon(this)">
-                                                        </div>
-                                                    </div>
-                                                    <div class="ms-2">
-                                                        <p class="preview-subject mb-1">{{ notification.sender.nametag }} commented on your note!</p>
-                                                        <p class="text-muted ellipsis mb-0">Tap to see what's the comment about.</p>
-                                                    </div>
-                                                </div>
-                                                <div class="mt-2">
-                                                    <i class="fa fa-clock-o" style="color: gray"></i>
-                                                    <small class="text-gray">{{ notification.humanTimeNotification }}</small>
-                                                </div>
-                                            {% elseif notification.type == 'upvoted' %}
-                                                <div class="d-flex align-items-center">
-                                                    <div class="preview-thumbnail">
-                                                        <div class="preview-icon bg-dark rounded-circle">
-                                                            <img src="{{ asset('Uploads/avatars/' ~ notification.sender.avatar) }}" alt="avatarNotif" onerror="showDefaultIcon(this)">
-                                                        </div>
-                                                    </div>
-                                                    <div class="ms-2">
-                                                        <p class="preview-subject mb-1">{{ notification.sender.nametag }} agrees with you!</p>
-                                                        <p class="text-muted ellipsis mb-0">Tap to see what's the comment about.</p>
-                                                    </div>
-                                                </div>
-                                                <div class="mt-2">
-                                                    <i class="fa fa-clock-o" style="color: gray"></i>
-                                                    <small class="text-gray">{{ notification.humanTimeNotification }}</small>
-                                                </div>
-                                            {% elseif notification.type == 'downvoted' %}
-                                                <div class="d-flex align-items-center">
-                                                    <div class="preview-thumbnail">
-                                                        <div class="preview-icon bg-dark rounded-circle">
-                                                            <img src="{{ asset('Uploads/avatars/' ~ notification.sender.avatar) }}" alt="avatarNotif" onerror="showDefaultIcon(this)">
-                                                        </div>
-                                                    </div>
-                                                    <div class="ms-2">
-                                                        <p class="preview-subject mb-1">{{ notification.sender.nametag }} disagrees with you!</p>
-                                                        <p class="text-muted ellipsis mb-0">Tap to see what's the comment about.</p>
-                                                    </div>
-                                                </div>
-                                                <div class="mt-2">
-                                                    <i class="fa fa-clock-o" style="color: gray"></i>
-                                                    <small class="text-gray">{{ notification.humanTimeNotification }}</small>
-                                                </div>
-                                            {% elseif notification.type == 'reported' %}
-                                                <p class="preview-subject mb-1">Your anonymous report has been sent!</p>
-                                                <p class="text-muted ellipsis mb-0">We will review your request shortly. Thank you!</p>
-                                                <i class="fa fa-clock-o" style="color: gray"></i>
-                                                <small class="text-gray">{{ notification.humanTimeNotification }}</small>
+                                    <div class="preview-thumbnail">
+                                        <div class="preview-icon bg-dark rounded-circle">
+                                            {% if notification.sender %}
+                                                <img src="{{ asset('uploads/avatars/' ~ notification.sender.avatar) }}" alt="avatarNotif" onerror="showDefaultIcon(this)">
+                                            {% else %}
+                                                <i class="fa fa-user text-white pt-2 ps-2"></i>
                                             {% endif %}
-                                        {% endif %}
+                                        </div>
                                     </div>
                                 {% endif %}
+                                <div class="preview-item-content">
+                                    {% if notification.sender %}
+                                        {% if notification.type == 'mentioned' %}
+                                            <p class="preview-subject mb-1">{{ notification.sender.nametag }} mentioned you!</p>
+                                            <p class="text-muted ellipsis mb-0">Tap to see what's the note about.</p>
+                                        {% elseif notification.type == 'commented' %}
+                                            <p class="preview-subject mb-1">{{ notification.sender.nametag }} commented on your note!</p>
+                                            <p class="text-muted ellipsis mb-0">Tap to see what's the comment about.</p>
+                                        {% elseif notification.type == 'upvoted' %}
+                                            <p class="preview-subject mb-1">{{ notification.sender.nametag }} agrees with you!</p>
+                                            <p class="text-muted ellipsis mb-0">Tap to see what's the comment about.</p>
+                                        {% elseif notification.type == 'downvoted' %}
+                                            <p class="preview-subject mb-1">{{ notification.sender.nametag }} disagrees with you!</p>
+                                            <p class="text-muted ellipsis mb-0">Tap to see what's the comment about.</p>
+                                        {% elseif notification.type == 'friend_request' %}
+                                            <p class="preview-subject mb-1">{{ notification.sender.nametag }} send you a friend request!</p>
+                                            <p class="text-muted ellipsis mb-0">Tap to see what's the friend request about.</p>
+                                        {% elseif notification.type == 'reported' %}
+                                            <p class="preview-subject mb-1">Your annonymous report has been sent!</p>
+                                            <p class="text-muted ellipsis mb-0">We will review in short time your request. Thank you!</p>
+                                        {% else %}
+                                            <p class="text-muted ellipsis mb-0">An error has occurred. Please try again later!</p>
+                                        {% endif %}
+                                    {% else %}
+                                        <p class="text-muted ellipsis mb-0">An error has occurred. Please try again later!</p>
+                                    {% endif %}
+                                    <i class="fa fa-clock-o" style="color: gray"></i>
+                                    <small class="text-gray">{{ notification.humanTimeNotification }}</small>
+                                </div>
                             </a>
                             <div class="dropdown-divider"></div>
                         {% endfor %}
@@ -230,3 +144,39 @@
         </button>
     </div>
 </nav>
+<div class="modal fade" id="friendRequestModal" tabindex="-1" aria-labelledby="friendRequestModalLabel" aria-hidden="true" style="overflow-y: hidden;">
+    <div class="modal-dialog">
+        <div class="modal-content border-dark">
+            <div class="modal-header bg-mute text-white">
+                <h5 class="modal-title" id="deleteAccountModalLabel">Friend Request</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% for notification in last_notification %}
+                    <div class="d-flex flex-row">
+                        {% if notification.sender %}
+                            <img src="{{ asset('uploads/avatars/' ~ notification.sender.avatar) }}" style="width: 70; height: 70px; border-radius: 5px" class="me-3" alt="avatarNotif" onerror="showDefaultIcon(this)">
+                        {% else %}
+                            <i class="fa fa-user text-white pt-2 ps-2"></i>
+                        {% endif %}
+                        <p class="mt-1" style="font-size: 22px;">{{ notification.sender.nametag }} has sent you a friend request!</p>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="modal-footer">
+                {% if last_notification is defined and last_notification is not empty %}
+                    {% for notification in last_notification %}
+                        {% for request in friend_requests %}
+                <a href="{{ path('app_profile_accept_friend', {'id': request.id}) }}">
+                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">Accept</button>
+                </a>
+                <a href="{{ path('app_profile_reject_friend', {'id': request.id}) }}">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Reject</button>
+                </a>
+                        {% endfor %}
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
