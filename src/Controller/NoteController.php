@@ -12,6 +12,7 @@ use App\Entity\Notification;
 use App\Entity\User;
 use App\Repository\CommentRepository;
 use App\Repository\CommentVoteRepository;
+use App\Repository\FriendRequestRepository;
 use App\Repository\NoteRepository;
 use App\Repository\NoteVoteRepository;
 use App\Service\NotificationService;
@@ -178,8 +179,10 @@ class NoteController extends AbstractController
     }
 
     #[Route('/note/{noteId}', name: 'app_note_show')]
-    public function show(int $noteId, NoteRepository $noteRepository, NotificationService $notificationService): Response
+    public function show(int $noteId, NoteRepository $noteRepository, FriendRequestRepository $friendRequestRepository, NotificationService $notificationService): Response
     {
+        $user = $this->getUser();
+
         $note = $noteRepository->find($noteId);
 
         if (!$note) {
@@ -191,7 +194,7 @@ class NoteController extends AbstractController
             return $this->render('note/index.html.twig', [
                 'divVisibility' => 'none',
                 'note' => $note,
-                'comments' => $comments
+                'comments' => $comments,
             ]);
         }
     }

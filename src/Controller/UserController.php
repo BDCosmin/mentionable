@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Notification;
 use App\Entity\User;
+use App\Repository\FriendRequestRepository;
 use App\Repository\NoteRepository;
 use App\Repository\NotificationRepository;
 use App\Service\NotificationService;
@@ -16,12 +17,13 @@ use Symfony\Component\Security\Core\User\UserInterface;
 final class UserController extends AbstractController
 {
     #[Route('/my-notes/user', name: 'app_user')]
-    public function index(NoteRepository $noteRepository, NotificationService $notificationService): Response
+    public function index(NoteRepository $noteRepository, FriendRequestRepository $friendRequestRepository, NotificationService $notificationService): Response
     {
         $user = $this->getUser();
         $notes = $noteRepository->findBy(['user' => $user]);
 
         $notifications = $notificationService->getLatestUserNotifications();
+        $friendRequests = $friendRequestRepository->findBy(['receiver' => $user]);
 
         $notesCount = count($notes);
 
@@ -29,7 +31,8 @@ final class UserController extends AbstractController
             'user' => $user,
             'notesCount' => $notesCount,
             'notes' => $notes,
-            'notifications' => $notifications
+            'notifications' => $notifications,
+            'friendRequests' => $friendRequests
         ]);
     }
 

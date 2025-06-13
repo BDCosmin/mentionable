@@ -96,6 +96,7 @@ class ProfileController extends AbstractController
         $notificationService->createNotification(
             $user,
             $friend,
+            $friendRequest,
             $message,
             $link
         );
@@ -110,10 +111,13 @@ class ProfileController extends AbstractController
     }
 
     #[Route('/friends/accept/{id}', name: 'app_profile_accept_friend')]
-    public function acceptFriend(FriendRequest $friendRequest, EntityManagerInterface $entityManager): Response
+    public function acceptFriend(Request $request, FriendRequest $friendRequest, EntityManagerInterface $entityManager, NotificationRepository $notificationRepository): Response
     {
         $user = $this->getUser();
         $sender = $friendRequest->getSender();
+        $notification = $notificationRepository->findOneBy([
+            'friendRequest' => $friendRequest,
+        ]);
 
         if ($friendRequest->getReceiver() !== $user) {
             $this->addFlash('error', 'You do not have permission to accept this request.');
@@ -127,6 +131,12 @@ class ProfileController extends AbstractController
 
         $entityManager->persist($user);
         $entityManager->persist($sender);
+
+        if ($notification) {
+            $notification->setIsRead(true);
+            $entityManager->remove($notification);
+        }
+
         $entityManager->flush();
 
         $this->addFlash('success', 'The friend request has been accepted!');
@@ -135,18 +145,27 @@ class ProfileController extends AbstractController
     }
 
     #[Route('/friends/reject/{id}', name: 'app_profile_reject_friend')]
-    public function rejectFriend(FriendRequest $friendRequest, EntityManagerInterface $entityManager): Response
+    public function rejectFriend(FriendRequest $friendRequest, EntityManagerInterface $entityManager, NotificationRepository $notificationRepository): Response
     {
         $user = $this->getUser();
+        $notification = $notificationRepository->findOneBy([
+            'friendRequest' => $friendRequest,
+        ]);
         if ($friendRequest->getReceiver() !== $user) {
             $this->addFlash('error', 'You do not have permission to reject this request.');
             return $this->redirectToRoute('app_profile');
         }
 
         $entityManager->remove($friendRequest);
+
+        if ($notification) {
+            $notification->setIsRead(true);
+            $entityManager->remove($notification);
+        }
+
         $entityManager->flush();
 
-        $this->addFlash('success', 'The friend request has been rejected.');
+        $this->addFlash('danger', 'The friend request has been rejected.');
 
         return $this->redirectToRoute('app_profile');
     }

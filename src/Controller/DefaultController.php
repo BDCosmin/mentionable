@@ -32,7 +32,6 @@ final class DefaultController extends AbstractController
         }
 
         $notes = $em->getRepository(Note::class)->findBy([], ['publicationDate' => 'DESC']);
-        $friendRequests = $friendRequestRepository->findBy(['receiver' => $user]);
         $noteVotes = $noteVoteRepository->findBy([]);
 
         return $this->render('default/index.html.twig', [
@@ -41,7 +40,6 @@ final class DefaultController extends AbstractController
             'divVisibility' => 'none',
             'error' => $error,
             'noteVotes' => $noteVotes,
-            'friendRequests' => $friendRequests,
         ]);
     }
 
