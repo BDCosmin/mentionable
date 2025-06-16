@@ -18,7 +18,8 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 COPY . /var/www/html/
 
 # Install PHP dependencies inside your project folder
-RUN composer install --no-dev --optimize-autoloader --working-dir=/var/www/html
+RUN composer install --no-dev --optimize-autoloader --working-dir=/var/www/html -vvv
+RUN ls -l /var/www/html/vendor
 
 # Copy custom Apache config
 COPY apache-vhost.conf /etc/apache2/sites-available/000-default.conf
