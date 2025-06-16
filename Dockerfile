@@ -18,10 +18,10 @@ RUN apt-get update && apt-get install -y \
 # Copy composer binary from official image
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Set working directory first
+# Set working directory
 WORKDIR /var/www/html
 
-# Copy only composer files first to leverage Docker cache
+# Copy composer files first to leverage Docker cache
 COPY composer.json composer.lock ./
 
 # Install dependencies depending on environment
@@ -31,7 +31,10 @@ RUN if [ "$APP_ENV" = "prod" ]; then \
       composer install; \
     fi
 
-# Now copy the rest of the app
+# Debug: List vendor directory contents to verify
+RUN ls -la /var/www/html/vendor
+
+# Copy the rest of the app
 COPY . .
 
 # Fix ownership and permissions
