@@ -1,3 +1,5 @@
+ARG APP_ENV=prod
+
 FROM php:8.3-apache
 
 # Enable Apache rewrite module early
@@ -9,32 +11,35 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libzip-dev \
     unzip \
+    git \
     && docker-php-ext-install intl mbstring zip pdo pdo_mysql
 
 # Copy composer binary from official composer image
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy your Symfony project files to /var/www/html (Apache default)
+# Copy project files
 COPY . /var/www/html/
-
-# Install PHP dependencies inside your project folder
-RUN composer install --no-dev --optimize-autoloader --working-dir=/var/www/html -vvv
-RUN ls -l /var/www/html/vendor
-
-# Copy custom Apache config
-COPY apache-vhost.conf /etc/apache2/sites-available/000-default.conf
 
 # Set working directory
 WORKDIR /var/www/html
 
-# Create var folder if missing (optional safety)
+# Create var folder if missing
 RUN mkdir -p var
 
-# Set ownership for entire project folder (including var)
+# Set ownership (optional, maybe adjust depending on env)
 RUN chown -R www-data:www-data /var/www/html
 
-# Expose port 80
+# Run composer differently depending on environment
+RUN if [ "$APP_ENV" = "prod" ]; then \
+      COMPOSER_CACHE_DIR=/tmp composer install --no-dev --optimize-autoloader; \
+    else \
+      composer install; \
+    fi
+
+# Copy Apache config
+COPY apache-vhost.conf /etc/apache2/sites-available/000-default.conf
+
+# Expose port
 EXPOSE 80
 
-# Start Apache in foreground
 CMD ["apache2-foreground"]
