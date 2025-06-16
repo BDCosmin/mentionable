@@ -8,6 +8,9 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install intl mbstring zip pdo pdo_mysql
 # Copy your Symfony project files to /var/www/html (Apache default)
 COPY . /var/www/html/
+# Create the var directory if it doesn't exist before setting ownership
+RUN mkdir -p /var/www/html/var && chown -R www-data:www-data /var/www/html/var
+
 # Copy custom Apache config
 COPY apache-vhost.conf /etc/apache2/sites-available/000-default.conf
 
