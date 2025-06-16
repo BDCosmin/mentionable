@@ -9,7 +9,8 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libzip-dev \
     unzip \
-    && docker-php-ext-install intl mbstring zip pdo pdo_mysql
+    && docker-php-ext-install intl mbstring zip pdo pdo_mysql \
+    && composer install --no-dev --optimize-autoloader --working-dir=/var/www/html
 
 # Copy your Symfony project files to /var/www/html (Apache default)
 COPY . /var/www/html/
