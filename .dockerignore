@@ -1,3 +1,6 @@
 .git
 #*.env
-/var/
+vendor/
+var/cache
+var/log
+var/sessions
