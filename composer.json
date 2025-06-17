@@ -9,6 +9,7 @@
         "php": "^8.1",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "ext-intl": "*",
         "doctrine/dbal": "^3",
         "doctrine/doctrine-bundle": "^2.14",
         "doctrine/doctrine-migrations-bundle": "^3.4",
@@ -47,8 +48,7 @@
         "symfony/yaml": "6.4.*",
         "symfonycasts/verify-email-bundle": "^1.17",
         "twig/extra-bundle": "^2.12|^3.0",
-        "twig/twig": "^2.12|^3.0",
-        "ext-intl": "*"
+        "twig/twig": "^2.12|^3.0"
     },
     "config": {
         "allow-plugins": {
@@ -84,10 +84,10 @@
             "importmap:install": "symfony-cmd"
         },
         "post-install-cmd": [
-
+            "@auto-scripts"
         ],
         "post-update-cmd": [
-
+            "@auto-scripts"
         ]
     },
     "conflict": {

@@ -44,12 +44,5 @@ COPY apache-vhost.conf /etc/apache2/sites-available/000-default.conf
 # Expose port
 EXPOSE 80
 
-# Copy entrypoint script and make it executable
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
-
-# Start Apache via entrypoint script
-CMD ["/usr/local/bin/entrypoint.sh"]
-
 # Start Apache
-#CMD ["apache2-foreground"]
+CMD ["apache2-foreground"]
