@@ -24,6 +24,9 @@ WORKDIR /var/www/html
 # Copy only composer files first (for better cache)
 COPY composer.json composer.lock ./
 
+# Now copy the rest of the project
+COPY . .
+
 # Install dependencies
 RUN if [ "$APP_ENV" = "prod" ]; then \
       COMPOSER_CACHE_DIR=/tmp composer install --no-dev --optimize-autoloader; \
@@ -31,9 +34,6 @@ RUN if [ "$APP_ENV" = "prod" ]; then \
       composer install; \
     fi \
     && composer dump-autoload --optimize
-
-# Now copy the rest of the project
-COPY . .
 
 # Fix ownership and permissions
 RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html
