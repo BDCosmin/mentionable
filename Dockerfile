@@ -29,7 +29,9 @@ RUN if [ "$APP_ENV" = "prod" ]; then \
       COMPOSER_CACHE_DIR=/tmp composer install --no-dev --optimize-autoloader; \
     else \
       composer install; \
-    fi
+    fi \
+    && composer dump-autoload --optimize
+
 
 # Fix ownership and permissions
 RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html
