@@ -21,8 +21,11 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy composer files
+# Copy composer files first to leverage Docker cache
 COPY composer.json composer.lock ./
+
+# Remove any existing vendor directory to avoid conflicts
+RUN rm -rf /var/www/html/vendor
 
 # Install dependencies
 RUN if [ "$APP_ENV" = "prod" ]; then \
