@@ -21,38 +21,24 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy composer files first to leverage Docker cache
-COPY composer.json composer.lock ./
+# Copy project files first (INCLUDING composer.json, .lock, and rest of app)
+COPY . .
 
-# Remove any existing vendor directory to avoid conflicts
-RUN rm -rf /var/www/html/vendor
-
-# Install dependencies
+# Install dependencies AFTER all files are present
 RUN if [ "$APP_ENV" = "prod" ]; then \
       COMPOSER_CACHE_DIR=/tmp composer install --no-dev --optimize-autoloader; \
     else \
       composer install; \
     fi
 
-# Debug: Check vendor contents and autoload_runtime.php
-RUN ls -la /var/www/html/vendor
-RUN ls -la /var/www/html/vendor/autoload_runtime.php || echo "autoload_runtime.php not found"
-
-# Copy the rest of the app
-COPY . .
-
-# Debug: Verify public/index.php exists
-RUN ls -la /var/www/html/public/index.php || echo "index.php not found"
-
 # Fix ownership and permissions
-RUN chown -R www-data:www-data /var/www/html
-RUN chmod -R 755 /var/www/html
+RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html
 
 # Copy Apache config
 COPY apache-vhost.conf /etc/apache2/sites-available/000-default.conf
 
-# Expose port 80
+# Expose port
 EXPOSE 80
 
-# Run Apache
+# Launch Apache
 CMD ["apache2-foreground"]
