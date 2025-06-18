@@ -34,7 +34,8 @@ RUN if [ "$APP_ENV" = "prod" ]; then \
     && composer dump-autoload --optimize
 
 # Set permissions (important for Symfony cache & logs)
-RUN chown -R www-data:www-data var \
+RUN mkdir -p var \
+    && chown -R www-data:www-data var \
     && chmod -R 775 var
 
 # Copy Apache config
