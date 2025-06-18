@@ -25,6 +25,7 @@ WORKDIR /var/www/html
 COPY . .
 
 # Install dependencies *after* full app is present
+
 RUN if [ "$APP_ENV" = "prod" ]; then \
       rm -rf vendor && \
       composer install --no-dev --optimize-autoloader; \
@@ -33,14 +34,22 @@ RUN if [ "$APP_ENV" = "prod" ]; then \
     fi \
     && composer dump-autoload --optimize
 
+
+# Fix ownership and permissions
+RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html
+
 # Set permissions (important for Symfony cache & logs)
 RUN mkdir -p var \
     && chown -R www-data:www-data var \
     && chmod -R 775 var
 
-# Copy Apache config
+
+# Copiază configul de Apache
 COPY apache-vhost.conf /etc/apache2/sites-available/000-default.conf
 
 EXPOSE 80
 
+
+# Start Apache
 CMD ["apache2-foreground"]
+
