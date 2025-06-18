@@ -21,24 +21,35 @@ RUN apt-get update && apt-get install -y \
 # Set working directory
 WORKDIR /var/www/html
 
+# Copy entire app (so Composer sees full codebase before installing)
 COPY . .
 
-# Instalează pachetele composer
+# Install dependencies *after* full app is present
+
 RUN if [ "$APP_ENV" = "prod" ]; then \
-      COMPOSER_CACHE_DIR=/tmp composer install --no-dev --optimize-autoloader; \
+      rm -rf vendor && \
+      composer install --no-dev --optimize-autoloader; \
     else \
       composer install; \
     fi \
     && composer dump-autoload --optimize
 
+
 # Fix ownership and permissions
 RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html
+
+# Set permissions (important for Symfony cache & logs)
+RUN mkdir -p var \
+    && chown -R www-data:www-data var \
+    && chmod -R 775 var
+
 
 # Copiază configul de Apache
 COPY apache-vhost.conf /etc/apache2/sites-available/000-default.conf
 
-# Expose port
 EXPOSE 80
+
 
 # Start Apache
 CMD ["apache2-foreground"]
+
