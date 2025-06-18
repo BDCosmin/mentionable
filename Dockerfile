@@ -18,13 +18,13 @@ RUN apt-get update && apt-get install -y \
     && php -r "unlink('composer-setup.php');" \
     && rm -rf /var/lib/apt/lists/*
 
-# Set working directory BEFORE copy/install
+# Set working directory
 WORKDIR /var/www/html
 
-# Copy only composer files first (for better cache)
-COPY composer.json composer.lock ./
+# ❗ Copiază tot codul înainte de `composer install`
+COPY . .
 
-# Install dependencies
+# Instalează pachetele composer
 RUN if [ "$APP_ENV" = "prod" ]; then \
       COMPOSER_CACHE_DIR=/tmp composer install --no-dev --optimize-autoloader; \
     else \
@@ -32,13 +32,10 @@ RUN if [ "$APP_ENV" = "prod" ]; then \
     fi \
     && composer dump-autoload --optimize
 
-# Now copy the rest of the project
-COPY . .
-
 # Fix ownership and permissions
 RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html
 
-# Copy Apache config
+# Copiază configul de Apache
 COPY apache-vhost.conf /etc/apache2/sites-available/000-default.conf
 
 # Expose port
