@@ -2,7 +2,7 @@ ARG APP_ENV=prod
 
 FROM php:8.3-apache
 
-#  Enable Apache rewrite module
+# Enable Apache rewrite module
 RUN a2enmod rewrite
 
 # Install system libs and PHP extensions
