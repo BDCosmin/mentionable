@@ -18,21 +18,20 @@ RUN apt-get update && apt-get install -y \
     && php -r "unlink('composer-setup.php');" \
     && rm -rf /var/lib/apt/lists/*
 
+# Set working directory
 WORKDIR /var/www/html
 
-# Copy composer files only (cache friendly)
-COPY composer.json composer.lock ./
+# Copy entire app (so Composer sees full codebase before installing)
+COPY . .
 
-# Install dependencies
+# Install dependencies *after* full app is present
 RUN if [ "$APP_ENV" = "prod" ]; then \
+      rm -rf vendor && \
       COMPOSER_CACHE_DIR=/tmp composer install --no-dev --optimize-autoloader; \
     else \
       composer install; \
     fi \
     && composer dump-autoload --optimize
-
-# Copy rest of the app
-COPY . .
 
 # Set permissions (important for Symfony cache & logs)
 RUN chown -R www-data:www-data var \
