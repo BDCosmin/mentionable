@@ -27,7 +27,7 @@ COPY . .
 # Install dependencies *after* full app is present
 RUN if [ "$APP_ENV" = "prod" ]; then \
       rm -rf vendor && \
-      COMPOSER_CACHE_DIR=/tmp composer install --no-dev --optimize-autoloader; \
+      composer install --no-dev --optimize-autoloader; \
     else \
       composer install; \
     fi \
