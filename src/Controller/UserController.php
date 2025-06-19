@@ -2,22 +2,44 @@
 
 namespace App\Controller;
 
+use App\Entity\FriendRequest;
 use App\Entity\Notification;
 use App\Entity\User;
 use App\Repository\FriendRequestRepository;
 use App\Repository\NoteRepository;
 use App\Repository\NotificationRepository;
+use App\Repository\UserRepository;
 use App\Service\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 final class UserController extends AbstractController
 {
-    #[Route('/my-notes/user', name: 'app_user')]
-    public function index(NoteRepository $noteRepository, FriendRequestRepository $friendRequestRepository, NotificationService $notificationService): Response
+    #[Route('/user', name: 'app_user')]
+    public function index(FriendRequestRepository $friendRequestRepository, NotificationRepository $notificationRepository): Response
+    {
+        $user = $this->getUser();
+
+        if (!$user) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $friendRequests = $friendRequestRepository->findBy(['receiver' => $user]);
+        $notifications = $notificationRepository->findBy(['receiver' => $user]);
+
+        return $this->render('profile/index.html.twig', [
+            'user' => $user,
+            'friendRequests' => $friendRequests,
+            'notifications' => $notifications,
+        ]);
+    }
+
+    #[Route('/my-notes/user', name: 'app_user_notes')]
+    public function myNotes(NoteRepository $noteRepository, FriendRequestRepository $friendRequestRepository, NotificationService $notificationService): Response
     {
         $user = $this->getUser();
         $notes = $noteRepository->findBy(['user' => $user]);
@@ -36,7 +58,7 @@ final class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/my-notifications/user', name: 'app_notifications')]
+    #[Route('/my-notifications/user', name: 'app_user_notifications')]
     public function showAllNotifications(UserInterface $user,NotificationRepository $notificationRepository, NotificationService $notificationService, EntityManagerInterface $em): Response
     {
 
@@ -49,5 +71,149 @@ final class UserController extends AbstractController
             'allNotifications' => $allNotifications,
             'notifCount' => $notifCount
         ]);
+    }
+
+    #[Route('/friends/add/user', name: 'app_profile_add_friend', methods: ['POST'])]
+    public function addFriend(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager,NotificationService $notificationService): Response
+    {
+        $friend = null;
+
+        if ($request->request->has('friend_id')) {
+            $friend = $userRepository->find($request->request->get('friend_id'));
+        } elseif ($request->request->has('friend_nametag')) {
+            $friend = $userRepository->findOneBy(['nametag' => $request->request->get('friend_nametag')]);
+        }
+
+        if (!$friend) {
+            $this->addFlash('error', 'User not found.');
+            return $this->redirectToRoute('app_profile', ['id' => $friend->getId()]);
+        }
+
+        $user = $this->getUser();
+        if ($user->getId() === $friend->getId()) {
+            $this->addFlash('error', 'You cannot add yourself as a friend.');
+            return $this->redirectToRoute('app_profile', ['id' => $user]);
+        }
+
+        if ($user->getFriends()->contains($friend)) {
+            $this->addFlash('error', 'You are already friends.');
+            return $this->redirectToRoute('app_profile', ['id' => $friend->getId()]);
+        }
+
+        $existingRequest = $entityManager->getRepository(FriendRequest::class)->findOneBy([
+            'sender' => $user,
+            'receiver' => $friend,
+        ]);
+
+        if ($existingRequest) {
+            $this->addFlash('error', 'Friend request already sent to this user.');
+            return $this->redirectToRoute('app_profile', ['id' => $friend->getId()]);
+        }
+
+        $incomingRequest = $entityManager->getRepository(FriendRequest::class)->findOneBy([
+            'sender' => $friend,
+            'receiver' => $user,
+        ]);
+
+        if ($incomingRequest) {
+            $this->addFlash('error', 'This user has already sent you a friend request.');
+            return $this->redirectToRoute('app_profile', ['id' => $friend->getId()]);
+        }
+
+        $friendRequest = new FriendRequest();
+        $friendRequest->setSender($user);
+        $friendRequest->setReceiver($friend);
+
+        $message = sprintf('%s sent you a friend request from',$user->getNametag());
+        $link = '/profile';
+
+        $notificationService->createNotification(
+            $user,
+            $friend,
+            $friendRequest,
+            $message,
+            $link
+        );
+
+
+        $entityManager->persist($friendRequest);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Friend request sent successfully!');
+
+        return $this->redirectToRoute('app_profile', ['id' => $friend->getId()]);
+    }
+
+    #[Route('/friends/accept/user', name: 'app_profile_accept_friend')]
+    public function acceptFriend(Request $request, FriendRequest $friendRequest, EntityManagerInterface $entityManager, NotificationRepository $notificationRepository): Response
+    {
+        $user = $this->getUser();
+        $sender = $friendRequest->getSender();
+        $notification = $notificationRepository->findOneBy([
+            'friendRequest' => $friendRequest,
+        ]);
+
+        if ($friendRequest->getReceiver() !== $user) {
+            $this->addFlash('error', 'You do not have permission to accept this request.');
+            return $this->redirectToRoute('app_profile');
+        }
+
+        $user->addFriend($sender);
+        $sender->addFriend($user);
+
+        $entityManager->remove($friendRequest);
+
+        $entityManager->persist($user);
+        $entityManager->persist($sender);
+
+        if ($notification) {
+            $notification->setIsRead(true);
+            $entityManager->remove($notification);
+        }
+
+        $entityManager->flush();
+
+        $this->addFlash('success', 'The friend request has been accepted!');
+
+        return $this->redirectToRoute('app_profile');
+    }
+
+    #[Route('/friends/reject/{id}/user', name: 'app_profile_reject_friend')]
+    public function rejectFriend(FriendRequest $friendRequest, EntityManagerInterface $entityManager, NotificationRepository $notificationRepository): Response
+    {
+        $user = $this->getUser();
+        $notification = $notificationRepository->findOneBy([
+            'friendRequest' => $friendRequest,
+        ]);
+        if ($friendRequest->getReceiver() !== $user) {
+            $this->addFlash('error', 'You do not have permission to reject this request.');
+            return $this->redirectToRoute('app_profile');
+        }
+
+        $entityManager->remove($friendRequest);
+
+        if ($notification) {
+            $notification->setIsRead(true);
+            $entityManager->remove($notification);
+        }
+
+        $entityManager->flush();
+
+        $this->addFlash('danger', 'The friend request has been rejected.');
+
+        return $this->redirectToRoute('app_profile');
+    }
+
+    #[Route('/friends/remove/{id}/user', name: 'app_profile_remove_friend')]
+    public function removeFriend(User $friend, EntityManagerInterface $entityManager): Response
+    {
+        $user = $this->getUser();
+        $user->removeFriend($friend);
+        $entityManager->persist($user);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Friend removed successfully!');
+
+        return $this->redirectToRoute('app_profile');
     }
 }
