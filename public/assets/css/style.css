@@ -24303,6 +24303,27 @@ input[type="file"]::file-selector-button {
 .sidebar .nav .nav-item.sidebar-actions {
   margin-top: 1rem;
 }
+
+.note-launch-link {
+  transition: all 0.3s ease;
+  transform: scale(1);
+}
+
+.note-launch-link:hover {
+  background-color: #2f3640;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
+  transform: scale(1.03);
+  text-decoration: none;
+}
+
+.note-launch-link i {
+  transition: transform 0.3s ease;
+}
+
+.note-launch-link:hover i {
+  transform: rotate(8deg) scale(1.1);
+}
+
 .sidebar .nav .nav-item.sidebar-actions .nav-link {
   border-top: 0;
   display: block;
