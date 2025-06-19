@@ -32,7 +32,7 @@
             <li class="nav-item nav-category">
                 <span class="nav-link">Menu</span>
             </li>
-            <li class="nav-item menu-items">
+            <li class="nav-item menu-items {% if app.request.attributes.get('_route') == 'app_profile' %}active{% endif %}">
                 <a class="nav-link" href="{{ path('app_profile', {'id': app.user.id}) }}">
                     <span class="menu-icon">
                         <i class="fa fa-user-circle"></i>
@@ -40,7 +40,7 @@
                     <span class="menu-title">My profile</span>
                 </a>
             </li>
-            <li class="nav-item menu-items">
+            <li class="nav-item menu-items {% if app.request.attributes.get('_route') == 'app_user' %}active{% endif %}">
                 <a class="nav-link" href="{{ path('app_user', {'id': app.user.id}) }}">
                     <span class="menu-icon">
                         <i class='bx bx-note'></i>
