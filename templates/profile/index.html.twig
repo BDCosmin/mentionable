@@ -137,10 +137,10 @@
                             <div class="col-md-8">
                                 <h4 class="mt-5 text-center text-md-center">Notes</h4>
                                 {# NOTES LIST #}
-                                    {# NOTE #}
                                     {% if user.notes is defined %}
                                         {% for note in user.notes %}
-                                            <div class="bg-dark rounded p-4 shadow mb-0 pt-4 ps-4 pe-4 pb-3">
+                                            {# NOTE #}
+                                            <div class="bg-dark rounded p-4 shadow mb-3 pt-4 ps-4 pe-4 pb-3">
                                                 {# NOTE PROFILE #}
                                                 <div class="navbar-profile d-flex flex-row text-light mb-3" style="width: 100%;">
                                                     <a class="nav-link me-3 mt-2" id="avatarNote" href="#">
@@ -270,10 +270,6 @@
                                                         </div>
                                                     {% endfor %}
                                                 </div>
-                                            </div>
-                                            {# DIVIDER #}
-                                            <div class="d-flex flex-row justify-content-center bg-dark rounded shadow pt-3 pb-2">
-                                                <hr style="border: 1px solid #ffffff; width: 70%;">
                                             </div>
                                         {% endfor %}
                                     {% else %}
