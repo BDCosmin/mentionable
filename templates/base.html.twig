@@ -56,6 +56,12 @@
                     }
                 </script>
                 {% endverbatim %}
+                <script>
+                    function showDefaultImage(img) {
+                        const wrapper = img.parentNode;
+                       wrapper.innerHTML = '<img src="{{ asset("uploads/notes/default-image.jpg") }}" alt="default-image"/>';
+                    }
+                </script>
             {% endblock %}
     </body>
 </html>

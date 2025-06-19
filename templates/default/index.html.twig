@@ -97,7 +97,7 @@
                         {% if note.image %}
                             <div class="d-flex flex-row text-gray justify-content-center mb-2">
                                 <a href="{{ path('app_note_show', {'noteId': note.id}) }}">
-                                    <img src="{{ asset('uploads/notes/' ~ note.image)}}" id="noteImage" alt="noteImage"/>
+                                    <img src="{{ asset('uploads/notes/' ~ note.image)}}" id="noteImage" alt="noteImage" onerror="showDefaultImage(this)"/>
                                 </a>
                             </div>
                         {% endif %}
@@ -144,7 +144,7 @@
                             <form method="POST" action="{{ path('note_comment', {id: note.id}) }}">
                                 <div class="d-flex flex-row mb-3">
                                     <a class="nav-link me-2" href="#">
-                                        <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ app.user.avatar)}}" alt="avatar">
+                                        <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ app.user.avatar)}}" alt="writeCommentAvatar" onerror="showDefaultIcon(this)">
                                     </a>
                                     <div class="d-flex flex-row w-100">
                                         <input type="text" name="message" class="form-control mb-1" placeholder="Write a comment..." required>
