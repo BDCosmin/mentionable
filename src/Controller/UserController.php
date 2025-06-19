@@ -73,7 +73,7 @@ final class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/friends/add/user', name: 'app_profile_add_friend', methods: ['POST'])]
+    #[Route('/friends/add/user/{id}', name: 'app_profile_add_friend', methods: ['POST'])]
     public function addFriend(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager,NotificationService $notificationService): Response
     {
         $friend = null;
@@ -92,7 +92,7 @@ final class UserController extends AbstractController
         $user = $this->getUser();
         if ($user->getId() === $friend->getId()) {
             $this->addFlash('error', 'You cannot add yourself as a friend.');
-            return $this->redirectToRoute('app_profile', ['id' => $user]);
+            return $this->redirectToRoute('app_profile', ['id' => $user->getId()]);
         }
 
         if ($user->getFriends()->contains($friend)) {
@@ -144,7 +144,7 @@ final class UserController extends AbstractController
         return $this->redirectToRoute('app_profile', ['id' => $friend->getId()]);
     }
 
-    #[Route('/friends/accept/user', name: 'app_profile_accept_friend')]
+    #[Route('/friends/accept/user/{id}', name: 'app_profile_accept_friend')]
     public function acceptFriend(Request $request, FriendRequest $friendRequest, EntityManagerInterface $entityManager, NotificationRepository $notificationRepository): Response
     {
         $user = $this->getUser();
@@ -175,11 +175,11 @@ final class UserController extends AbstractController
 
         $this->addFlash('success', 'The friend request has been accepted!');
 
-        return $this->redirectToRoute('app_profile');
+        return $this->redirect($request->headers->get('referer'));
     }
 
-    #[Route('/friends/reject/{id}/user', name: 'app_profile_reject_friend')]
-    public function rejectFriend(FriendRequest $friendRequest, EntityManagerInterface $entityManager, NotificationRepository $notificationRepository): Response
+    #[Route('/friends/reject/user/{id}', name: 'app_profile_reject_friend')]
+    public function rejectFriend(Request $request, FriendRequest $friendRequest, EntityManagerInterface $entityManager, NotificationRepository $notificationRepository): Response
     {
         $user = $this->getUser();
         $notification = $notificationRepository->findOneBy([
@@ -201,11 +201,11 @@ final class UserController extends AbstractController
 
         $this->addFlash('danger', 'The friend request has been rejected.');
 
-        return $this->redirectToRoute('app_profile');
+        return $this->redirect($request->headers->get('referer'));
     }
 
-    #[Route('/friends/remove/{id}/user', name: 'app_profile_remove_friend')]
-    public function removeFriend(User $friend, EntityManagerInterface $entityManager): Response
+    #[Route('/friends/remove/user/{id}', name: 'app_profile_remove_friend')]
+    public function removeFriend(Request $request, User $friend, EntityManagerInterface $entityManager): Response
     {
         $user = $this->getUser();
         $user->removeFriend($friend);
@@ -214,6 +214,6 @@ final class UserController extends AbstractController
 
         $this->addFlash('success', 'Friend removed successfully!');
 
-        return $this->redirectToRoute('app_profile');
+        return $this->redirect($request->headers->get('referer'));
     }
 }

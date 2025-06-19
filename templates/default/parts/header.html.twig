@@ -56,9 +56,9 @@
                             >
                                 {% if notification.type != 'reported' %}
                                     <div class="preview-thumbnail">
-                                        <div class="preview-icon bg-dark rounded-circle">
+                                        <div class="m-0 p-0">
                                             {% if notification.sender %}
-                                                <img src="{{ asset('uploads/avatars/' ~ notification.sender.avatar) }}" alt="avatarNotif" onerror="showDefaultIcon(this)">
+                                                <img class="preview-icon bg-dark rounded-circle" src="{{ asset('uploads/avatars/' ~ notification.sender.avatar) }}" alt="avatarNotif" onerror="showDefaultIcon(this)">
                                             {% else %}
                                                 <i class="fa fa-user text-white pt-2 ps-2"></i>
                                             {% endif %}
@@ -92,7 +92,11 @@
                                         <p class="text-muted ellipsis mb-0">An error has occurred. Please try again later!</p>
                                     {% endif %}
                                     <i class="fa fa-clock-o" style="color: gray"></i>
-                                    <small class="text-gray">{{ notification.humanTimeNotification }}</small>
+                                    <small class="text-gray">{{ notification.humanTimeNotification }}
+                                        {% if not notification.isRead %}
+                                            <i class="fa fa-dot-circle-o ms-1" style="color: white; font-size: 12px"></i>
+                                        {% endif %}
+                                    </small>
                                 </div>
                             </a>
                             <div class="dropdown-divider"></div>
