@@ -68,7 +68,7 @@
                             </a>
                             <div class="d-flex flex-column">
                                 <a class="nav-link mt-3" id="nametagNote" href="{{ path('app_profile', {'id': note.user.id}) }}">
-                                    <h5 class="mb-0 d-none d-sm-block navbar-profile-name">@{{ note.user.nametag }}</h5>
+                                    <h5 class="mb-0 navbar-profile-name">@{{ note.user.nametag }}</h5>
                                 </a>
                                 <div class="d-flex flex-row m-0 p-0" style="font-size: 12px; color: gray">
                                     <div class="d-flex flex-row m-0 p-0">
@@ -135,38 +135,83 @@
                                 </a>
                             </div>
                         {% endif %}
-                        {# NOTE NAV VOTES & COMMENTS #}
-                        <div class="d-flex flex-row text-gray mt-3 mb-2 ms-0 ps-0">
+                        {# NOTE NAV VOTES & COMMENTS DESKTOP #}
+{#                        <div class="d-flex flex-row text-gray mt-3 mb-2 ms-0 ps-0">#}
+{#                                #}{# UPVOTE FORM #}
+{#                                <form method="POST" action="{{ path('note_upvote', {id: note.id}) }}" class="me-2">#}
+{#                                    <button class="btn btn-sm btn-outline-light d-flex align-items-center border-0" type="submit">#}
+{#                                            <i class='bx bx-arrow-up' style="font-size: 20px;"></i>#}
+{#                                            <span class="ms-1">{{ note.upVote ?? 0 }}</span>#}
+{#                                    </button>#}
+{#                                </form>#}
+
+{#                                #}{# DOWNVOTE FORM #}
+{#                            <form method="POST" action="{{ path('note_downvote', {id: note.id}) }}" class="me-2">#}
+{#                                <button class="btn btn-sm btn btn-sm btn-outline-light d-flex align-items-center border-0" type="submit">#}
+{#                                    <i class='bx bx-arrow-down' style="font-size: 20px;"></i>#}
+{#                                    <span class="ms-1">{{ note.downVote ?? 0 }}</span>#}
+{#                                </button>#}
+{#                            </form>#}
+{#                            #}{# COMMENTS BUTTON #}
+{#                            <button type="button"#}
+{#                                    class="btn btn-outline-light btn-sm d-flex flex-row border-0 ps-0 toggle-comments"#}
+{#                                    data-note-id="{{ note.id }}"#}
+{#                                    style="height: 2rem">#}
+{#                                <i class='bx bx-message-circle-reply pt-1 pe-2' style='color: white'></i>#}
+{#                                <p class="mb-0">COMMENTS ({{ note.comments|length }})</p>#}
+{#                            </button>#}
+{#                            #}{# NOTE MENTIONED #}
+{#                            <div class="d-block d-md-inline-block w-100 w-md-auto text-gray ms-2 mt-1 mb-1 ps-1 pe-1">#}
+{#                                <p style="margin-bottom: -2px">#}
+{#                                    mentioned <b style="background-color: #2A3038">@{{ note.nametag }}</b>#}
+{#                                </p>#}
+{#                            </div>#}
+{#                        </div>#}
+                        {# NOTE NAV – DESKTOP & MOBILE HYBRID #}
+                        <div class="d-flex flex-wrap align-items-center text-gray mt-3 mb-2 ms-0 ps-0">
+                            {# VOTE & COMMENTS – ALWAYS SHOWN #}
+                            <div class="d-flex flex-row flex-wrap">
                                 {# UPVOTE FORM #}
                                 <form method="POST" action="{{ path('note_upvote', {id: note.id}) }}" class="me-2">
                                     <button class="btn btn-sm btn-outline-light d-flex align-items-center border-0" type="submit">
-                                            <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
-                                            <span class="ms-1">{{ note.upVote ?? 0 }}</span>
+                                        <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
+                                        <span class="ms-1">{{ note.upVote ?? 0 }}</span>
                                     </button>
                                 </form>
 
                                 {# DOWNVOTE FORM #}
-                            <form method="POST" action="{{ path('note_downvote', {id: note.id}) }}" class="me-2">
-                                <button class="btn btn-sm btn btn-sm btn-outline-light d-flex align-items-center border-0" type="submit">
-                                    <i class='bx bx-arrow-down' style="font-size: 20px;"></i>
-                                    <span class="ms-1">{{ note.downVote ?? 0 }}</span>
+                                <form method="POST" action="{{ path('note_downvote', {id: note.id}) }}" class="me-2">
+                                    <button class="btn btn-sm btn-outline-light d-flex align-items-center border-0" type="submit">
+                                        <i class='bx bx-arrow-down' style="font-size: 20px;"></i>
+                                        <span class="ms-1">{{ note.downVote ?? 0 }}</span>
+                                    </button>
+                                </form>
+
+                                {# COMMENTS BUTTON #}
+                                <button type="button"
+                                        class="btn btn-outline-light btn-sm d-flex flex-row align-items-center border-0 ps-0 me-2 toggle-comments"
+                                        data-note-id="{{ note.id }}"
+                                        style="height: 2rem">
+                                    <i class='bx bx-message-circle-reply pt-1 pe-2' style='color: white'></i>
+                                    <p class="mb-0">COMMENTS ({{ note.comments|length }})</p>
                                 </button>
-                            </form>
-                            {# COMMENTS BUTTON #}
-                            <button type="button"
-                                    class="btn btn-outline-light btn-sm d-flex flex-row border-0 ps-0 toggle-comments"
-                                    data-note-id="{{ note.id }}"
-                                    style="height: 2rem">
-                                <i class='bx bx-message-circle-reply pt-1 pe-2' style='color: white'></i>
-                                <p class="mb-0">COMMENTS ({{ note.comments|length }})</p>
-                            </button>
-                            {# NOTE MENTIONED #}
-                            <div class="d-block d-md-inline-block w-100 w-md-auto text-gray ms-2 mt-1 mb-1 ps-1 pe-1">
+
+                                {# NOTE MENTIONED – SHOWN ONLY ON DESKTOP #}
+                                <div class="d-none d-md-block ms-2">
+                                    <p class="mb-0">
+                                        mentioned <b style="background-color: #2A3038">@{{ note.nametag }}</b>
+                                    </p>
+                                </div>
+                            </div>
+
+                            {# NOTE MENTIONED – SHOWN ONLY ON MOBILE, BELOW BUTTONS #}
+                            <div class="d-block d-md-none w-100 mt-2 ps-1 pe-1">
                                 <p style="margin-bottom: -2px">
                                     mentioned <b style="background-color: #2A3038">@{{ note.nametag }}</b>
                                 </p>
                             </div>
                         </div>
+
                         {# NOTE DIVIDER #}
                         <div class="d-flex flex-row text-gray mt-3 mb-2">
                             <hr style="border: 1px solid #757575; width: 100%;">
