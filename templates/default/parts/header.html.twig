@@ -1,22 +1,111 @@
 <!-- partial:partials/_navbar.html -->
 <nav class="navbar p-0 fixed-top d-flex flex-row">
-    <div class="navbar-brand-wrapper d-flex d-lg-none align-items-center justify-content-center">
-        <a class="navbar-brand brand-logo-mini" href="{{ path('homepage') }}"><img src="{{ asset('../../../assets/images/logo-mini.png') }}" alt="logo" /></a>
-    </div>
-    <div class="navbar-menu-wrapper flex-grow d-flex align-items-stretch">
+    <div class="navbar-menu-wrapper flex-grow-1 d-flex align-items-stretch" style="padding: 0 5px;">
+        <div class="navbar-brand-wrapper d-flex d-lg-none align-items-center justify-content-center">
+            <a class="navbar-brand brand-logo-mini" href="{{ path('homepage') }}"><img src="{{ asset('../../../assets/images/logo-mini.png') }}" alt="logo" /></a>
+        </div>
         <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
             <span class="mdi mdi-menu"></span>
         </button>
+{#        <ul class="navbar-nav w-100">#}
+{#            <li class="nav-item w-100">#}
+{#                <form class="nav-link mt-2 mt-md-0 d-none d-lg-flex search" #}{#method="POST" enctype="multipart/form-data" action="{{ path('app_find_nametag') }}" #}{# >#}
+{#                    <a href="#" class="btn btn-secondary disabled" style="height: 2.575rem; border-top-right-radius: 0; border-bottom-right-radius: 0;" tabindex="-1" role="button" aria-disabled="true">#}
+{#                        <p style="font-size: 20px; color: #434343">@</p>#}
+{#                    </a>#}
+{#                    <input type="text" class="form-control" name="searchNametag" id="searchNametag" style="border-left: none; border-top-left-radius: 0; border-bottom-left-radius: 0;" placeholder="Search after a @nametag ...">#}
+{#                </form>#}
+{#            </li>#}
+{#        </ul>#}
         <ul class="navbar-nav w-100">
-            <li class="nav-item w-100">
-                <form class="nav-link mt-2 mt-md-0 d-none d-lg-flex search" {#method="POST" enctype="multipart/form-data" action="{{ path('app_find_nametag') }}" #} >
-                    <a href="#" class="btn btn-secondary disabled" style="height: 2.575rem; border-top-right-radius: 0; border-bottom-right-radius: 0;" tabindex="-1" role="button" aria-disabled="true">
-                        <p style="font-size: 20px; color: #434343">@</p>
-                    </a>
-                    <input type="text" class="form-control" name="searchNametag" id="searchNametag" style="border-left: none; border-top-left-radius: 0; border-bottom-left-radius: 0;" placeholder="Search after a @nametag ...">
+            <li class="nav-item w-100 d-flex align-items-center position-relative justify-content-start">
+                <!-- Formularul de căutare -->
+                <form id="searchForm"
+                      class="input-group mt-2 mt-md-0 d-none"
+                      style="width: 100%; max-width: 350px; flex-wrap: nowrap;"
+                      method="POST"
+                      action="{{ url('app_find_nametag') }}"
+                      enctype="multipart/form-data">
+                      <span class="input-group-text bg-secondary btn btn-secondary disabled"
+                            style="font-size: 20px; color: #434343; flex: 0 0 25px; height: 2.575rem; border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                        @
+                      </span>
+                    <input type="text"
+                           class="form-control"
+                           name="searchNametag"
+                           id="searchNametag"
+                           placeholder="Search @nametag"
+                           style="border-left: none; border-top-left-radius: 0; border-bottom-left-radius: 0; flex: 1 1 auto; font-size: 0.85rem; padding: 0.5rem;">
+                    <button type="button"
+                            id="closeSearch"
+                            class="btn btn-outline-secondary"
+                            style="flex: 0 0 25px; padding: 0 0.3rem; font-size: 0.85rem; border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                        ✕
+                    </button>
                 </form>
+                <!-- Butonul care deschide inputul, doar pe mobil -->
+                <button type="button"
+                        id="toggleSearch"
+                        class="btn btn-secondary d-inline-flex d-md-none mt-2 mt-md-0"
+                        style="font-size: 20px; color: #434343; flex: 0 0 25px; height: 2.575rem; border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                    @
+                </button>
             </li>
         </ul>
+
+        <style>
+            /* Stiluri pentru mobil, inclusiv iPhone 14 Pro Max (430px) */
+            @media (max-width: 435px) {
+                .navbar-brand-wrapper {
+                    flex: 0 0 50px !important; /* Lățime fixă mică pentru logo */
+                    padding: 0 !important;
+                }
+                .navbar-menu-wrapper {
+                    padding: 0 5px !important; /* Padding minim */
+                }
+                #searchForm {
+                    flex-wrap: nowrap !important;
+                    width: 100% !important;
+                    max-width: none !important;
+                    margin: 0 !important;
+                }
+                #searchForm input {
+                    min-width: 0;
+                    flex: 1 1 auto;
+                    width: 100%;
+                    padding: 0.4rem;
+                }
+                #searchForm .input-group-text,
+                #searchForm .btn {
+                    flex: 0 0 25px;
+                    padding: 0 0.3rem;
+                    font-size: 0.85rem;
+                }
+                #toggleSearch {
+                    flex: 0 0 25px;
+                    padding: 0 0.3rem;
+                    font-size: 0.85rem;
+                }
+                .navbar-nav {
+                    margin: 0 !important;
+                    padding: 0 !important;
+                }
+                .nav-item {
+                    padding: 0 !important;
+                }
+            }
+
+            @media (min-width: 768px) {
+                #searchForm {
+                    display: flex !important;
+                }
+                #toggleSearch {
+                    display: none !important;
+                }
+            }
+        </style>
+
+
         {# NOTIFICATIONS LIST #}
         <ul class="navbar-nav navbar-nav-right">
             <li class="nav-item dropdown border-left">
@@ -123,8 +212,8 @@
             <li class="nav-item dropdown">
                 <a class="nav-link" id="profileDropdown" href="#" data-bs-toggle="dropdown">
                     <div class="navbar-profile">
-                        <p class="mb-0 d-none d-sm-block navbar-profile-name">More</p>
-                        <i class="mdi mdi-menu-down d-none d-sm-block"></i>
+                        <p class="mb-0 d-block navbar-profile-name">More</p>
+                        <i class="mdi mdi-menu-down d-block"></i>
                     </div>
                 </a>
                 <div class="dropdown-menu dropdown-menu-end navbar-dropdown preview-list" aria-labelledby="profileDropdown">
@@ -194,3 +283,32 @@
         </div>
     </div>
 {% endif %}
+
+{% block javascript %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+        const toggleBtn = document.getElementById('toggleSearch');
+        const searchForm = document.getElementById('searchForm');
+        const closeSearch = document.getElementById('closeSearch');
+        const searchInput = document.getElementById('searchNametag');
+
+        toggleBtn.addEventListener('click', function () {
+        searchForm.classList.remove('d-none');
+        toggleBtn.classList.add('d-none');
+        searchInput.focus();
+        });
+
+        closeSearch.addEventListener('click', function () {
+        searchForm.classList.add('d-none');
+        toggleBtn.classList.remove('d-none');
+        });
+
+        document.addEventListener('click', function (e) {
+        if (!searchForm.contains(e.target) && !toggleBtn.contains(e.target) && window.innerWidth < 768) {
+        searchForm.classList.add('d-none');
+        toggleBtn.classList.remove('d-none');
+        }
+      });
+     });
+    </script>
+{% endblock %}

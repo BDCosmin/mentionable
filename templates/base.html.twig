@@ -56,11 +56,33 @@
                     }
                 </script>
                 {% endverbatim %}
+
                 <script>
                     function showDefaultImage(img) {
                         const wrapper = img.parentNode;
                        wrapper.innerHTML = '<img src="{{ asset("uploads/notes/default-image.jpg") }}" class="img-fluid" alt="default-image"/>';
                     }
+                </script>
+
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        var deleteNoteModal = document.getElementById('deleteNoteModal');
+
+                        if (deleteNoteModal) {
+                            deleteNoteModal.addEventListener('show.bs.modal', function (event) {
+                                var button = event.relatedTarget;
+                                var noteId = button.getAttribute('data-note-id');
+                                var token = button.getAttribute('data-note-token');
+
+                                var form = deleteNoteModal.querySelector('#deleteNoteForm');
+                                var tokenInput = deleteNoteModal.querySelector('#deleteTokenInput');
+
+                                // Construim URL-ul către ruta de ștergere
+                                form.action = '/note/' + noteId + '/delete';
+                                tokenInput.value = token;
+                            });
+                        }
+                    });
                 </script>
             {% endblock %}
     </body>

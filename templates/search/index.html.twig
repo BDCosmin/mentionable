@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Search Results{% endblock %}
+
+{% block body %}
+<div class="main-panel">
+    <div class="content-wrapper">
+        {# CENTERED CONTAINER #}
+        <div class="row justify-content-center mb-4">
+            <div class="col-lg-7 m-0 p-0 mb-3" id="errorWhilePosting" style="display: {{ divVisibility }};">
+                <span class="badge bg-danger">{{ error }}</span>
+            </div>
+                <h1>Search Results for "{{ nametag }}"</h1>
+
+                {% if users is empty %}
+                    <p>No users found with nametag "{{ nametag }}".</p>
+                {% else %}
+                    <ul>
+                        {% for user in users %}
+                            {% if app.user.id is not same as(user.id) %}
+                            <li>
+                                <a href="{{ path('app_profile', {id: user.id}) }}">@{{ user.nametag }}</a>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+
+                <a href="{{ path('homepage') }}">Back to Home</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
