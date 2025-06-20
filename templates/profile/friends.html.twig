@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Profile{% endblock %}
+
+{% block body %}
+    <div class="main-panel">
+        <div class="content-wrapper">
+            <div class="row justify-content-center mb-4">
+                {% for label, messages in app.flashes %}
+                    {% set bootstrap_class = label == 'error' ? 'danger' : label %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ bootstrap_class }} alert-dismissible fade show mt-3" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+                <div class="col-lg-7 p-2" style="background-color: #181b20; border-radius: 5px;">
+                        <h4 class="m-3 mb-4">Friends <small>({{ user.friends|length }})</small></h4>
+                        {% if user.friends is not empty %}
+                                {% for friend in user.friends %}
+                                    <div class="d-flex flex-row m-0 p-0 mb-3">
+                                       <a href="{{ path('app_profile', {'id': friend.id}) }}" class="ms-3">
+                                           <img class="img-sm rounded-circle" src="{{ asset('uploads/avatars/' ~ friend.avatar) }}" alt="avatar" onerror="showDefaultIcon(this)">
+                                       </a>
+                                        <a href="{{ path('app_profile', {'id': friend.id}) }}" class="text-white ms-3" style="text-decoration: none;">
+                                            <span>@{{ friend.nametag }}</span>
+                                        </a>
+                                        {% if app.user.id == user.id %}
+                                            <a href="{{ path('app_profile_remove_friend', {'id': friend.id}) }}" class="btn btn-sm btn-outline-danger ms-auto">Remove</a>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-muted">You have no friends added.</p>
+                        {% endif %}
+
+                </div>
+        </div>
+    </div>
+{% endblock %}

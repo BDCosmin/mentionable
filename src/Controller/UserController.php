@@ -73,6 +73,23 @@ final class UserController extends AbstractController
         ]);
     }
 
+    #[Route('/friends/view/{id}', name: 'app_profile_view_friends')]
+    public function viewFriends(int $id, Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager,NotificationService $notificationService): Response
+    {
+        $user = $userRepository->find($id);
+
+        if (!$user) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $notifications = $notificationService->getLatestUserNotifications();
+
+        return $this->render('profile/friends.html.twig',[
+            'notifications' => $notifications,
+            'user' => $user,
+        ]);
+    }
+
     #[Route('/friends/add/user/{id}', name: 'app_profile_add_friend', methods: ['POST'])]
     public function addFriend(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager,NotificationService $notificationService): Response
     {
