@@ -74,12 +74,11 @@
                                     <div class="d-flex flex-row m-0 p-0">
                                         {% if note.isEdited %}
                                             <i class="fa fa-clock-o mt-1 me-1"></i>
-                                            <p class="ms-1" style="margin-right: 6px"><i>Edited</i></p>
                                         {% endif %}
                                         <p>{{ note.humanTimePost }}</p>
                                         <p class="ms-1 me-1">•</p>
                                         <a class="m-0 p-0" style="text-decoration: none; color: #d1d0d0" href="{{ path('app_note_show', {'noteId': note.id}) }}">
-                                            <p>View post</p>
+                                            <p>View</p>
                                         </a>
                                     </div>
                                 </div>
