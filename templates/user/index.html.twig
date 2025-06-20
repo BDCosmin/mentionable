@@ -19,169 +19,199 @@
                 {# NOTE #}
                 {% if notes is defined %}
                     {% for note in notes %}
-                    <div class="col-lg-7 pt-4 ps-4 pe-4 pb-3" style="background-color: #181b20; border-radius: 5px; margin-top: 2rem;">
-                        {# NOTE PROFILE #}
-                        <div class="navbar-profile d-flex flex-row text-light mb-3" style="width: 100%;">
-                            <a class="nav-link me-3 mt-2" id="avatarNote" href="#">
-                                <img class="img-sm rounded-circle" src="{{ asset('uploads/avatars/' ~ note.user.avatar) }}" alt="avatar" onerror="showDefaultIcon(this)">
-                            </a>
-                            <div class="d-flex flex-column">
-                                <a class="nav-link mt-3" id="nametagNote" href="#">
-                                    <h5 class="mb-0 d-none d-sm-block navbar-profile-name">@{{ note.user.nametag }}</h5>
+                        <div class="col-lg-7 pt-4 ps-4 pe-4 pb-3" style="background-color: #181b20; border-radius: 5px; margin-top: 2rem;">
+                            {# NOTE PROFILE #}
+                            <div class="navbar-profile d-flex flex-row text-light mb-3" style="width: 100%;">
+                                <a class="nav-link me-3 mt-2" id="avatarNote" href="{{ path('app_profile', {'id': note.user.id}) }}">
+                                    <img class="img-sm rounded-circle" src="{{ asset('uploads/avatars/' ~ note.user.avatar) }}" alt="avatar" onerror="showDefaultIcon(this)">
                                 </a>
-                                <div class="d-flex flex-row m-0 p-0" style="font-size: 12px; color: gray">
-                                    {% if note.isEdited %}
-                                        <p class="ms-1" style="margin-right: 6px"><i>Edited</i></p>
-                                        <i class="fa fa-clock-o mt-1 me-1"></i>
-                                    {% endif %}
-                                    <p>{{ note.humanTimePost }}</p>
+                                <div class="d-flex flex-column">
+                                    <a class="nav-link mt-3" id="nametagNote" href="{{ path('app_profile', {'id': note.user.id}) }}">
+                                        <h5 class="mb-0 navbar-profile-name">@{{ note.user.nametag }}</h5>
+                                    </a>
+                                    <div class="d-flex flex-row m-0 p-0" style="font-size: 12px; color: gray">
+                                        <div class="d-flex flex-row m-0 p-0">
+                                            {% if note.isEdited %}
+                                                <i class="fa fa-clock-o mt-1 me-1"></i>
+                                            {% endif %}
+                                            <p>{{ note.humanTimePost }}</p>
+                                            <p class="ms-1 me-1">•</p>
+                                            <a class="m-0 p-0" style="text-decoration: none; color: #d1d0d0" href="{{ path('app_note_show', {'noteId': note.id}) }}">
+                                                <p>View</p>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="dropdown ms-auto mt-1 me-1">
+                                    <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fa fa-sort-desc" style="color: white"></i>
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        {% if app.user.nametag == note.user.nametag %}
+                                            <li>
+                                                <a class="dropdown-item" href="{{ path('app_note_update', {id: note.id}) }}">Edit...</a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="#"
+                                                   data-bs-toggle="modal"
+                                                   data-bs-target="#deleteNoteModal"
+                                                   data-note-id="{{ note.id }}"
+                                                   data-note-token="{{ csrf_token('delete' ~ note.id) }}">
+                                                    Delete note
+                                                </a>
+                                            </li>
+                                        {% else %}
+                                            <li>
+                                                <a class="dropdown-item" href="{{ path('app_note_report', {id: note.id}) }}">Report</a>
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+
+                                    <div class="modal fade" id="deleteNoteModal" tabindex="-1" aria-labelledby="deleteNoteModalLabel" aria-hidden="true" style="overflow-y: hidden;">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content border-warning">
+                                                <div class="modal-header bg-warning text-white">
+                                                    <h5 class="modal-title" id="deleteNoteModalLabel">Confirm note deletion</h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Are you sure you want to delete this note?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <form method="post" id="deleteNoteForm" action="">
+                                                        <input type="hidden" name="_token" id="deleteTokenInput" value="">
+                                                        <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="submit" class="btn btn-warning">Delete</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="dropdown ms-auto mt-1 me-1">
-                                <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fa fa-sort-desc" style="color: white"></i>
-                                </a>
-                                <ul class="dropdown-menu">
-                                    {% if app.user.nametag == note.user.nametag %}
-                                        <li><a class="dropdown-item" href="{{ path('app_note_update', {id: note.id}) }}">Edit...</a></li>
-                                        <li>
-                                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#deleteNoteModal" data-note-id="{{ note.id }}">
-                                                Delete note
-                                            </a>
-                                        </li>
-                                    {% endif %}
-                                </ul>
-                                <!-- Modal delete note -->
-                                <div class="modal fade" id="deleteNoteModal" tabindex="-1" aria-labelledby="deleteNoteModalLabel" aria-hidden="true" style="overflow-y: hidden;">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content border-warning">
-                                            <div class="modal-header bg-warning text-white">
-                                                <h5 class="modal-title" id="deleteNoteModalLabel">Confirm note deletion</h5>
-                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            {# NOTE CONTENT #}
+                            <div class="d-flex flex-row text-gray mb-1">
+                                <p style="font-size: 16px">{{ note.content }}</p>
+                            </div>
+                            {# NOTE IMAGE #}
+                            {% if note.image %}
+                                <div class="d-flex flex-row text-gray justify-content-center mb-2">
+                                    <a href="{{ path('app_note_show', {'noteId': note.id}) }}">
+                                        <img src="{{ asset('uploads/notes/' ~ note.image)}}" class="img-fluid" id="noteImage" alt="noteImage" onerror="showDefaultImage(this)"/>
+                                    </a>
+                                </div>
+                            {% endif %}
+                            {# NOTE NAV – DESKTOP & MOBILE HYBRID #}
+                            <div class="d-flex flex-wrap align-items-center text-gray mt-3 mb-2 ms-0 ps-0">
+                                {# VOTE & COMMENTS – ALWAYS SHOWN #}
+                                <div class="d-flex flex-row flex-wrap">
+                                    {# UPVOTE FORM #}
+                                    <form method="POST" action="{{ path('note_upvote', {id: note.id}) }}" class="me-2">
+                                        <button class="btn btn-sm btn-outline-light d-flex align-items-center border-0" type="submit">
+                                            <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
+                                            <span class="ms-1">{{ note.upVote ?? 0 }}</span>
+                                        </button>
+                                    </form>
+
+                                    {# DOWNVOTE FORM #}
+                                    <form method="POST" action="{{ path('note_downvote', {id: note.id}) }}" class="me-2">
+                                        <button class="btn btn-sm btn-outline-light d-flex align-items-center border-0" type="submit">
+                                            <i class='bx bx-arrow-down' style="font-size: 20px;"></i>
+                                            <span class="ms-1">{{ note.downVote ?? 0 }}</span>
+                                        </button>
+                                    </form>
+
+                                    {# COMMENTS BUTTON #}
+                                    <button type="button"
+                                            class="btn btn-outline-light btn-sm d-flex flex-row align-items-center border-0 ps-0 me-2 toggle-comments"
+                                            data-note-id="{{ note.id }}"
+                                            style="height: 2rem">
+                                        <i class='bx bx-message-circle-reply pt-1 pe-2' style='color: white'></i>
+                                        <p class="mb-0">COMMENTS ({{ note.comments|length }})</p>
+                                    </button>
+
+                                    {# NOTE MENTIONED – SHOWN ONLY ON DESKTOP #}
+                                    <div class="d-none d-md-block ms-2">
+                                        <p class="mb-0">
+                                            mentioned <b style="background-color: #2A3038">@{{ note.nametag }}</b>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {# NOTE MENTIONED – SHOWN ONLY ON MOBILE, BELOW BUTTONS #}
+                                <div class="d-block d-md-none w-100 mt-2 ps-1 pe-1">
+                                    <p style="margin-bottom: -2px">
+                                        mentioned <b style="background-color: #2A3038">@{{ note.nametag }}</b>
+                                    </p>
+                                </div>
+                            </div>
+
+                            {# NOTE DIVIDER #}
+                            <div class="d-flex flex-row text-gray mt-3 mb-2">
+                                <hr style="border: 1px solid #757575; width: 100%;">
+                            </div>
+
+                            {# NOTE COMMENT #}
+                            <div class="note-comments" id="comments-{{ note.id }}" style="display: none;">
+                                {# WRITING COMMENT FORM #}
+                                <form method="POST" action="{{ path('note_comment', {id: note.id}) }}">
+                                    <div class="d-flex flex-row mb-3">
+                                        <a class="nav-link me-2" href="#">
+                                            <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ app.user.avatar)}}" alt="writeCommentAvatar" onerror="showDefaultIcon(this)">
+                                        </a>
+                                        <div class="d-flex flex-row w-100">
+                                            <input type="text" name="message" class="form-control mb-1" placeholder="Write a comment..." required>
+                                            <div class="d-flex justify-content-end">
+                                                <button type="submit" class="btn btn-light btn-sm px-3" style="height: 40px;">Post</button>
                                             </div>
-                                            <div class="modal-body">
-                                                Are you sure you want to delete this note?
+                                        </div>
+                                    </div>
+                                </form>
+
+                                {# COMMENTS LIST #}
+                                {% for comment in note.comments %}
+                                    <div class="d-flex flex-row mb-3">
+                                        <a class="nav-link me-2" href="#">
+                                            <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ comment.user.avatar) }}" alt="avatarComment" onerror="showDefaultIcon(this)">
+                                        </a>
+                                        <div class="m-0 p-0">
+                                            <div class="d-flex flex-row" style="height: 30px;">
+                                                <p class="text-white me-2" style="font-size: 18px;">@{{ comment.user.nametag }}</p>
+                                                {% if comment.isEdited %}
+                                                    <i class="fa fa-clock-o text-gray me-1" style="margin-top: 6px"></i>
+                                                {% else %}
+                                                    <p class="text-gray mt-1 me-2">•</p>
+                                                {% endif %}
+                                                <p class="text-gray mt-1">{{ comment.humanTimeComment }}</p>
                                             </div>
-                                            <div class="modal-footer">
-                                                <form method="post" id="deleteNoteForm" action="{{ path('app_note_delete', {id: note.id}) }}">
-                                                    <input type="hidden" name="_token" id="deleteTokenInput" value="">
-                                                    <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
-                                                    <button type="submit" class="btn btn-warning">Delete</button>
+                                            <div class="d-inline-flex">
+                                                <small style="font-size: 16px; color: white; background-color: #757575; border-radius: 8px; opacity: 0.5; padding: 5px;">{{ comment.message }}</small>
+                                                {# UPVOTE FORM #}
+                                                <form method="POST" action="{{ path('note_comment_upvote', {noteId: note.id, id: comment.id}) }}" class="me-2">
+                                                    <button class="btn btn-sm btn-outline-light d-flex align-items-center border-0" type="submit">
+                                                        <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
+                                                        <span class="ms-1">{{ comment.upVote ?? 0 }}</span>
+                                                    </button>
                                                 </form>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {# NOTE CONTENT #}
-                        <div class="d-flex flex-row text-gray mb-2">
-                            <p style="font-size: 16px">{{ note.content }}</p>
-                        </div>
-                        {# NOTE IMAGE #}
-                        {% if note.image %}
-                            <div class="d-flex flex-row text-gray justify-content-center mb-2">
-                                <img src="{{ asset('uploads/notes/' ~ note.image)}}" class="img-fluid" id="noteImage" alt="noteImage" onerror="showDefaultImage(this)"/>
-                            </div>
-                        {% endif %}
-                        {# NOTE NAV VOTES & COMMENTS #}
-                        <div class="d-flex flex-row text-gray mt-3 mb-2 ms-0 ps-0">
-                            {# UPVOTE FORM #}
-                            <form method="POST" action="{{ path('note_upvote', {id: note.id}) }}" class="me-2">
-                                <button class="btn btn-sm btn-outline-light d-flex align-items-center border-0" type="submit">
-                                    <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
-                                    <span class="ms-1">{{ note.upVote ?? 0 }}</span>
-                                </button>
-                            </form>
-
-                            {# DOWNVOTE FORM #}
-                            <form method="POST" action="{{ path('note_downvote', {id: note.id}) }}" class="me-2">
-                                <button class="btn btn-sm btn-outline-light d-flex align-items-center border-0" type="submit">
-                                    <i class='bx bx-arrow-down' style="font-size: 20px;"></i>
-                                    <span class="ms-1">{{ note.downVote ?? 0 }}</span>
-                                </button>
-                            </form>
-                            {# COMMENTS BUTTON #}
-                            <button type="button"
-                                    class="btn btn-outline-light btn-sm d-flex flex-row border-0 ps-0 toggle-comments"
-                                    data-note-id="{{ note.id }}"
-                                    style="height: 2rem">
-                                <i class='bx bx-message-circle-reply pt-1 pe-2' style='color: white'></i>
-                                <p class="mb-0">COMMENTS ({{ note.comments|length }})</p>
-                            </button>
-                            {# NOTE MENTIONED #}
-                            <div class="d-block d-md-inline-block w-100 w-md-auto text-gray ms-2 mt-1 mb-1 ps-1 pe-1">
-                                <p style="margin-bottom: -2px">
-                                    mentioned <b style="background-color: #2A3038">@{{ note.nametag }}</b>
-                                </p>
-                            </div>
-                        </div>
-                        {# NOTE DIVIDER #}
-                        <div class="d-flex flex-row text-gray mt-3 mb-2">
-                            <hr style="border: 1px solid #757575; width: 100%;">
-                        </div>
-
-                        {# NOTE COMMENT #}
-                        <div class="note-comments" id="comments-{{ note.id }}">
-                            {# WRITING COMMENT FORM #}
-                            <form method="POST" action="{{ path('note_comment', {id: note.id}) }}">
-                                <div class="d-flex flex-row mb-3">
-                                    <a class="nav-link me-2" href="#">
-                                        <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ note.user.avatar) }}" alt="writeCommentAvatar" onerror="showDefaultIcon(this)">
-                                    </a>
-                                    <div class="d-flex flex-row w-100">
-                                        <input type="text" name="message" class="form-control mb-1" placeholder="Write a comment..." required>
-                                        <div class="d-flex justify-content-end">
-                                            <button type="submit" class="btn btn-light btn-sm px-3" style="height: 40px;">Post</button>
+                                        <div class="dropdown ms-auto me-1 d-inline-flex justify-content-end">
+                                            <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="height: 30px;">
+                                                <i class='bx bx-dots-horizontal-rounded' style='color:#ffffff'></i>
+                                            </a>
+                                            <ul class="dropdown-menu m-0">
+                                                {% if app.user.nametag == comment.user.nametag %}
+                                                    <li><a class="dropdown-item" href="{{ path('note_comment_update', {id: comment.id, noteId: note.id}) }}">Edit...</a></li>
+                                                    <li><a class="dropdown-item" href="{{ path('note_comment_delete', {id: comment.id, noteId: note.id}) }}">Delete comment</a></li>
+                                                {% else %}
+                                                    <li><a class="dropdown-item" href="{{ path('note_comment_report', {id: comment.id, noteId: note.id}) }}">Report</a></li>
+                                                {% endif %}
+                                            </ul>
                                         </div>
                                     </div>
-                                </div>
-                            </form>
-
-                            {# COMMENTS LIST #}
-                            {% for comment in note.comments %}
-                                <div class="d-flex flex-row mb-3">
-                                    <a class="nav-link me-2" href="#">
-                                        <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ comment.user.avatar) }}" alt="avatarComment" onerror="showDefaultIcon(this)">
-                                    </a>
-                                    <div class="m-0 p-0">
-                                        <div class="d-flex flex-row" style="height: 30px;">
-                                            <p class="text-white m-0 me-2" style="font-size: 18px;">@{{ comment.user.nametag }}</p>
-                                            {% if comment.isEdited %}
-                                                <i class="fa fa-clock-o text-gray me-1" style="margin-top: 6px"></i>
-                                            {% else %}
-                                                <p class="text-gray mt-1 me-2">•</p>
-                                            {% endif %}
-                                            <p class="text-gray mt-1">{{ comment.humanTimeComment  }}</p>
-                                        </div>
-                                        <div class="d-inline-flex">
-                                            <small style="font-size: 16px; color: white; background-color: #757575; border-radius: 8px; opacity: 0.5; padding: 5px;">{{ comment.message }}</small>
-                                            {# UPVOTE FORM #}
-                                            <form method="POST" action="{{ path('note_comment_upvote', {noteId: note.id, id: comment.id}) }}" class="me-2">
-                                                <button class="btn btn-sm btn-outline-light d-flex align-items-center border-0" type="submit">
-                                                    <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
-                                                    <span class="ms-1">{{ comment.upVote ?? 0 }}</span>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                    <div class="dropdown ms-auto me-1 d-inline-flex justify-content-end">
-                                        <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="height: 30px;">
-                                            <i class='bx bx-dots-horizontal-rounded' style='color:#ffffff'></i>
-                                        </a>
-                                        <ul class="dropdown-menu m-0">
-                                            {% if app.user.nametag == comment.user.nametag %}
-                                                <li><a class="dropdown-item" href="{{ path('note_comment_update', {id: comment.id, noteId: note.id}) }}">Edit...</a></li>
-                                                <li><a class="dropdown-item" href="{{ path('note_comment_delete', {id: comment.id, noteId: note.id}) }}">Delete comment</a></li>
-                                            {% else %}
-                                                <li><a class="dropdown-item" href="{{ path('note_comment_report', {id: comment.id, noteId: note.id}) }}">Report</a></li>
-                                            {% endif %}
-                                        </ul>
-                                    </div>
-                                </div>
-                            {% endfor %}
+                                {% endfor %}
+                            </div>
                         </div>
-                    </div>
                     {% endfor %}
                 {% else %}
                     <div class="col-lg-7 pt-4 ps-4 pe-4" style="background-color: #181b20; border-radius: 5px; margin-top: 2rem;">

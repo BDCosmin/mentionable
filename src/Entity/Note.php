@@ -244,9 +244,9 @@ class Note
         $interval = $publishedDate->diff($now);
 
         if ($interval->d === 0 && $interval->h === 0 && $interval->i < 60) {
-            return $interval->i === 0 ? 'just now' : $interval->i . ' minute' . ($interval->i > 1 ? 's' : '') . ' ago';
+            return $interval->i === 0 ? 'now' : $interval->i . ' min' . ($interval->i > 1 ? 's' : '') . ' ago';
         } elseif ($interval->d === 0 && $interval->h < 24) {
-            return $interval->h . ' hour' . ($interval->h > 1 ? 's' : '') . ' ago';
+            return $interval->h . 'h' . ' ago';
         } else {
             return $publishedDate->format('M d');
         }

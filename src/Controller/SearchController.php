@@ -14,23 +14,32 @@ final class SearchController extends AbstractController
     public function search(Request $request, UserRepository $userRepository): Response
     {
         $error = '';
-        // Preia nametag-ul din cererea POST
+        $divVisibility = 'none';
+
         $nametag = trim($request->request->get('searchNametag', ''));
 
-        // Inițializează variabila pentru rezultate
+        $currentUser = $this->getUser();
+
         $users = [];
 
-        // Caută utilizatori doar dacă nametag-ul nu este gol
-        if ($nametag !== '') {
-            // Caută utilizatori cu nametag exact sau similar
+        if ($currentUser instanceof \App\Entity\User && $nametag === $currentUser->getNametag()) {
+            $error = 'Error: You cannot search yourself.';
+            $divVisibility = 'block';
+        } elseif ($nametag === '') {
+            $error = 'Error: Nametag cannot be empty.';
+            $divVisibility = 'block';
+        } else {
             $users = $userRepository->findByNametag($nametag);
+            if (empty($users)) {
+                $error = 'Error: No users found with this nametag.';
+                $divVisibility = 'block';
+            }
         }
 
-        // Renderizează șablonul cu rezultatele și nametag-ul căutat
         return $this->render('search/index.html.twig', [
             'nametag' => $nametag,
             'users' => $users,
-            'divVisibility' => 'none',
+            'divVisibility' => $divVisibility,
             'error' => $error,
         ]);
     }

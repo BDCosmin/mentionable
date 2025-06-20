@@ -42,7 +42,7 @@ final class UserController extends AbstractController
     public function myNotes(NoteRepository $noteRepository, FriendRequestRepository $friendRequestRepository, NotificationService $notificationService): Response
     {
         $user = $this->getUser();
-        $notes = $noteRepository->findBy(['user' => $user]);
+        $notes = $noteRepository->findBy(['user' => $user], ['publicationDate' => 'DESC']);
 
         $notifications = $notificationService->getLatestUserNotifications();
         $friendRequests = $friendRequestRepository->findBy(['receiver' => $user]);
