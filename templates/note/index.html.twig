@@ -92,32 +92,31 @@
                                 </div>
                             {% endif %}
                             {# NOTE NAV – DESKTOP & MOBILE HYBRID #}
-                            <div class="d-flex flex-wrap align-items-center text-gray mt-3 mb-2 ms-0 ps-0">
+                            <div class="d-flex flex-wrap align-items-center text-gray mt-2 mb-1 ms-0 ps-0">
                                 {# VOTE & COMMENTS – ALWAYS SHOWN #}
-                                <div class="d-flex flex-row flex-wrap">
+                                <div class="d-flex flex-row flex-nowrap align-items-center">
                                     {# UPVOTE FORM #}
-                                    <form method="POST" action="{{ path('note_upvote', {id: note.id}) }}" class="me-2">
-                                        <button class="btn btn-sm btn-outline-light d-flex align-items-center border-0" type="submit">
-                                            <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
-                                            <span class="ms-1">{{ note.upVote ?? 0 }}</span>
+                                    <form method="POST" action="{{ path('note_upvote', {id: note.id}) }}" class="me-1">
+                                        <button class="btn btn-sm btn-outline-light d-flex align-items-center border-0 compact-btn" type="submit">
+                                            <i class='bx bx-arrow-up'></i>
+                                            <span class="vote-count">{{ note.upVote ?? 0 }}</span>
                                         </button>
                                     </form>
 
                                     {# DOWNVOTE FORM #}
-                                    <form method="POST" action="{{ path('note_downvote', {id: note.id}) }}" class="me-2">
-                                        <button class="btn btn-sm btn-outline-light d-flex align-items-center border-0" type="submit">
-                                            <i class='bx bx-arrow-down' style="font-size: 20px;"></i>
-                                            <span class="ms-1">{{ note.downVote ?? 0 }}</span>
+                                    <form method="POST" action="{{ path('note_downvote', {id: note.id}) }}" class="me-1">
+                                        <button class="btn btn-sm btn-outline-light d-flex align-items-center border-0 compact-btn" type="submit">
+                                            <i class='bx bx-arrow-down'></i>
+                                            <span class="vote-count">{{ note.downVote ?? 0 }}</span>
                                         </button>
                                     </form>
 
                                     {# COMMENTS BUTTON #}
                                     <button type="button"
-                                            class="btn btn-outline-light btn-sm d-flex flex-row align-items-center border-0 ps-0 me-2 toggle-comments"
-                                            data-note-id="{{ note.id }}"
-                                            style="height: 2rem">
-                                        <i class='bx bx-message-circle-reply pt-1 pe-2' style='color: white'></i>
-                                        <p class="mb-0">COMMENTS ({{ note.comments|length }})</p>
+                                            class="btn btn-outline-light btn-sm d-flex flex-row align-items-center border-0 ps-0 me-1 toggle-comments compact-btn"
+                                            data-note-id="{{ note.id }}">
+                                        <i class='bx bx-message-circle-reply pe-1'></i>
+                                        <span class="comment-count">({{ note.comments|length }})</span>
                                     </button>
 
                                     {# NOTE MENTIONED – SHOWN ONLY ON DESKTOP #}
@@ -211,4 +210,30 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block javascript %}
+{{ parent() }}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const buttons = document.querySelectorAll(".toggle-comments");
+
+        buttons.forEach(button => {
+            button.addEventListener("click", function () {
+                const noteId = this.getAttribute("data-note-id");
+                const commentSection = document.getElementById("comments-" + noteId);
+
+                if (commentSection) {
+                    if (commentSection.style.display === "none" || commentSection.style.display === "") {
+                        commentSection.style.display = "block";
+                    } else {
+                        commentSection.style.display = "none";
+                    }
+                } else {
+                    console.error("Nu s-a găsit elementul pentru comentarii cu id: comments-" + noteId);
+                }
+            });
+        });
+    });
+</script>
 {% endblock %}
