@@ -60,7 +60,7 @@
             {# NOTE #}
             {% if notes is defined %}
                 {% for note in notes %}
-                    <div class="col-lg-7 pt-4 ps-4 pe-4 pb-3" style="background-color: #181b20; border-radius: 5px; margin-top: 2rem;">
+                    <div class="col-lg-7 pt-4 ps-4 pe-4 pb-3" style="background-color: #181b20; border-radius: 10px; margin-top: 2rem;">
                         {# NOTE PROFILE #}
                         <div class="navbar-profile d-flex flex-row text-light mb-3" style="width: 100%;">
                             <a class="nav-link me-3 mt-2" id="avatarNote" href="{{ path('app_profile', {'id': note.user.id}) }}">
@@ -146,21 +146,17 @@
                         <div class="d-flex flex-wrap align-items-center text-gray mt-3 mb-2 ms-0 ps-0">
                             {# VOTE & COMMENTS – ALWAYS SHOWN #}
                             <div class="d-flex flex-row flex-wrap">
-                                {# UPVOTE FORM #}
-                                <form method="POST" action="{{ path('note_upvote', {id: note.id}) }}" class="me-2">
-                                    <button class="btn btn-sm btn-outline-light d-flex align-items-center border-0" type="submit">
-                                        <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
-                                        <span class="ms-1">{{ note.upVote ?? 0 }}</span>
-                                    </button>
-                                </form>
+                                {# UPVOTE #}
+                                <button class="upvote-btn btn btn-sm btn-outline-light d-flex align-items-center border-0" data-id="{{ note.id }}">
+                                    <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
+                                    <span class="ms-1" id="upvotes-{{ note.id }}">{{ note.getUpVote() }}</span>
+                                </button>
 
-                                {# DOWNVOTE FORM #}
-                                <form method="POST" action="{{ path('note_downvote', {id: note.id}) }}" class="me-2">
-                                    <button class="btn btn-sm btn-outline-light d-flex align-items-center border-0" type="submit">
-                                        <i class='bx bx-arrow-down' style="font-size: 20px;"></i>
-                                        <span class="ms-1">{{ note.downVote ?? 0 }}</span>
-                                    </button>
-                                </form>
+                                {# DOWNVOTE #}
+                                <button class="downvote-btn btn btn-sm btn-outline-light d-flex align-items-center border-0" data-id="{{ note.id }}">
+                                    <i class='bx bx-arrow-down' style="font-size: 20px;"></i>
+                                    <span class="ms-1" id="downvotes-{{ note.id }}">{{ note.getDownVote() }}</span>
+                                </button>
 
                                 {# COMMENTS BUTTON #}
                                 <button type="button"
@@ -288,6 +284,39 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
+</script>
+<script>
+    const voteHandler = (noteId, type) => {
+        fetch(`/note/${noteId}/${type}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': '{{ csrf_token('vote') }}'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                document.querySelector(`#upvotes-${noteId}`).textContent = data.upvotes;
+                document.querySelector(`#downvotes-${noteId}`).textContent = data.downvotes;
+            }
+        });
+    };
+
+    document.querySelectorAll('.upvote-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.dataset.id;
+            voteHandler(id, 'upvote');
+        });
+    });
+
+    document.querySelectorAll('.downvote-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.dataset.id;
+            voteHandler(id, 'downvote');
+        });
+    });
 </script>
 {% endblock %}
 

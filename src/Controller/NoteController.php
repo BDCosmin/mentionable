@@ -20,6 +20,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -244,7 +245,7 @@ class NoteController extends AbstractController
     public function upvote(Note $note,
                            EntityManagerInterface $em,
                            Request $request,
-                           NoteVoteRepository $noteVoteRepository): Response
+                           NoteVoteRepository $noteVoteRepository): JsonResponse
     {
         $user = $this->getUser();
 
@@ -286,14 +287,19 @@ class NoteController extends AbstractController
 
         $em->flush();
 
-        return $this->redirect($request->headers->get('referer'));
+        return new JsonResponse([
+            'success' => true,
+            'upvotes' => $note->getUpVote(),
+            'downvotes' => $note->getDownVote(),
+        ]);
+
     }
 
     #[Route('/note/{id}/downvote', name: 'note_downvote', methods: ['POST'])]
     public function downvote(Note $note,
                              EntityManagerInterface $em,
                              Request $request,
-                             NoteVoteRepository $noteVoteRepository): Response
+                             NoteVoteRepository $noteVoteRepository): JsonResponse
     {
         $user = $this->getUser();
 
@@ -335,7 +341,11 @@ class NoteController extends AbstractController
 
         $em->flush();
 
-        return $this->redirect($request->headers->get('referer'));
+        return new JsonResponse([
+            'success' => true,
+            'upvotes' => $note->getUpVote(),
+            'downvotes' => $note->getDownVote(),
+        ]);
     }
 
     #[Route('/note/{id}/comment', name: 'note_comment', methods: ['POST'])]

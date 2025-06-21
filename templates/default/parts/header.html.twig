@@ -4,7 +4,7 @@
         <div class="navbar-brand-wrapper d-flex d-lg-none align-items-center justify-content-center">
             <a class="navbar-brand brand-logo-mini" href="{{ path('homepage') }}"><img src="{{ asset('../../../assets/images/logo-mini.png') }}" alt="logo" /></a>
         </div>
-        <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
+        <button class="navbar-toggler navbar-toggler align-self-center me-2" type="button" data-toggle="minimize">
             <span class="mdi mdi-menu"></span>
         </button>
 {#        <ul class="navbar-nav w-100">#}
@@ -19,7 +19,6 @@
 {#        </ul>#}
         <ul class="navbar-nav w-100">
             <li class="nav-item w-100 d-flex align-items-center position-relative justify-content-start">
-                <!-- Formularul de căutare -->
                 <form id="searchForm"
                       class="input-group mt-2 mt-md-0 d-none"
                       style="width: 100%; max-width: 350px; flex-wrap: nowrap;"
@@ -34,16 +33,16 @@
                            class="form-control"
                            name="searchNametag"
                            id="searchNametag"
-                           placeholder="Search @nametag"
+                           placeholder="Search nametag ..."
                            style="border-left: none; border-top-left-radius: 0; border-bottom-left-radius: 0; flex: 1 1 auto; font-size: 0.85rem; padding: 0.5rem;">
                     <button type="button"
                             id="closeSearch"
                             class="btn btn-outline-secondary"
-                            style="flex: 0 0 25px; padding: 0 0.3rem; font-size: 0.85rem; border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                            style="background-color: #2A3038; color: gray; flex: 0 0 25px; padding: 0 0.3rem; font-size: 0.85rem; border-top-left-radius: 0; border-bottom-left-radius: 0;">
                         ✕
                     </button>
                 </form>
-                <!-- Butonul care deschide inputul, doar pe mobil -->
+                <!-- mobil -->
                 <button type="button"
                         id="toggleSearch"
                         class="btn btn-secondary d-inline-flex d-md-none mt-2 mt-md-0"
@@ -54,14 +53,13 @@
         </ul>
 
         <style>
-            /* Stiluri pentru mobil, inclusiv iPhone 14 Pro Max (430px) */
             @media (max-width: 435px) {
                 .navbar-brand-wrapper {
-                    flex: 0 0 50px !important; /* Lățime fixă mică pentru logo */
+                    flex: 0 0 50px !important;
                     padding: 0 !important;
                 }
                 .navbar-menu-wrapper {
-                    padding: 0 5px !important; /* Padding minim */
+                    padding: 0 5px !important;
                 }
                 #searchForm {
                     flex-wrap: nowrap !important;
@@ -105,9 +103,110 @@
             }
         </style>
 
-
-        {# NOTIFICATIONS LIST #}
         <ul class="navbar-nav navbar-nav-right">
+            {# RINGS NOTIFICATIONS LIST #}
+            <li class="nav-item dropdown border-left">
+{#                {% set hasNotification = false %}#}
+{#                {% if latest_notifications is defined %}#}
+{#                    {% for notification in latest_notifications %}#}
+{#                        {% if notification.receiver.nametag == app.user.nametag and not notification.isRead %}#}
+{#                            {% set hasNotification = true %}#}
+{#                        {% endif %}#}
+{#                    {% endfor %}#}
+{#                {% endif %}#}
+
+                <a class="nav-link count-indicator dropdown-toggle" id="ringsNotificationDropdown" href="#" data-bs-toggle="dropdown">
+                    <i class='bx bx-circle-dashed' style='color:#ffffff; font-size: 20px'></i>
+                    {#                    {% if hasNotification %}#}
+{#                        <span class="count bg-danger"></span>#}
+{#                    {% endif %}#}
+                </a>
+                <div class="dropdown-menu dropdown-menu-end navbar-dropdown preview-list" aria-labelledby="ringsNotificationDropdown">
+{#                    <div class="d-flex flex-row">#}
+{#                        <h6 class="p-3 mb-0">Latest notifications</h6>#}
+{#                        #}{# MARK AS READ #}
+{#                        <a href="{{ path('mark_notifications_read') }}" class="ms-auto mt-3 me-3">#}
+{#                            <i class='bx bx-message-circle-check' style='color:#ffffff; font-size: 18px'></i>#}
+{#                        </a>#}
+{#                    </div>#}
+{#                    <div class="dropdown-divider"></div>#}
+{#                    #}{# NOTIFICATION #}
+{#                    {% if latest_notifications is defined and latest_notifications is not empty %}#}
+{#                        {% for notification in latest_notifications %}#}
+{#                            <a class="dropdown-item preview-item"#}
+{#                                    {% if notification.type != 'friend_request' %}#}
+{#                                        href="{{ path('app_note_redirect', {'notificationId': notification.id}) }}"#}
+{#                                    {% else %}#}
+{#                                        href="#" data-bs-toggle="modal" data-bs-target="#friendRequestModal"#}
+{#                                    {% endif %}#}
+{#                            >#}
+{#                                {% if notification.type != 'reported' %}#}
+{#                                    <div class="preview-thumbnail">#}
+{#                                        <div class="m-0 p-0">#}
+{#                                            {% if notification.sender %}#}
+{#                                                <img class="preview-icon bg-dark rounded-circle" src="{{ asset('uploads/avatars/' ~ notification.sender.avatar) }}" alt="avatarNotif" onerror="showDefaultIcon(this)">#}
+{#                                            {% else %}#}
+{#                                                <i class="fa fa-user text-white pt-2 ps-2"></i>#}
+{#                                            {% endif %}#}
+{#                                        </div>#}
+{#                                    </div>#}
+{#                                {% endif %}#}
+{#                                <div class="preview-item-content">#}
+{#                                    {% if notification.sender %}#}
+{#                                        {% if notification.type == 'mentioned' %}#}
+{#                                            <p class="preview-subject mb-1">{{ notification.sender.nametag }} mentioned you!</p>#}
+{#                                            <p class="text-muted ellipsis mb-0">Tap to see what's the note about.</p>#}
+{#                                        {% elseif notification.type == 'commented' %}#}
+{#                                            <p class="preview-subject mb-1">{{ notification.sender.nametag }} commented on your note!</p>#}
+{#                                            <p class="text-muted ellipsis mb-0">Tap to see what's the comment about.</p>#}
+{#                                        {% elseif notification.type == 'upvoted' %}#}
+{#                                            <p class="preview-subject mb-1">{{ notification.sender.nametag }} agrees with you!</p>#}
+{#                                            <p class="text-muted ellipsis mb-0">Tap to see what's the comment about.</p>#}
+{#                                        {% elseif notification.type == 'downvoted' %}#}
+{#                                            <p class="preview-subject mb-1">{{ notification.sender.nametag }} disagrees with you!</p>#}
+{#                                            <p class="text-muted ellipsis mb-0">Tap to see what's the comment about.</p>#}
+{#                                        {% elseif notification.type == 'friend_request' %}#}
+{#                                            <p class="preview-subject mb-1">{{ notification.sender.nametag }} send you a friend request!</p>#}
+{#                                            <p class="text-muted ellipsis mb-0">Tap to see what's the friend request about.</p>#}
+{#                                        {% elseif notification.type == 'reported' %}#}
+{#                                            <p class="preview-subject mb-1">Your annonymous report has been sent!</p>#}
+{#                                            <p class="text-muted ellipsis mb-0">We will review in short time your request. Thank you!</p>#}
+{#                                        {% else %}#}
+{#                                            <p class="text-muted ellipsis mb-0">An error has occurred. Please try again later!</p>#}
+{#                                        {% endif %}#}
+{#                                    {% else %}#}
+{#                                        <p class="text-muted ellipsis mb-0">An error has occurred. Please try again later!</p>#}
+{#                                    {% endif %}#}
+{#                                    <i class="fa fa-clock-o" style="color: gray"></i>#}
+{#                                    <small class="text-gray">{{ notification.humanTimeNotification }}#}
+{#                                        {% if not notification.isRead %}#}
+{#                                            <i class="fa fa-dot-circle-o ms-1" style="color: white; font-size: 12px"></i>#}
+{#                                        {% endif %}#}
+{#                                    </small>#}
+{#                                </div>#}
+{#                            </a>#}
+{#                            <div class="dropdown-divider"></div>#}
+{#                        {% endfor %}#}
+{#                        {% if latest_notifications|length == 3 %}#}
+{#                            <a class="dropdown-item preview-item d-flex justify-content-center align-items-center" href="{{ path('app_user_notifications') }}">#}
+{#                                <div class="preview-item-content">#}
+{#                                    <p class="preview-subject mb-1">See all the notifications...</p>#}
+{#                                </div>#}
+{#                            </a>#}
+{#                        {% endif %}#}
+{#                    {% else %}#}
+{#                        <div class="d-flex flex-row">#}
+{#                            <div class="preview-thumbnail pt-2 pe-2 ps-3">#}
+{#                                <i class="fa fa-eye"></i>#}
+{#                            </div>#}
+{#                            <div class="preview-item-content pt-2">#}
+{#                                <p class="preview-subject" style="user-select: none">Nothing new.</p>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    {% endif %}#}
+                </div>
+            </li>
+            {# NOTIFICATIONS LIST #}
             <li class="nav-item dropdown border-left">
                 {% set hasNotification = false %}
                 {% if latest_notifications is defined %}
@@ -209,6 +308,7 @@
                     {% endif %}
                 </div>
             </li>
+            {# MORE MENU #}
             <li class="nav-item dropdown">
                 <a class="nav-link" id="profileDropdown" href="#" data-bs-toggle="dropdown">
                     <div class="navbar-profile">
