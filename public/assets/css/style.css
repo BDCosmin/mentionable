@@ -25160,4 +25160,137 @@ input[type="file"]::file-selector-button {
 .blank-page {
   height: 89vh;
 }
+
+/* Stiluri de bază pentru butoane */
+.compact-btn {
+  padding: 0.3rem 0.5rem;
+  font-size: 0.9rem;
+  line-height: 1;
+  white-space: nowrap;
+  min-width: 30px; /* Lățime minimă pentru lizibilitate */
+}
+
+.compact-btn i {
+  font-size: 16px;
+}
+
+.vote-count, .comment-count {
+  font-size: 0.9rem;
+  margin-left: 3px;
+}
+
+/* Ajustări pentru ecrane <430px */
+@media (max-width: 429px) {
+  .d-flex.flex-nowrap {
+    flex-wrap: nowrap !important;
+    gap: 2px !important;
+  }
+
+  .compact-btn {
+    padding: 0.15rem 0.3rem;
+    font-size: 0.8rem;
+    min-width: 25px;
+  }
+
+  .compact-btn i {
+    font-size: 14px;
+  }
+
+  .vote-count, .comment-count {
+    font-size: 0.8rem;
+    margin-left: 2px;
+  }
+
+  /* Trecem la col-12 pentru mai mult spațiu */
+  .col-lg-7 {
+    width: 100% !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+  }
+
+  /* Reducem padding-ul notei */
+  .col-lg-7.pt-4.ps-4.pe-4.pb-3 {
+    padding: 8px 6px !important;
+  }
+}
+
+/* Ajustări pentru ecrane ≤375px (ex. iPhone SE) */
+@media (max-width: 375px) {
+  .compact-btn {
+    padding: 0.1rem 0.25rem;
+    font-size: 0.75rem;
+    min-width: 22px;
+  }
+
+  .compact-btn i {
+    font-size: 12px;
+  }
+
+  .vote-count, .comment-count {
+    font-size: 0.75rem;
+    margin-left: 1px;
+  }
+
+  .col-lg-7 {
+    padding-left: 2px !important;
+    padding-right: 2px !important;
+  }
+
+  .col-lg-7.pt-4.ps-4.pe-4.pb-3 {
+    padding: 6px 4px !important;
+  }
+}
+
+/* Ajustări pentru ecrane ≤360px (ex. Galaxy A15) */
+@media (max-width: 360px) {
+  .compact-btn {
+    padding: 0.1rem 0.2rem;
+    font-size: 0.7rem;
+    min-width: 20px;
+  }
+
+  .compact-btn i {
+    font-size: 11px;
+  }
+
+  .vote-count, .comment-count {
+    font-size: 0.7rem;
+  }
+
+  .col-lg-7.pt-4.ps-4.pe-4.pb-3 {
+    padding: 5px 3px !important;
+  }
+}
+
+/* Ajustări pentru ecrane ≤320px (ex. iPhone 5) */
+@media (max-width: 320px) {
+  .d-flex.flex-nowrap {
+    flex-wrap: wrap !important; /* Permitere wrap controlat */
+    gap: 1px !important;
+  }
+
+  .compact-btn {
+    padding: 0.05rem 0.15rem;
+    font-size: 0.65rem;
+    min-width: 18px;
+  }
+
+  .compact-btn i {
+    font-size: 10px;
+  }
+
+  .vote-count, .comment-count {
+    font-size: 0.65rem;
+    margin-left: 0;
+  }
+
+  .col-lg-7 {
+    padding-left: 1px !important;
+    padding-right: 1px !important;
+  }
+
+  .col-lg-7.pt-4.ps-4.pe-4.pb-3 {
+    padding: 4px 2px !important;
+  }
+}
 /*# sourceMappingURL=maps/style.css.map */
