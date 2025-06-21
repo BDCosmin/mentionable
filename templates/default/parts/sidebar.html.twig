@@ -5,70 +5,100 @@
         <a class="sidebar-brand brand-logo-mini" href="{{ path('homepage') }}"><img src="{{ asset('assets/images/logo-mini.png')}}" style="height: 40px; width: 40px" alt="logo" /></a>
     </div>
     <ul class="nav">
-        {% if app.user %}
-            <li class="nav-item profile">
-                <div class="profile-desc">
-                    <div class="profile-pic">
-                        <div class="count-indicator">
-                            <img class="img-xs rounded-circle " src="{{ asset('uploads/avatars/' ~ app.user.avatar) }}" alt="avatar-sidebar" onerror="showDefaultIcon(this)">
-                            {% if app.user.isVerified %}
-                                <i class='count fa fa-check-circle'></i>
-                            {% endif %}
-                        </div>
-                        <div class="profile-name">
-                            <h5 class="mb-0 font-weight-normal">
-                                @{{ app.user.nametag }}
-                            </h5>
-                            {% if app.user.isVerified %}
-                                <span>Verified member</span>
-                            {% else %}
-                                <span>Unverified member</span>
-                                <span><b>limited access</b></span>
-                            {% endif %}
-                        </div>
+        <li class="nav-item profile">
+            <div class="profile-desc">
+                <div class="profile-pic">
+                    <div class="count-indicator">
+                        <img class="img-xs rounded-circle " src="{{ asset('uploads/avatars/' ~ app.user.avatar) }}" alt="avatar-sidebar" onerror="showDefaultIcon(this)">
+                        {% if app.user.isVerified %}
+                            <i class='count fa fa-check-circle'></i>
+                        {% endif %}
+                    </div>
+                    <div class="profile-name">
+                        <h5 class="mb-0 font-weight-normal">
+                            @{{ app.user.nametag }}
+                        </h5>
+                        {% if app.user.isVerified %}
+                            <span>Verified member</span>
+                        {% else %}
+                            <span>Unverified member</span>
+                            <span><b>limited access</b></span>
+                        {% endif %}
                     </div>
                 </div>
-            </li>
-            <li class="nav-item nav-category">
-                <span class="nav-link">Menu</span>
-            </li>
-            <li class="nav-item menu-items {% if app.request.attributes.get('_route') == 'app_profile' %}active{% endif %}">
-                <a class="nav-link" href="{{ path('app_profile', {'id': app.user.id}) }}">
-                    <span class="menu-icon">
-                        <i class="fa fa-user-circle"></i>
-                    </span>
-                    <span class="menu-title">My profile</span>
-                </a>
-            </li>
-            <li class="nav-item menu-items {% if app.request.attributes.get('_route') == 'app_user_notes' %}active{% endif %}">
-                <a class="nav-link" href="{{ path('app_user_notes') }}">
-                    <span class="menu-icon">
-                        <i class='bx bx-note'></i>
-                    </span>
-                    <span class="menu-title">My notes</span>
-                </a>
-            </li>
-            <li class="nav-item menu-items">
-                <a class="nav-link" data-bs-toggle="collapse" href="#ui-basic" aria-expanded="false" aria-controls="ui-basic">
-              <span class="menu-icon">
-                <i class="fa fa-cogs"></i>
-              </span>
-                    <span class="menu-title">Account settings</span>
-                    <i class="menu-arrow"></i>
-                </a>
-                <div class="collapse" id="ui-basic">
-                    <ul class="nav flex-column sub-menu">
-                        <li class="nav-item"> <a class="nav-link" href="{{ path('app_change_password') }}">Change password</a></li>
-                        <li class="nav-item"> <a class="nav-link" href="{{ path('app_avatar_edit') }}">Edit avatar</a></li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
-                                Delete account
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </li>
-        {% endif %}
+            </div>
+        </li>
+        <li class="nav-item nav-category">
+            <span class="nav-link">Menu</span>
+        </li>
+        <li class="nav-item menu-items {% if app.request.attributes.get('_route') == 'app_profile' %}active{% endif %}">
+            <a class="nav-link" href="{{ path('app_profile', {'id': app.user.id}) }}">
+                <span class="menu-icon">
+                    <i class="fa fa-user-circle"></i>
+                </span>
+                <span class="menu-title">My profile</span>
+            </a>
+        </li>
+        <li class="nav-item menu-items {% if app.request.attributes.get('_route') == 'app_user_notes' %}active{% endif %}">
+            <a class="nav-link" href="{{ path('app_user_notes') }}">
+                <span class="menu-icon">
+                    <i class='bx bx-note'></i>
+                </span>
+                <span class="menu-title">My notes</span>
+            </a>
+        </li>
+        <li class="nav-item menu-items">
+            <a class="nav-link" href="#">
+                <span class="menu-icon">
+                    <i class='bx bx-hashtag'></i>
+                </span>
+                <span class="menu-title">Interests</span>
+            </a>
+        </li>
+        <li class="nav-item menu-items">
+            <a class="nav-link" href="#">
+                <span class="menu-icon">
+                    <i class='bx bx-circle-dashed'></i>
+                </span>
+                <span class="menu-title">Rings</span>
+            </a>
+        </li>
+        <li class="nav-item menu-items">
+            <a class="nav-link" href="#">
+                <span class="menu-icon">
+                    <i class='bx bx-donate-heart'></i>
+                </span>
+                <span class="menu-title">Donations</span>
+            </a>
+        </li>
+        <li class="nav-item menu-items">
+            <a class="nav-link" data-bs-toggle="collapse" href="#ui-basic" aria-expanded="false" aria-controls="ui-basic">
+          <span class="menu-icon">
+            <i class="fa fa-cogs"></i>
+          </span>
+                <span class="menu-title">Account settings</span>
+                <i class="menu-arrow"></i>
+            </a>
+            <div class="collapse" id="ui-basic">
+                <ul class="nav flex-column sub-menu">
+                    <li class="nav-item"> <a class="nav-link" href="{{ path('app_change_password') }}">Change password</a></li>
+                    <li class="nav-item"> <a class="nav-link" href="{{ path('app_avatar_edit') }}">Edit avatar</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                            Delete account
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </li>
+        <li class="nav-item menu-items">
+            <a class="nav-link" href="#">
+                <span class="menu-icon">
+                    <i class='bx bx-help-circle'></i>
+                </span>
+                <span class="menu-title">Help</span>
+            </a>
+        </li>
     </ul>
 </nav>
 <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true" style="overflow-y: hidden;">
