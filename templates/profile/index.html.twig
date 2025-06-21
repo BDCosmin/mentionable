@@ -320,3 +320,29 @@
         </div>
     </div>
 {% endblock %}
+
+{% block javascript %}
+{{ parent() }}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const buttons = document.querySelectorAll(".toggle-comments");
+
+        buttons.forEach(button => {
+            button.addEventListener("click", function () {
+                const noteId = this.getAttribute("data-note-id");
+                const commentSection = document.getElementById("comments-" + noteId);
+
+                if (commentSection) {
+                    if (commentSection.style.display === "none" || commentSection.style.display === "") {
+                        commentSection.style.display = "block";
+                    } else {
+                        commentSection.style.display = "none";
+                    }
+                } else {
+                    console.error("Nu s-a găsit elementul pentru comentarii cu id: comments-" + noteId);
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
