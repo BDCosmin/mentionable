@@ -190,19 +190,20 @@
                         {# NOTE COMMENT #}
                         <div class="note-comments" id="comments-{{ note.id }}" style="display: none;">
                             {# WRITING COMMENT FORM #}
-                            <form method="POST" action="{{ path('note_comment', {id: note.id}) }}">
+                            <form method="POST" action="{{ path('note_comment', {id: note.id}) }}" class="ajax-comment-form" data-note-id="{{ note.id }}">
                                 <div class="d-flex flex-row mb-3">
                                     <a class="nav-link me-2" href="#">
                                         <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ app.user.avatar)}}" alt="writeCommentAvatar" onerror="showDefaultIcon(this)">
                                     </a>
                                     <div class="d-flex flex-row w-100">
-                                        <input type="text" name="message" class="form-control mb-1" placeholder="Write a comment..." required>
+                                        <input type="text" name="message" class="form-control comment-input mb-1" placeholder="Write a comment..." required>
                                         <div class="d-flex justify-content-end">
                                             <button type="submit" class="btn btn-light btn-sm px-3" style="height: 40px;">Post</button>
                                         </div>
                                     </div>
                                 </div>
                             </form>
+                            <div class="new-comments"></div>
 
                             {# COMMENTS LIST #}
                             {% for comment in note.comments %}
@@ -223,12 +224,15 @@
                                         <div class="d-inline-flex">
                                             <small style="font-size: 16px; color: white; background-color: #757575; border-radius: 8px; opacity: 0.5; padding: 5px;">{{ comment.message }}</small>
                                             {# UPVOTE FORM #}
-                                            <form method="POST" action="{{ path('note_comment_upvote', {noteId: note.id, id: comment.id}) }}" class="me-2">
-                                                <button class="btn btn-sm btn-outline-light d-flex align-items-center border-0" type="submit">
-                                                    <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
-                                                    <span class="ms-1">{{ comment.upVote ?? 0 }}</span>
-                                                </button>
-                                            </form>
+                                            <button
+                                                    class="btn btn-sm btn-outline-light d-flex align-items-center border-0 comment-upvote-btn"
+                                                    data-note-id="{{ note.id }}"
+                                                    data-comment-id="{{ comment.id }}"
+                                                    data-csrf="{{ csrf_token('vote') }}"
+                                                    type="button">
+                                                <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
+                                                <span id="comment-upvotes-{{ comment.id }}" class="ms-1">{{ comment.upVote ?? 0 }}</span>
+                                            </button>
                                         </div>
                                     </div>
                                     <div class="dropdown ms-auto me-1 d-inline-flex justify-content-end">
@@ -238,7 +242,7 @@
                                         <ul class="dropdown-menu m-0">
                                             {% if app.user.nametag == comment.user.nametag %}
                                                 <li><a class="dropdown-item" href="{{ path('note_comment_update', {id: comment.id, noteId: note.id}) }}">Edit...</a></li>
-                                                <li><a class="dropdown-item" href="{{ path('note_comment_delete', {id: comment.id, noteId: note.id}) }}">Delete comment</a></li>
+                                                <li><a class="dropdown-item delete-comment-btn" href="{{ path('note_comment_delete', {id: comment.id, noteId: note.id}) }}">Delete comment</a></li>
                                             {% else %}
                                                 <li><a class="dropdown-item" href="{{ path('note_comment_report', {id: comment.id, noteId: note.id}) }}">Report</a></li>
                                             {% endif %}
@@ -316,6 +320,103 @@ document.addEventListener("DOMContentLoaded", function () {
             voteHandler(id, 'downvote');
         });
     });
+
+
+    document.querySelectorAll('.ajax-comment-form').forEach(form => {
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const noteId = this.dataset.noteId;
+        const input = this.querySelector('.comment-input');
+        const message = input.value.trim();
+
+        if (!message) return;
+
+        fetch(this.action, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': '{{ csrf_token('comment') }}'
+            },
+            body: new URLSearchParams({ message: message })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const commentsContainer = form.closest('.note-comments').querySelector('.new-comments');
+
+                commentsContainer.insertAdjacentHTML('afterbegin', data.html);
+                input.value = '';
+
+                const countSpan = document.querySelector(`.toggle-comments[data-note-id="${noteId}"] .comment-count`);
+                if (countSpan) {
+                    countSpan.textContent = parseInt(countSpan.textContent) + 1;
+                }
+            }
+        })
+        .catch(err => console.error('Comment error:', err));
+    });
+});
+</script>
+<script>
+        document.addEventListener('click', function (e) {
+            if (e.target.classList.contains('delete-comment-btn')) {
+                e.preventDefault();
+
+                const commentElement = e.target.closest('.d-flex.flex-row.mb-3');
+                const url = e.target.getAttribute('href');
+
+                if (!url || !commentElement) return;
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': '{{ csrf_token('comment') }}'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        commentElement.remove();
+                    } else {
+                        alert('A apărut o eroare la ștergerea comentariului.');
+                    }
+                })
+                .catch(err => console.error('Eroare ștergere:', err));
+            }
+        });
+</script>
+<script>
+        document.querySelectorAll('.comment-upvote-btn').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                const noteId = this.dataset.noteId;
+                const commentId = this.dataset.commentId;
+                const csrfToken = this.dataset.csrf; // sau extrage-l din meta tag ori alt atribut
+
+                fetch(`/note/comment/${noteId}-${commentId}/upvote`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': csrfToken
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        // Actualizează vizual numărul de upvote-uri, etc.
+                        document.querySelector(`#comment-upvotes-${commentId}`).textContent = data.upvotes;
+                    } else {
+                        console.error(data.message || 'Eroare necunoscută');
+                    }
+                })
+                .catch(err => console.error('Fetch error:', err));
+            });
+        });
 </script>
 {% endblock %}
 

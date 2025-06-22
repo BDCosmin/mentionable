@@ -24,6 +24,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Csrf\CsrfToken;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use function Webmozart\Assert\Tests\StaticAnalysis\boolean;
@@ -366,6 +368,18 @@ class NoteController extends AbstractController
 
         $notificationService->notifyComment($this->getUser(), $receiver, $comment);
 
+        if ($request->isXmlHttpRequest()) {
+            // Aici modifici să returnezi HTML-ul randat din Twig (fragmentul cu comentariul)
+            $html = $this->renderView('comment/partial.html.twig', [
+                'comment' => $comment,
+            ]);
+
+            return new JsonResponse([
+                'success' => true,
+                'html' => $html,
+            ]);
+        }
+
         return $this->redirectToRoute('homepage');
     }
 
@@ -373,10 +387,19 @@ class NoteController extends AbstractController
     #[IsGranted('ROLE_USER')]
     public function deleteComment(int $id ,Request $request, EntityManagerInterface $em, CommentRepository $commentRepository): Response
     {
+
         $comment = $commentRepository->find($id);
+
+        if (!$comment) {
+            return new JsonResponse(['success' => false, 'message' => 'Comentariu inexistent'], 404);
+        }
 
         $em->remove($comment);
         $em->flush();
+
+        if ($request->isXmlHttpRequest()) {
+            return new JsonResponse(['success' => true]);
+        }
 
         return $this->redirect($request->headers->get('referer'));
     }
@@ -509,6 +532,13 @@ class NoteController extends AbstractController
             }
         }
         $em->flush();
+
+        if ($request->isXmlHttpRequest()) {
+            return new JsonResponse([
+                'success' => true,
+                'upvotes' => $comment->getUpVote(),
+            ]);
+        }
 
         return $this->redirect($request->headers->get('referer'));
     }
