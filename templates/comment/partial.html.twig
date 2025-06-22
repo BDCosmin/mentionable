@@ -1,0 +1,41 @@
+<div class="d-flex flex-row mb-3" data-comment-id="{{ comment.id }}">
+    <a class="nav-link me-2" href="#">
+        <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ comment.user.avatar) }}" alt="avatarComment" onerror="showDefaultIcon(this)">
+    </a>
+    <div class="m-0 p-0">
+        <div class="d-flex flex-row" style="height: 30px;">
+            <p class="text-white me-2" style="font-size: 18px;">@{{ comment.user.nametag }}</p>
+            {% if comment.isEdited %}
+                <i class="fa fa-clock-o text-gray me-1" style="margin-top: 6px"></i>
+            {% else %}
+                <p class="text-gray mt-1 me-2">•</p>
+            {% endif %}
+            <p class="text-gray mt-1">{{ comment.humanTimeComment }}</p>
+        </div>
+        <div class="d-inline-flex">
+            <small style="font-size: 16px; color: white; background-color: #757575; border-radius: 8px; opacity: 0.5; padding: 5px;">{{ comment.message }}</small>
+            {# UPVOTE FORM #}
+            <button
+                    class="btn btn-sm btn-outline-light d-flex align-items-center border-0 upvote-btn"
+                    type="button"
+                    data-id="{{ comment.id }}"
+                    data-csrf="{{ csrf_token('upvote_comment') }}">
+                <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
+                <span class="ms-1">{{ comment.upVote ?? 0 }}</span>
+            </button>
+        </div>
+    </div>
+    <div class="dropdown ms-auto me-1 d-inline-flex justify-content-end">
+        <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="height: 30px;">
+            <i class='bx bx-dots-horizontal-rounded' style='color:#ffffff'></i>
+        </a>
+        <ul class="dropdown-menu m-0">
+            {% if app.user.nametag == comment.user.nametag %}
+                <li><a class="dropdown-item" href="{{ path('note_comment_update', {id: comment.id, noteId: comment.note.id}) }}">Edit...</a></li>
+                <li><a class="dropdown-item delete-comment-btn" href="{{ path('note_comment_delete', {id: comment.id, noteId: comment.note.id}) }}">Delete comment</a></li>
+            {% else %}
+                <li><a class="dropdown-item" href="{{ path('note_comment_report', {id: comment.id, noteId: comment.note.id}) }}">Report</a></li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
