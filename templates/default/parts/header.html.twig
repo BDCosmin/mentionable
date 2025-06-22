@@ -1,8 +1,26 @@
+<style>
+    @media (max-width: 767px) {
+        #searchForm {
+            display: none !important;
+        }
+     .mobile-search-wrapper {
+            display: none;
+        }
+
+        .mobile-search-wrapper.active {
+            display: block !important;
+        }
+    }
+    #clearDesktopInput:focus {
+        outline: none !important;
+        box-shadow: none !important;
+    }
+</style>
 <!-- partial:partials/_navbar.html -->
 <nav class="navbar p-0 fixed-top d-flex flex-row">
     <div class="navbar-menu-wrapper flex-grow-1 d-flex align-items-stretch" style="padding: 0 5px;">
         <div class="navbar-brand-wrapper d-flex d-lg-none align-items-center justify-content-center">
-            <a class="navbar-brand brand-logo-mini" href="{{ path('homepage') }}"><img src="{{ asset('../../../assets/images/logo-mini.png') }}" alt="logo" /></a>
+            <a class="navbar-brand brand-logo-mini" href="{{ path('homepage') }}" style="width: 50px;"><img src="{{ asset('../../../assets/images/logo-mini.png') }}" style="width: 40px; height: 35px; margin-top: -10px" alt="logo-mini" /></a>
         </div>
         <button class="navbar-toggler navbar-toggler align-self-center me-2" type="button" data-toggle="minimize">
             <span class="mdi mdi-menu"></span>
@@ -17,95 +35,36 @@
 {#                </form>#}
 {#            </li>#}
 {#        </ul>#}
+
         <ul class="navbar-nav w-100">
             <li class="nav-item w-100 d-flex align-items-center position-relative justify-content-start">
                 <form id="searchForm"
-                      class="input-group mt-2 mt-md-0 d-none"
+                      class="input-group mt-2 mt-md-0 d-none d-md-flex"
                       style="width: 100%; max-width: 350px; flex-wrap: nowrap;"
                       method="POST"
                       action="{{ url('app_find_nametag') }}"
                       enctype="multipart/form-data">
-                      <span class="input-group-text bg-secondary btn btn-secondary disabled"
-                            style="font-size: 20px; color: #434343; flex: 0 0 25px; height: 2.575rem; border-top-right-radius: 0; border-bottom-right-radius: 0;">
-                        @
-                      </span>
+                    <span class="input-group-text bg-secondary btn btn-secondary disabled"
+                          style="font-size: 20px; color: #434343; height: 2.575rem; border-bottom-right-radius: none; border-top-right-radius: none">@</span>
                     <input type="text"
                            class="form-control"
                            name="searchNametag"
                            id="searchNametag"
-                           placeholder="Search nametag ..."
-                           style="border-left: none; border-top-left-radius: 0; border-bottom-left-radius: 0; flex: 1 1 auto; font-size: 0.85rem; padding: 0.5rem;">
+                           placeholder="  Search nametag ..."
+                           style="border-left: none; font-size: 0.85rem; padding: 0.2rem; border-bottom-left-radius: none; border-top-left-radius: none">
                     <button type="button"
-                            id="closeSearch"
-                            class="btn btn-outline-secondary"
-                            style="background-color: #2A3038; color: gray; flex: 0 0 25px; padding: 0 0.3rem; font-size: 0.85rem; border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                            id="clearDesktopInput"
+                            class="btn"
+                            style="background-color: #2A3038; color: gray; height: 2.575rem">
                         ✕
                     </button>
                 </form>
-                <!-- mobil -->
-                <button type="button"
-                        id="toggleSearch"
-                        class="btn btn-secondary d-inline-flex d-md-none mt-2 mt-md-0"
-                        style="font-size: 20px; color: #434343; flex: 0 0 25px; height: 2.575rem; border-top-right-radius: 0; border-bottom-right-radius: 0;">
-                    @
-                </button>
             </li>
         </ul>
 
-        <style>
-            @media (max-width: 435px) {
-                .navbar-brand-wrapper {
-                    flex: 0 0 50px !important;
-                    padding: 0 !important;
-                }
-                .navbar-menu-wrapper {
-                    padding: 0 5px !important;
-                }
-                #searchForm {
-                    flex-wrap: nowrap !important;
-                    width: 100% !important;
-                    max-width: none !important;
-                    margin: 0 !important;
-                }
-                #searchForm input {
-                    min-width: 0;
-                    flex: 1 1 auto;
-                    width: 100%;
-                    padding: 0.4rem;
-                }
-                #searchForm .input-group-text,
-                #searchForm .btn {
-                    flex: 0 0 25px;
-                    padding: 0 0.3rem;
-                    font-size: 0.85rem;
-                }
-                #toggleSearch {
-                    flex: 0 0 25px;
-                    padding: 0 0.3rem;
-                    font-size: 0.85rem;
-                }
-                .navbar-nav {
-                    margin: 0 !important;
-                    padding: 0 !important;
-                }
-                .nav-item {
-                    padding: 0 !important;
-                }
-            }
-
-            @media (min-width: 768px) {
-                #searchForm {
-                    display: flex !important;
-                }
-                #toggleSearch {
-                    display: none !important;
-                }
-            }
-        </style>
-
         <ul class="navbar-nav navbar-nav-right">
             {# RINGS NOTIFICATIONS LIST #}
-            <li class="nav-item dropdown border-left">
+            <li class="nav-item dropdown border-left" style="padding-top: 5px">
 {#                {% set hasNotification = false %}#}
 {#                {% if latest_notifications is defined %}#}
 {#                    {% for notification in latest_notifications %}#}
@@ -117,95 +76,51 @@
 
                 <a class="nav-link count-indicator dropdown-toggle" id="ringsNotificationDropdown" href="#" data-bs-toggle="dropdown">
                     <i class='bx bx-circle-dashed' style='color:#ffffff; font-size: 20px'></i>
-                    {#                    {% if hasNotification %}#}
-{#                        <span class="count bg-danger"></span>#}
-{#                    {% endif %}#}
+                   {# RINGS BADGE MARK AS READ #}
                 </a>
                 <div class="dropdown-menu dropdown-menu-end navbar-dropdown preview-list" aria-labelledby="ringsNotificationDropdown">
-{#                    <div class="d-flex flex-row">#}
-{#                        <h6 class="p-3 mb-0">Latest notifications</h6>#}
-{#                        #}{# MARK AS READ #}
-{#                        <a href="{{ path('mark_notifications_read') }}" class="ms-auto mt-3 me-3">#}
-{#                            <i class='bx bx-message-circle-check' style='color:#ffffff; font-size: 18px'></i>#}
-{#                        </a>#}
-{#                    </div>#}
-{#                    <div class="dropdown-divider"></div>#}
-{#                    #}{# NOTIFICATION #}
-{#                    {% if latest_notifications is defined and latest_notifications is not empty %}#}
-{#                        {% for notification in latest_notifications %}#}
-{#                            <a class="dropdown-item preview-item"#}
-{#                                    {% if notification.type != 'friend_request' %}#}
-{#                                        href="{{ path('app_note_redirect', {'notificationId': notification.id}) }}"#}
-{#                                    {% else %}#}
-{#                                        href="#" data-bs-toggle="modal" data-bs-target="#friendRequestModal"#}
-{#                                    {% endif %}#}
-{#                            >#}
-{#                                {% if notification.type != 'reported' %}#}
-{#                                    <div class="preview-thumbnail">#}
-{#                                        <div class="m-0 p-0">#}
-{#                                            {% if notification.sender %}#}
-{#                                                <img class="preview-icon bg-dark rounded-circle" src="{{ asset('uploads/avatars/' ~ notification.sender.avatar) }}" alt="avatarNotif" onerror="showDefaultIcon(this)">#}
-{#                                            {% else %}#}
-{#                                                <i class="fa fa-user text-white pt-2 ps-2"></i>#}
-{#                                            {% endif %}#}
-{#                                        </div>#}
-{#                                    </div>#}
-{#                                {% endif %}#}
-{#                                <div class="preview-item-content">#}
-{#                                    {% if notification.sender %}#}
-{#                                        {% if notification.type == 'mentioned' %}#}
-{#                                            <p class="preview-subject mb-1">{{ notification.sender.nametag }} mentioned you!</p>#}
-{#                                            <p class="text-muted ellipsis mb-0">Tap to see what's the note about.</p>#}
-{#                                        {% elseif notification.type == 'commented' %}#}
-{#                                            <p class="preview-subject mb-1">{{ notification.sender.nametag }} commented on your note!</p>#}
-{#                                            <p class="text-muted ellipsis mb-0">Tap to see what's the comment about.</p>#}
-{#                                        {% elseif notification.type == 'upvoted' %}#}
-{#                                            <p class="preview-subject mb-1">{{ notification.sender.nametag }} agrees with you!</p>#}
-{#                                            <p class="text-muted ellipsis mb-0">Tap to see what's the comment about.</p>#}
-{#                                        {% elseif notification.type == 'downvoted' %}#}
-{#                                            <p class="preview-subject mb-1">{{ notification.sender.nametag }} disagrees with you!</p>#}
-{#                                            <p class="text-muted ellipsis mb-0">Tap to see what's the comment about.</p>#}
-{#                                        {% elseif notification.type == 'friend_request' %}#}
-{#                                            <p class="preview-subject mb-1">{{ notification.sender.nametag }} send you a friend request!</p>#}
-{#                                            <p class="text-muted ellipsis mb-0">Tap to see what's the friend request about.</p>#}
-{#                                        {% elseif notification.type == 'reported' %}#}
-{#                                            <p class="preview-subject mb-1">Your annonymous report has been sent!</p>#}
-{#                                            <p class="text-muted ellipsis mb-0">We will review in short time your request. Thank you!</p>#}
-{#                                        {% else %}#}
-{#                                            <p class="text-muted ellipsis mb-0">An error has occurred. Please try again later!</p>#}
-{#                                        {% endif %}#}
-{#                                    {% else %}#}
-{#                                        <p class="text-muted ellipsis mb-0">An error has occurred. Please try again later!</p>#}
-{#                                    {% endif %}#}
-{#                                    <i class="fa fa-clock-o" style="color: gray"></i>#}
-{#                                    <small class="text-gray">{{ notification.humanTimeNotification }}#}
-{#                                        {% if not notification.isRead %}#}
-{#                                            <i class="fa fa-dot-circle-o ms-1" style="color: white; font-size: 12px"></i>#}
-{#                                        {% endif %}#}
-{#                                    </small>#}
-{#                                </div>#}
-{#                            </a>#}
-{#                            <div class="dropdown-divider"></div>#}
-{#                        {% endfor %}#}
-{#                        {% if latest_notifications|length == 3 %}#}
-{#                            <a class="dropdown-item preview-item d-flex justify-content-center align-items-center" href="{{ path('app_user_notifications') }}">#}
-{#                                <div class="preview-item-content">#}
-{#                                    <p class="preview-subject mb-1">See all the notifications...</p>#}
-{#                                </div>#}
-{#                            </a>#}
-{#                        {% endif %}#}
-{#                    {% else %}#}
-{#                        <div class="d-flex flex-row">#}
-{#                            <div class="preview-thumbnail pt-2 pe-2 ps-3">#}
-{#                                <i class="fa fa-eye"></i>#}
-{#                            </div>#}
-{#                            <div class="preview-item-content pt-2">#}
-{#                                <p class="preview-subject" style="user-select: none">Nothing new.</p>#}
-{#                            </div>#}
-{#                        </div>#}
-{#                    {% endif %}#}
+                    {# RINGS BADGE NOTIFICATIONS #}
                 </div>
             </li>
+
+            <ul class="navbar-nav navbar-nav-right">
+                <li class="nav-item dropdown border-left">
+                    {# SEARCH BUTTON - MOBILE ONLY #}
+                    <button type="button"
+                            id="toggleSearch"
+                            class="btn d-inline-flex d-md-none pb-3 mt-2"
+                            style="font-size: 24px; background: none; border: none; color: white;">
+                        @
+                    </button>
+                </li>
+            </ul>
+
+            {# MOBILE SEARCH FORM, HIDDEN BY DEFAULT #}
+            <div id="mobileSearchWrapper"
+                 class="mobile-search-wrapper d-md-none position-absolute start-0 px-2"
+                 style="top: 70px; width: 100%; z-index: 9999; background-color: #191c24; padding-top: 10px; padding-bottom: 10px;">
+                <form id="mobileSearchForm"
+                      class="input-group"
+                      method="POST"
+                      action="{{ url('app_find_nametag') }}"
+                      enctype="multipart/form-data"
+                      style="background-color: #1e1e1e; border-radius: 5px;">
+                    <span class="input-group-text bg-secondary btn btn-secondary disabled"
+                          style="font-size: 20px; color: #434343; height: 2.575rem; border-bottom-right-radius: none; border-top-right-radius: none">@</span>
+                    <input type="text"
+                           class="form-control"
+                           name="searchNametag"
+                           placeholder="  Search nametag ..."
+                           style="border-left: none; font-size: 0.85rem; padding: 0.4rem; border-bottom-left-radius: none; border-top-left-radius: none">
+                    <button type="button"
+                            id="closeSearch"
+                            class="btn btn-outline-secondary"
+                            style="background-color: #2A3038; color: gray;">
+                        ✕
+                    </button>
+                </form>
+            </div>
+
             {# NOTIFICATIONS LIST #}
             <li class="nav-item dropdown border-left">
                 {% set hasNotification = false %}
@@ -410,5 +325,32 @@
         }
       });
      });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+        const toggleSearchBtn = document.getElementById('toggleSearch');
+        const mobileSearchWrapper = document.getElementById('mobileSearchWrapper');
+        const closeSearchBtn = document.getElementById('closeSearch');
+
+        const clearDesktopInput = document.getElementById('clearDesktopInput'); // id nou
+        const searchInputDesktop = document.getElementById('searchNametag'); // deja există
+
+        if (toggleSearchBtn && mobileSearchWrapper && closeSearchBtn) {
+        toggleSearchBtn.addEventListener('click', () => {
+        mobileSearchWrapper.classList.add('active');
+        toggleSearchBtn.style.setProperty('display', 'none', 'important');
+    });
+
+        closeSearchBtn.addEventListener('click', () => {
+        mobileSearchWrapper.classList.remove('active');
+        toggleSearchBtn.style.setProperty('display', 'inline-flex', 'important');
+    });
+    }
+
+        if (clearDesktopInput && searchInputDesktop) {
+        clearDesktopInput.addEventListener('click', () => {
+        searchInputDesktop.value = '';
+    });
+    }})
     </script>
 {% endblock %}

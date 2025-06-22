@@ -10,7 +10,7 @@
             <div class="col-lg-7 m-0 p-0 mb-3" id="errorWhilePosting" style="display: {{ divVisibility }};">
                 <span class="badge bg-danger">{{ error }}</span>
             </div>
-            <a class="col-lg-7 note-launch-link d-flex flex-row p-3 mb-2 text-white" style="text-decoration: none; background-color: #2b2f35; border-radius: 10px;" href="#" data-bs-toggle="modal" data-bs-target="#newNoteModal">
+            <a class="col-lg-7 note-launch-link d-flex flex-row p-3 mb-2 text-white" style="text-decoration: none; background-color: #181b20; border-radius: 10px;" href="#" data-bs-toggle="modal" data-bs-target="#newNoteModal">
                 <h4 class="m-0 p-0">
                     What's on your mind ...
                 </h4>
@@ -53,7 +53,7 @@
             <nav class="col-lg-7 m-0 p-0" aria-label="breadcrumb" style="border-radius: 5px;">
                 <ol class="breadcrumb m-0">
                     <li class="breadcrumb-item active d-flex justify-content-center" style="width: 100%" aria-current="page">
-                        <p style="opacity: 50%; font-family: 'Century Gothic'; font-size: 22px; user-select: none">╼ FEED ╾</p>
+                        <p style="opacity: 50%; font-family: 'Century Gothic'; font-size: 22px; user-select: none; color: white">╼ FEED ╾</p>
                     </li>
                 </ol>
             </nav>
@@ -160,7 +160,7 @@
 
                                 {# COMMENTS BUTTON #}
                                 <button type="button"
-                                        class="btn btn-outline-light btn-sm d-flex flex-row align-items-center border-0 ps-0 me-1 toggle-comments compact-btn"
+                                        class="btn btn-outline-light btn-sm d-flex flex-row align-items-center border-0 ps-2 pe-2 ms-1 toggle-comments compact-btn"
                                         data-note-id="{{ note.id }}">
                                     <i class='bx bx-message-circle-reply pe-1'></i>
                                     <span class="comment-count">{{ note.comments|length }}</span>
@@ -168,8 +168,8 @@
 
                                 {# NOTE MENTIONED – SHOWN ONLY ON DESKTOP #}
                                 <div class="d-none d-md-block ms-2">
-                                    <p class="mb-0">
-                                        mentioned <b style="background-color: #2A3038">@{{ note.nametag }}</b>
+                                    <p class="mb-0 mt-1 text-white" style="font-size: 16px">
+                                        mentioned <b style="background-color: #2A3038;">@{{ note.nametag }}</b>
                                     </p>
                                 </div>
                             </div>

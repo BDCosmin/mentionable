@@ -25150,7 +25150,7 @@ input[type="file"]::file-selector-button {
 }
 
 .content-wrapper {
-  background: #000000;
+  background: #222831;
   padding: 1.875rem 1.75rem;
   width: 100%;
   -webkit-flex-grow: 1;
