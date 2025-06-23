@@ -12,6 +12,7 @@ use App\Repository\NotificationRepository;
 use App\Service\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -48,7 +49,7 @@ final class DefaultController extends AbstractController
         ]);
     }
 
-    #[Route('/mark-as-read', name: 'mark_notifications_read')]
+    #[Route('/mark-as-read', name: 'mark_notifications_read', methods: ['POST', 'GET'])]
     public function markNotificationsRead(NotificationService $notificationService): Response
     {
         $user = $this->getUser();
@@ -57,6 +58,6 @@ final class DefaultController extends AbstractController
             $notificationService->markAllAsRead($user);
         }
 
-        return $this->redirectToRoute('homepage');
+        return new Response(null, 204); // 204 = No Content
     }
 }
