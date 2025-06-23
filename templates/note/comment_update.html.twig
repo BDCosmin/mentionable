@@ -165,3 +165,7 @@
         </div>
     </div>
 {% endblock %}
+{% block javascript %}
+{{ parent() }}
+<script src="{{ asset('../assets/js/feed.js') }}"></script>
+{% endblock %}
