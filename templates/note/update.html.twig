@@ -44,33 +44,58 @@
                                     <button type="submit" class="btn btn-success" name="update_btn">Save</button>
                                 </div>
                             </form>
-                            {# NOTE NAV VOTES & COMMENTS #}
-                            <div class="d-flex flex-row text-gray mt-3 mb-2 ms-0 ps-0">
-                                {# UPVOTE FORM #}
-                                <form method="POST" action="{{ path('note_upvote', {id: note.id}) }}" class="me-2">
-                                    <button class="btn btn-sm btn-outline-light d-flex align-items-center border-0" type="submit">
+                            {# NOTE NAV – DESKTOP & MOBILE HYBRID #}
+                            <div class="d-flex flex-wrap align-items-center text-gray mt-2 mb-1 ms-0 ps-0">
+                                {# VOTE & COMMENTS – ALWAYS SHOWN #}
+                                <div class="d-flex flex-row flex-wrap">
+                                    {# UPVOTE #}
+                                    <button class="upvote-btn btn btn-sm btn-outline-light d-flex align-items-center border-0" data-id="{{ note.id }}">
                                         <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
-                                        <span class="ms-1">{{ note.upVote ?? 0 }}</span>
+                                        <span class="ms-1" id="upvotes-{{ note.id }}">{{ note.getUpVote() }}</span>
                                     </button>
-                                </form>
 
-                                {# DOWNVOTE FORM #}
-                                <form method="POST" action="{{ path('note_downvote', {id: note.id}) }}" class="me-2">
-                                    <button class="btn btn-sm btn-outline-light d-flex align-items-center border-0" type="submit">
+                                    {# DOWNVOTE #}
+                                    <button class="downvote-btn btn btn-sm btn-outline-light d-flex align-items-center border-0" data-id="{{ note.id }}">
                                         <i class='bx bx-arrow-down' style="font-size: 20px;"></i>
-                                        <span class="ms-1">{{ note.downVote ?? 0 }}</span>
+                                        <span class="ms-1" id="downvotes-{{ note.id }}">{{ note.getDownVote() }}</span>
                                     </button>
-                                </form>
-                                {# NOTE MENTIONED #}
-                                <div class="d-block d-md-inline-block w-100 w-md-auto text-gray ms-2 mt-1 mb-1 ps-1 pe-1">
-                                    <p style="margin-bottom: -2px">
-                                        mentioned <b style="background-color: #2A3038">@{{ note.nametag }}</b>
+
+                                    {# COMMENTS BUTTON #}
+                                    <button type="button"
+                                            class="btn btn-outline-light btn-sm d-flex flex-row align-items-center border-0 ps-2 pe-2 ms-1 toggle-comments compact-btn"
+                                            data-note-id="{{ note.id }}">
+                                        <i class='bx bx-message-circle-reply pe-1'></i>
+                                        <span class="comment-count">{{ note.comments|length }}</span>
+                                    </button>
+
+                                    <div class="ms-2 me-2 pt-1 d-none d-md-block">
+                                        <p class="text-white" style="margin-top: 7px">•</p>
+                                    </div>
+
+                                    {# NOTE MENTIONED – SHOWN ONLY ON DESKTOP #}
+                                    <div class="d-none d-md-block ps-1 pe-1" style="margin-top: 10px">
+                                        <p class="mb-0 mt-0 text-white" style="font-size: 16px">
+                                            mentioned
+                                            {% if note.mentionedUserId %}
+                                                <a class="m-0 p-0 text-white" href="{{ path('app_profile', {'id': note.mentionedUserId}) }}" style="text-decoration: none;">
+                                                    <b style="background-color: #2A3038">@{{ note.nametag }}</b>
+                                                </a>
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {# NOTE MENTIONED – SHOWN ONLY ON MOBILE, BELOW BUTTONS #}
+                                <div class="d-block d-md-none w-100 mt-2 ps-3 pe-1 mb-2">
+                                    <p class="text-white" style="margin-bottom: -2px; font-size: 16px">
+                                        mentioned
+                                        {% if note.mentionedUserId %}
+                                            <a class="m-0 p-0 text-white" href="{{ path('app_profile', {'id': note.mentionedUserId}) }}" style="text-decoration: none;">
+                                                <b style="background-color: #2A3038">@{{ note.nametag }}</b>
+                                            </a>
+                                        {% endif %}
                                     </p>
                                 </div>
-                            </div>
-                            {# NOTE DIVIDER #}
-                            <div class="d-flex flex-row text-gray mt-3 mb-2">
-                                <hr style="border: 1px solid #757575; width: 100%;">
                             </div>
                         </div>
                     {% else %}

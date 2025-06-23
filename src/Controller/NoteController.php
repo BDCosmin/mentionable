@@ -128,6 +128,8 @@ class NoteController extends AbstractController
         $error = '';
         $divVisibility = 'none';
 
+        $note->mentionedUserId = $note->getMentionedUserId($em);
+
         if ($request->isMethod('POST')) {
             $newContent = trim((string) $request->request->get('content'));
             $currentContent = trim((string) $note->getContent());
@@ -182,11 +184,13 @@ class NoteController extends AbstractController
     }
 
     #[Route('/note/{noteId}', name: 'app_note_show')]
-    public function show(int $noteId, NoteRepository $noteRepository, FriendRequestRepository $friendRequestRepository, NotificationService $notificationService): Response
+    public function show(int $noteId, NoteRepository $noteRepository, FriendRequestRepository $friendRequestRepository, NotificationService $notificationService, EntityManagerInterface $em): Response
     {
         $user = $this->getUser();
 
         $note = $noteRepository->find($noteId);
+
+        $note->mentionedUserId = $note->getMentionedUserId($em);
 
         if (!$note) {
             return $this->redirectToRoute('homepage');
@@ -412,6 +416,8 @@ class NoteController extends AbstractController
         $divVisibility = 'none';
 
         $comment = $em->getRepository(Comment::class)->find($id);
+        $note = $comment->getNote();
+        $note->mentionedUserId = $note->getMentionedUserId($em);
 
         if (!$comment || !$comment->getNote()) {
             return $this->redirectToRoute('homepage');
