@@ -2,11 +2,13 @@
 
 namespace App\Controller;
 
+use App\Entity\Note;
 use App\Entity\Notification;
 use App\Entity\User;
 use App\Entity\FriendRequest;
 use App\Form\ChangePasswordType;
 use App\Form\ProfileType;
+use App\Repository\NoteRepository;
 use App\Repository\NotificationRepository;
 use App\Repository\UserRepository;
 use App\Repository\FriendRequestRepository;
@@ -25,7 +27,7 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 class ProfileController extends AbstractController
 {
     #[Route('/{id}', name: 'app_profile')]
-    public function index(int $id, FriendRequestRepository $friendRequestRepository, UserRepository $userRepository, NotificationRepository $notificationRepository): Response
+    public function index(int $id, FriendRequestRepository $friendRequestRepository, NoteRepository $noteRepository, UserRepository $userRepository, NotificationRepository $notificationRepository, EntityManagerInterface $em): Response
     {
         $user = $userRepository->find($id);
 
@@ -35,9 +37,15 @@ class ProfileController extends AbstractController
 
         $friendRequests = $friendRequestRepository->findBy(['receiver' => $user]);
         $notifications = $notificationRepository->findBy(['receiver' => $user]);
+        $notes = $em->getRepository(Note::class)->findBy(['user' => $user], ['publicationDate' => 'DESC']);
+
+        foreach ($notes as $note) {
+            $note->mentionedUserId = $note->getMentionedUserId($em);
+        }
 
         return $this->render('profile/index.html.twig', [
             'user' => $user,
+            'notes' => $notes,
             'friendRequests' => $friendRequests,
             'notifications' => $notifications,
         ]);

@@ -39,10 +39,14 @@ final class UserController extends AbstractController
     }
 
     #[Route('/my-notes/user', name: 'app_user_notes')]
-    public function myNotes(NoteRepository $noteRepository, FriendRequestRepository $friendRequestRepository, NotificationService $notificationService): Response
+    public function myNotes(NoteRepository $noteRepository, FriendRequestRepository $friendRequestRepository, NotificationService $notificationService, EntityManagerInterface $em): Response
     {
         $user = $this->getUser();
         $notes = $noteRepository->findBy(['user' => $user], ['publicationDate' => 'DESC']);
+
+        foreach ($notes as $note) {
+            $note->mentionedUserId = $note->getMentionedUserId($em);
+        }
 
         $notifications = $notificationService->getLatestUserNotifications();
         $friendRequests = $friendRequestRepository->findBy(['receiver' => $user]);

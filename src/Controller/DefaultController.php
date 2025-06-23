@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\FriendRequest;
 use App\Entity\Note;
 use App\Entity\Notification;
+use App\Entity\User;
 use App\Repository\FriendRequestRepository;
 use App\Repository\NoteVoteRepository;
 use App\Repository\NotificationRepository;
@@ -33,6 +34,10 @@ final class DefaultController extends AbstractController
 
         $notes = $em->getRepository(Note::class)->findBy([], ['publicationDate' => 'DESC']);
         $noteVotes = $noteVoteRepository->findBy([]);
+
+        foreach ($notes as $note) {
+            $note->mentionedUserId = $note->getMentionedUserId($em);
+        }
 
         return $this->render('default/index.html.twig', [
             'notes' => $notes,

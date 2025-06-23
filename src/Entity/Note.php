@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\NoteRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: NoteRepository::class)]
@@ -334,6 +335,16 @@ class Note
         }
 
         return $this;
+    }
+
+    public function getMentionedUserId(EntityManagerInterface $em): ?int
+    {
+        if ($this->nametag) {
+            $user = $em->getRepository(User::class)->findOneBy(['nametag' => $this->nametag]);
+            return $user ? $user->getId() : null;
+        }
+
+        return null;
     }
 
 }
