@@ -52,40 +52,68 @@ document.querySelectorAll('.ajax-comment-form').forEach(form => {
                     const commentsContainer = form.closest('.note-comments').querySelector('.new-comments');
                     commentsContainer.insertAdjacentHTML('afterbegin', data.html);
                     input.value = '';
+
+                    // update comment counter
                     const countSpan = document.querySelector(`.toggle-comments[data-note-id="${noteId}"] .comment-count`);
                     if (countSpan) {
-                        countSpan.textContent = parseInt(countSpan.textContent) + 1;
+                        countSpan.textContent = (parseInt(countSpan.textContent) || 0) + 1;
                     }
+
+                    // NU atașa event listener separat aici!
                 }
             })
             .catch(err => console.error('Comment error:', err));
     });
 });
 
-document.addEventListener('click', function (e) {
-    if (e.target.classList.contains('delete-comment-btn')) {
-        e.preventDefault();
-        const commentElement = e.target.closest('.d-flex.flex-row.mb-3');
-        const url = e.target.getAttribute('href');
-        if (!url || !commentElement) return;
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+function handleDeleteComment(deleteBtn, event) {
+    // deleteBtn e <a> cu clasa delete-comment-btn
+    const commentElement = deleteBtn.closest('.d-flex.flex-row.mb-3');
+    if (!commentElement) return;
+
+    // Ia url din atributul href al linkului
+    const url = deleteBtn.getAttribute('href');
+    if (!url) return;
+
+    // Ia noteId dintr-un container părinte cu data-note-id
+    const noteContainer = commentElement.closest('[data-note-id]');
+    if (!noteContainer) return;
+
+    const noteId = noteContainer.dataset.noteId;
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        }
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                commentElement.remove();
+
+                // Actualizează contorul
+                const countSpan = document.querySelector(`.toggle-comments[data-note-id="${noteId}"] .comment-count`);
+                if (countSpan) {
+                    const current = parseInt(countSpan.textContent || '0');
+                    countSpan.textContent = Math.max(0, current - 1).toString();
+                }
+            } else {
+                alert('A apărut o eroare la ștergerea comentariului.');
             }
         })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    commentElement.remove();
-                } else {
-                    alert('A apărut o eroare la ștergerea comentariului.');
-                }
-            })
-            .catch(err => console.error('Eroare ștergere:', err));
-    }
+        .catch(err => console.error('Eroare ștergere:', err));
+}
+
+document.addEventListener('click', function(e) {
+    const deleteBtn = e.target.closest('.delete-comment-btn');
+    if (!deleteBtn) return;
+    e.preventDefault();
+
+    handleDeleteComment(deleteBtn, e);
 });
+
 
 document.querySelectorAll('.comment-upvote-btn').forEach(btn => {
     btn.addEventListener('click', function (e) {

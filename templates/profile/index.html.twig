@@ -270,7 +270,7 @@
 
                                                     {# COMMENTS LIST #}
                                                     {% for comment in note.comments %}
-                                                        <div class="d-flex flex-row mb-3">
+                                                        <div class="d-flex flex-row mb-3" data-note-id="{{ note.id }}">
                                                             <a class="nav-link me-2" href="#">
                                                                 <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ comment.user.avatar) }}" alt="avatarComment" onerror="showDefaultIcon(this)">
                                                             </a>
