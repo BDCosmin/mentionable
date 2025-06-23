@@ -79,7 +79,6 @@
                                 var form = deleteNoteModal.querySelector('#deleteNoteForm');
                                 var tokenInput = deleteNoteModal.querySelector('#deleteTokenInput');
 
-                                // Construim URL-ul către ruta de ștergere
                                 form.action = '/note/' + noteId + '/delete';
                                 tokenInput.value = token;
                             });

@@ -120,109 +120,33 @@
                     </button>
                 </form>
             </div>
-
-            {# NOTIFICATIONS LIST #}
+            {# NOTIFICATIONS #}
             <li class="nav-item dropdown border-left">
-                {% set hasNotification = false %}
-                {% if latest_notifications is defined %}
-                    {% for notification in latest_notifications %}
-                        {% if notification.receiver.nametag == app.user.nametag and not notification.isRead %}
-                            {% set hasNotification = true %}
-                        {% endif %}
-                    {% endfor %}
-                {% endif %}
-
                 <a class="nav-link count-indicator dropdown-toggle" id="notificationDropdown" href="#" data-bs-toggle="dropdown">
                     <i class="fa fa-bell"></i>
-                    {% if hasNotification %}
-                        <span class="count bg-danger"></span>
-                    {% endif %}
+                    <span class="count bg-danger" id="notifBell" style="display: none;"></span>
                 </a>
-                <div class="dropdown-menu dropdown-menu-end navbar-dropdown preview-list" aria-labelledby="notificationDropdown">
+
+                <div class="dropdown-menu dropdown-menu-end navbar-dropdown preview-list" id="notificationList" aria-labelledby="notificationDropdown">
                     <div class="d-flex flex-row">
                         <h6 class="p-3 mb-0">Latest notifications</h6>
-                        {# MARK AS READ #}
-                        <a href="{{ path('mark_notifications_read') }}" class="ms-auto mt-3 me-3">
+                        <a href="#" class="ms-auto mt-3 me-3" id="markAsRead">
                             <i class='bx bx-message-circle-check' style='color:#ffffff; font-size: 18px'></i>
                         </a>
                     </div>
                     <div class="dropdown-divider"></div>
-                    {# NOTIFICATION #}
-                    {% if latest_notifications is defined and latest_notifications is not empty %}
-                        {% for notification in latest_notifications %}
-                            <a class="dropdown-item preview-item"
-                               {% if notification.type != 'friend_request' %}
-                                   href="{{ path('app_note_redirect', {'notificationId': notification.id}) }}"
-                               {% else %}
-                                    href="#" data-bs-toggle="modal" data-bs-target="#friendRequestModal"
-                               {% endif %}
-                            >
-                                {% if notification.type != 'reported' %}
-                                    <div class="preview-thumbnail">
-                                        <div class="m-0 p-0">
-                                            {% if notification.sender %}
-                                                <img class="preview-icon bg-dark rounded-circle" src="{{ asset('uploads/avatars/' ~ notification.sender.avatar) }}" alt="avatarNotif" onerror="showDefaultIcon(this)">
-                                            {% else %}
-                                                <i class="fa fa-user text-white pt-2 ps-2"></i>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                {% endif %}
-                                <div class="preview-item-content">
-                                    {% if notification.sender %}
-                                        {% if notification.type == 'mentioned' %}
-                                            <p class="preview-subject mb-1">{{ notification.sender.nametag }} mentioned you!</p>
-                                            <p class="text-muted ellipsis mb-0">Tap to see what's the note about.</p>
-                                        {% elseif notification.type == 'commented' %}
-                                            <p class="preview-subject mb-1">{{ notification.sender.nametag }} commented on your note!</p>
-                                            <p class="text-muted ellipsis mb-0">Tap to see what's the comment about.</p>
-                                        {% elseif notification.type == 'upvoted' %}
-                                            <p class="preview-subject mb-1">{{ notification.sender.nametag }} agrees with you!</p>
-                                            <p class="text-muted ellipsis mb-0">Tap to see what's the comment about.</p>
-                                        {% elseif notification.type == 'downvoted' %}
-                                            <p class="preview-subject mb-1">{{ notification.sender.nametag }} disagrees with you!</p>
-                                            <p class="text-muted ellipsis mb-0">Tap to see what's the comment about.</p>
-                                        {% elseif notification.type == 'friend_request' %}
-                                            <p class="preview-subject mb-1">{{ notification.sender.nametag }} send you a friend request!</p>
-                                            <p class="text-muted ellipsis mb-0">Tap to see what's the friend request about.</p>
-                                        {% elseif notification.type == 'reported' %}
-                                            <p class="preview-subject mb-1">Your annonymous report has been sent!</p>
-                                            <p class="text-muted ellipsis mb-0">We will review in short time your request. Thank you!</p>
-                                        {% else %}
-                                            <p class="text-muted ellipsis mb-0">An error has occurred. Please try again later!</p>
-                                        {% endif %}
-                                    {% else %}
-                                        <p class="text-muted ellipsis mb-0">An error has occurred. Please try again later!</p>
-                                    {% endif %}
-                                    <i class="fa fa-clock-o" style="color: gray"></i>
-                                    <small class="text-gray">{{ notification.humanTimeNotification }}
-                                        {% if not notification.isRead %}
-                                            <i class="fa fa-dot-circle-o ms-1" style="color: white; font-size: 12px"></i>
-                                        {% endif %}
-                                    </small>
-                                </div>
-                            </a>
-                            <div class="dropdown-divider"></div>
-                        {% endfor %}
-                        {% if latest_notifications|length == 3 %}
-                            <a class="dropdown-item preview-item d-flex justify-content-center align-items-center" href="{{ path('app_user_notifications') }}">
-                                <div class="preview-item-content">
-                                    <p class="preview-subject mb-1">See all the notifications...</p>
-                                </div>
-                            </a>
-                        {% endif %}
-                    {% else %}
-                        <div class="d-flex flex-row">
-                            <div class="preview-thumbnail pt-2 pe-2 ps-3">
-                                <i class="fa fa-eye"></i>
-                            </div>
-                            <div class="preview-item-content pt-2">
-                                <p class="preview-subject" style="user-select: none">Nothing new.</p>
-                            </div>
+
+                    <div class="d-flex flex-row">
+                        <div class="preview-thumbnail pt-2 pe-2 ps-3">
+                            <i class="fa fa-eye"></i>
                         </div>
-                    {% endif %}
+                        <div class="preview-item-content pt-2">
+                            <p class="preview-subject" style="user-select: none">Loading notifications...</p>
+                        </div>
+                    </div>
                 </div>
             </li>
+
             {# MORE MENU #}
             <li class="nav-item dropdown">
                 <a class="nav-link" id="profileDropdown" href="#" data-bs-toggle="dropdown">
@@ -352,5 +276,135 @@
         searchInputDesktop.value = '';
     });
     }})
+    </script>
+    <script>
+        function fetchNotifications() {
+        fetch('/notifications/fetch', { credentials: 'same-origin' })
+            .then(response => response.json())
+            .then(data => {
+                const notificationList = document.getElementById("notificationList");
+                const bell = document.getElementById("notifBell");
+
+                if (!notificationList) return;
+
+                notificationList.innerHTML = `
+                <div class="d-flex flex-row">
+                    <h6 class="p-3 mb-0">Latest notifications</h6>
+                    <a href="#" id="markAsRead" class="ms-auto mt-3 me-3">
+                        <i class='bx bx-message-circle-check' style='color:#ffffff; font-size: 18px'></i>
+                    </a>
+                </div>
+                <div class="dropdown-divider"></div>
+            `;
+
+                let unreadCount = 0;
+
+                if (data.length === 0) {
+                    notificationList.innerHTML += `
+                    <div class="d-flex flex-row">
+                        <div class="preview-thumbnail pt-2 pe-2 ps-3">
+                            <i class="fa fa-eye"></i>
+                        </div>
+                        <div class="preview-item-content pt-2">
+                            <p class="preview-subject" style="user-select: none">Nothing new.</p>
+                        </div>
+                    </div>
+                `;
+                    bell.style.display = "none";
+                } else {
+                    data.forEach(notification => {
+                        let title = '';
+                        let subtitle = '';
+                        let link = `/notification/${notification.id}/redirect`;
+                        let extraAttributes = '';
+
+                        switch (notification.type) {
+                            case 'mentioned':
+                                title = `${notification.sender} mentioned you!`;
+                                subtitle = "Tap to see what's the note about.";
+                                break;
+                            case 'commented':
+                                title = `${notification.sender} commented on your note!`;
+                                subtitle = "Tap to see what's the comment about.";
+                                break;
+                            case 'upvoted':
+                                title = `${notification.sender} agrees with you!`;
+                                subtitle = "Tap to see what's the comment about.";
+                                break;
+                            case 'downvoted':
+                                title = `${notification.sender} disagrees with you!`;
+                                subtitle = "Tap to see what's the comment about.";
+                                break;
+                            case 'friend_request':
+                                title = `${notification.sender} sent you a friend request!`;
+                                subtitle = "Tap to see what's the friend request about.";
+                                link = "#";
+                                extraAttributes = 'data-bs-toggle="modal" data-bs-target="#friendRequestModal" href="#"';
+                                break;
+                            case 'reported':
+                                title = `Your anonymous report has been sent!`;
+                                subtitle = "We will review it shortly.";
+                                break;
+                            default:
+                                title = `You have a new notification!`;
+                                subtitle = `Please check your activity.`;
+                        }
+
+                        if (!extraAttributes) {
+                            extraAttributes = `href="${link}"`;
+                        }
+
+                        if (!notification.isRead) unreadCount++;
+
+                        notificationList.innerHTML += `
+                        <a class="dropdown-item preview-item" ${extraAttributes}>
+                            <div class="preview-thumbnail">
+                                <img class="preview-icon bg-dark rounded-circle" src="/uploads/avatars/${notification.avatar ?? 'default.jpg'}" alt="avatarNotif" onerror="showDefaultIcon(this)">
+                            </div>
+                            <div class="preview-item-content">
+                                <p class="preview-subject mb-1">${title}</p>
+                                <p class="text-muted ellipsis mb-0">${subtitle}</p>
+                                <i class="fa fa-clock-o" style="color: gray"></i>
+                                <small class="text-gray">${notification.humanTime}
+                                    ${!notification.isRead ? `<i class="fa fa-dot-circle-o ms-1" style="color: white; font-size: 12px"></i>` : ''}
+                                </small>
+                            </div>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                    `;
+                    });
+
+                    if (data.length === 3) {
+                        notificationList.innerHTML += `
+                        <a class="dropdown-item preview-item d-flex justify-content-center align-items-center" href="/my-notifications/user/">
+                            <div class="preview-item-content">
+                                <p class="preview-subject mb-1">See all the notifications...</p>
+                            </div>
+                        </a>
+                    `;
+                    }
+
+                    bell.style.display = unreadCount > 0 ? "inline-block" : "none";
+                }
+
+                // Activează click instant pe "mark as read"
+                const markBtn = document.getElementById("markAsRead");
+                if (markBtn) {
+                    markBtn.addEventListener("click", function (e) {
+                        e.preventDefault();
+                        fetch('/mark-as-read', {
+                            method: 'POST',
+                            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                        }).then(() => {
+                            fetchNotifications(); // actualizare instantă
+                        });
+                    });
+                }
+            });
+    }
+
+        // Inițial și apoi la 10 secunde
+        document.addEventListener("DOMContentLoaded", fetchNotifications);
+        setInterval(fetchNotifications, 10000);
     </script>
 {% endblock %}
