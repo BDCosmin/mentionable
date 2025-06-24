@@ -108,7 +108,7 @@
                         </div>
                     {% else %}
                         <div class="row g-4 ps-4 pe-4 pb-4 shadow" style="margin-top: -7px">
-                            <div class="col-md-8">
+                            <div class="col-md-8 col-12 post-container">
                                 <h4 class="mt-5 text-center text-md-center">Notes</h4>
                                 {# NOTES LIST #}
                                     {% if notes is defined %}
@@ -186,7 +186,7 @@
                                                 </div>
                                                 {# NOTE CONTENT #}
                                                 <div class="d-flex flex-row text-gray mb-1">
-                                                    <p style="font-size: 16px">{{ note.content }}</p>
+                                                    <p style="font-size: 16px; white-space: pre-wrap;">{{ note.content }}</p>
                                                 </div>
                                                 {# NOTE IMAGE #}
                                                 {% if note.image %}
@@ -252,55 +252,51 @@
 
                                                 {# NOTE COMMENT #}
                                                 <div class="note-comments" id="comments-{{ note.id }}" style="display: none;">
-                                                    {# WRITING COMMENT FORM #}
-                                                    <form method="POST" action="{{ path('note_comment', {id: note.id}) }}" class="ajax-comment-form" data-note-id="{{ note.id }}">
-                                                        <div class="d-flex flex-row mb-3">
+                                                    <form method="POST" action="{{ path('note_comment', {id: note.id}) }}" class="ajax-comment-form d-flex flex-column mb-3" data-note-id="{{ note.id }}">
+                                                        <div class="d-flex flex-row align-items-center">
                                                             <a class="nav-link me-2" href="#">
-                                                                <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ app.user.avatar)}}" alt="writeCommentAvatar" onerror="showDefaultIcon(this)">
+                                                                <img class="img-xs rounded-circle comment-avatar" src="{{ asset('uploads/avatars/' ~ app.user.avatar)}}" alt="writeCommentAvatar" onerror="showDefaultIcon(this)">
                                                             </a>
-                                                            <div class="d-flex flex-row w-100">
-                                                                <input type="text" name="message" class="form-control comment-input mb-1" placeholder="Write a comment..." required>
-                                                                <div class="d-flex justify-content-end">
-                                                                    <button type="submit" class="btn btn-light btn-sm px-3" style="height: 40px;">Post</button>
-                                                                </div>
+                                                            <div class="d-flex flex-row w-100 align-items-center">
+                                                                <input type="text" name="message" class="form-control comment-input flex-grow-1" placeholder="Write a comment..." required>
+                                                                <button type="submit" class="btn btn-light btn-sm ms-2 comment-submit" style="height: 40px;">Post</button>
                                                             </div>
                                                         </div>
                                                     </form>
                                                     <div class="new-comments"></div>
 
-                                                    {# COMMENTS LIST #}
+                                                    <!-- Lista de comentarii -->
                                                     {% for comment in note.comments %}
-                                                        <div class="d-flex flex-row mb-3" data-note-id="{{ note.id }}">
+                                                        <div class="d-flex flex-row mb-3 comment-item" data-note-id="{{ note.id }}">
                                                             <a class="nav-link me-2" href="#">
-                                                                <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ comment.user.avatar) }}" alt="avatarComment" onerror="showDefaultIcon(this)">
+                                                                <img class="img-xs rounded-circle comment-avatar" src="{{ asset('uploads/avatars/' ~ comment.user.avatar) }}" alt="avatarComment" onerror="showDefaultIcon(this)">
                                                             </a>
-                                                            <div class="m-0 p-0">
-                                                                <div class="d-flex flex-row" style="height: 30px;">
-                                                                    <p class="text-white me-2" style="font-size: 18px;">@{{ comment.user.nametag }}</p>
+                                                            <div class="flex-grow-1">
+                                                                <div class="d-flex flex-row align-items-center">
+                                                                    <p class="text-white me-2 mb-0" style="font-size: 16px;">@{{ comment.user.nametag }}</p>
                                                                     {% if comment.isEdited %}
-                                                                        <i class="fa fa-clock-o text-gray me-1" style="margin-top: 6px"></i>
+                                                                        <i class="fa fa-clock-o text-gray me-1" style="font-size: 14px;"></i>
                                                                     {% else %}
-                                                                        <p class="text-gray mt-1 me-2">•</p>
+                                                                        <p class="text-gray mb-0 me-1">•</p>
                                                                     {% endif %}
-                                                                    <p class="text-gray mt-1">{{ comment.humanTimeComment }}</p>
+                                                                    <p class="text-gray mb-0" style="font-size: 12px;">{{ comment.humanTimeComment }}</p>
                                                                 </div>
-                                                                <div class="d-inline-flex">
-                                                                    <small style="font-size: 16px; color: white; background-color: #757575; border-radius: 8px; opacity: 0.5; padding: 5px;">{{ comment.message }}</small>
-                                                                    {# UPVOTE FORM #}
+                                                                <div class="d-flex flex-row align-items-center mt-1">
+                                                                    <small style="font-size: 14px; color: white; background-color: #757575; border-radius: 8px; opacity: 0.5; padding: 4px;">{{ comment.message }}</small>
                                                                     <button
-                                                                            class="btn btn-sm btn-outline-light d-flex align-items-center border-0 comment-upvote-btn"
+                                                                            class="btn btn-sm btn-outline-light d-flex align-items-center border-0 ms-2 comment-upvote-btn"
                                                                             data-note-id="{{ note.id }}"
                                                                             data-comment-id="{{ comment.id }}"
                                                                             data-csrf="{{ csrf_token('vote') }}"
                                                                             type="button">
-                                                                        <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
-                                                                        <span id="comment-upvotes-{{ comment.id }}" class="ms-1">{{ comment.upVote ?? 0 }}</span>
+                                                                        <i class='bx bx-arrow-up' style="font-size: 16px;"></i>
+                                                                        <span id="comment-upvotes-{{ comment.id }}" class="ms-1" style="font-size: 12px;">{{ comment.upVote ?? 0 }}</span>
                                                                     </button>
                                                                 </div>
                                                             </div>
-                                                            <div class="dropdown ms-auto me-1 d-inline-flex justify-content-end">
+                                                            <div class="dropdown ms-auto me-1 d-flex align-items-start">
                                                                 <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="height: 30px;">
-                                                                    <i class='bx bx-dots-horizontal-rounded' style='color:#ffffff'></i>
+                                                                    <i class='bx bx-dots-horizontal-rounded' style='color:#ffffff; font-size: 20px;'></i>
                                                                 </a>
                                                                 <ul class="dropdown-menu m-0">
                                                                     {% if app.user.nametag == comment.user.nametag %}

@@ -25293,4 +25293,97 @@ input[type="file"]::file-selector-button {
     padding: 4px 2px !important;
   }
 }
+
+/* Stiluri generale pentru postări */
+.post-container {
+  padding: 0 15px; /* Reducem padding-ul lateral pe mobil */
+}
+
+.post-card {
+  width: 100%; /* Lățime maximă pe mobil */
+  margin-left: auto;
+  margin-right: auto;
+  padding: 1rem; /* Reducem padding-ul intern */
+}
+
+/* Ajustări pentru ecrane mici (ex. 360px) */
+@media (max-width: 360px) {
+  .post-card {
+    padding: 0.5rem; /* Padding mai mic pentru a elibera spațiu */
+    margin-bottom: 1rem; /* Spațiu între postări */
+  }
+
+  .navbar-profile {
+    flex-wrap: wrap; /* Permite împachetarea elementelor pe mobil */
+    padding: 0.5rem; /* Reducem padding-ul */
+  }
+
+  .navbar-profile img {
+    width: 40px; /* Reducem dimensiunea avatarului */
+    height: 40px;
+  }
+
+  .navbar-profile-name {
+    font-size: 14px; /* Text mai mic */
+  }
+
+  .d-flex.flex-row.text-gray.mb-1 p {
+    font-size: 14px; /* Text conținut mai mic */
+  }
+
+  .btn-sm {
+    padding: 0.25rem 0.5rem; /* Butoane mai mici */
+    font-size: 12px;
+  }
+
+  .comment-input {
+    font-size: 14px; /* Input comentarii mai mic */
+  }
+}
+
+/* Ajustări pentru ecrane între 361px și 576px */
+@media (min-width: 361px) and (max-width: 576px) {
+  .post-card {
+    padding: 0.75rem; /* Padding moderat */
+  }
+
+  .navbar-profile img {
+    width: 50px; /* Avatar puțin mai mare */
+    height: 50px;
+  }
+
+  .navbar-profile-name {
+    font-size: 16px;
+  }
+
+  .d-flex.flex-row.text-gray.mb-1 p {
+    font-size: 15px;
+  }
+}
+
+.password-container {
+  position: relative;
+  width: 100%;
+}
+
+#password {
+  width: 100%;
+  padding-right: 2.5rem; /* ca să nu se suprapună textul cu iconița */
+}
+
+.toggle-password {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #ccc; /* culoarea iconiței */
+  font-size: 1.2rem;
+  user-select: none;
+  background: transparent; /* fără fundal */
+}
+
+.toggle-password:hover {
+  color: white;
+}
 /*# sourceMappingURL=maps/style.css.map */
