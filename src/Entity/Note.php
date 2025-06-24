@@ -245,7 +245,7 @@ class Note
         $interval = $publishedDate->diff($now);
 
         if ($interval->d === 0 && $interval->h === 0 && $interval->i < 60) {
-            return $interval->i === 0 ? 'now' : $interval->i . ' min' . ($interval->i > 1 ? 's' : '') . ' ago';
+            return $interval->i === 0 ? 'now' : $interval->i . 'min' . ($interval->i > 1 ? 's' : '') . ' ago';
         } elseif ($interval->d === 0 && $interval->h < 24) {
             return $interval->h . 'h' . ' ago';
         } else {
