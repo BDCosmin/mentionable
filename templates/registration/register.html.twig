@@ -36,9 +36,7 @@
 </head>
 <body>
 <div class="container-scroller">
-    <div class="container-fluid page-body-wrapper full-page-wrapper">
-        <div class="row w-100">
-            <div class="content-wrapper full-page-wrapper d-flex align-items-center auth login-bg">
+            <div class="content-wrapper container-fluid page-body-wrapper full-page-wrapper d-flex align-items-center auth login-bg">
                 <div class="card col-lg-4 mx-auto">
                     <div class="card-body px-5 py-5">
                         <h3 class="card-title text-start mb-3">Register</h3>
@@ -50,9 +48,9 @@
                             {{ form_errors(registrationForm.email) }}
                         </div>
                         <div class="form-group">
-                            {{ form_label(registrationForm.plainPassword) }}
-                            {{ form_widget(registrationForm.plainPassword, {'attr': {'class': 'form-control'}}) }}
-                            {{ form_errors(registrationForm.plainPassword) }}
+                            {{ form_label(registrationForm.password) }}
+                            {{ form_widget(registrationForm.password, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(registrationForm.password) }}
                         </div>
                         <div class="form-group">
                             {{ form_label(registrationForm.nametag) }}
@@ -77,8 +75,6 @@
                 </div>
             </div>
         </div>
-    </div>
-</div>
 </body>
 </html>
 

@@ -67,6 +67,13 @@
                 </script>
 
                 <script>
+                    function showDefaultAvatar(img) {
+                        const wrapper = img.parentNode;
+                       wrapper.innerHTML = `<img src="{{ asset("uploads/avatars/default.jpg") }}" class="img-thumbnail img-fluid rounded-circle mt-3" style="width: 400px; height: auto; alt="default-avatar-image"/>`;
+                    }
+                </script>
+
+                <script>
                     document.addEventListener('DOMContentLoaded', function () {
                         var deleteNoteModal = document.getElementById('deleteNoteModal');
 

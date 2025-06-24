@@ -41,7 +41,7 @@ class RegistrationController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             try {
                 /** @var string $plainPassword */
-                $plainPassword = $form->get('plainPassword')->getData();
+                $plainPassword = $form->get('password')->getData();
 
                 /** @var UploadedFile|null $avatarFile */
                 $avatarFile = $form->get('avatar')->getData();
