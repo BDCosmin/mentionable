@@ -2,12 +2,14 @@
 
 namespace App\Controller;
 
+use App\Entity\Interest;
 use App\Entity\Note;
 use App\Entity\Notification;
 use App\Entity\User;
 use App\Entity\FriendRequest;
 use App\Form\ChangePasswordType;
 use App\Form\ProfileType;
+use App\Repository\InterestRepository;
 use App\Repository\NoteRepository;
 use App\Repository\NotificationRepository;
 use App\Repository\UserRepository;
@@ -15,6 +17,7 @@ use App\Repository\FriendRequestRepository;
 use App\Service\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -38,6 +41,7 @@ class ProfileController extends AbstractController
         $friendRequests = $friendRequestRepository->findBy(['receiver' => $user]);
         $notifications = $notificationRepository->findBy(['receiver' => $user]);
         $notes = $em->getRepository(Note::class)->findBy(['user' => $user], ['publicationDate' => 'DESC']);
+        $interests = $user->getInterests();
 
         foreach ($notes as $note) {
             $note->mentionedUserId = $note->getMentionedUserId($em);
@@ -48,6 +52,61 @@ class ProfileController extends AbstractController
             'notes' => $notes,
             'friendRequests' => $friendRequests,
             'notifications' => $notifications,
+            'interests' => $interests,
         ]);
+    }
+
+    #[Route('/interest/new', name: 'app_interest_new', methods: ['GET', 'POST'])]
+    public function interest(Request $request,
+                        EntityManagerInterface $em,
+                        NotificationService $notificationService,
+                        SluggerInterface $slugger,
+    ): Response
+    {
+        $error = '';
+
+        if ($request->isMethod('POST')) {
+            $content = $request->request->get('interest-content');
+
+            if (empty(trim($content)) || preg_match('/\s/', $content)) {
+                $this->addFlash('error', 'Interest cannot contain spaces.');
+                return $this->redirect($request->headers->get('referer'));
+            } else {
+                $interest = new Interest();
+                $interest->setUser($this->getUser());
+                $interest->setTitle($content);
+
+                $em->persist($interest);
+                $em->flush();
+            }
+        }
+
+        return $this->redirect($request->headers->get('referer'));
+    }
+
+    #[Route('/interest/delete/{id}', name: 'app_interest_delete', methods: ['DELETE'])]
+    public function deleteInterest(Request $request,
+                             EntityManagerInterface $em,
+                             NotificationService $notificationService,
+                             SluggerInterface $slugger,
+                             InterestRepository $interestRepository,
+                             int $id
+    ): JsonResponse
+    {
+        $user = $this->getUser();
+        $interest = $interestRepository->find($id);
+
+        if (!$interest) {
+            return new JsonResponse(['success' => false, 'message' => 'Interest not found.'], 404);
+        }
+
+        if ($interest->getUser() !== $user) {
+            return new JsonResponse(['success' => false, 'message' => 'Unauthorized.'], 403);
+        }
+
+        $em->remove($interest);
+        $em->flush();
+
+        return new JsonResponse(['success' => true]);
     }
 }

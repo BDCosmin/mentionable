@@ -373,7 +373,6 @@ class NoteController extends AbstractController
         $notificationService->notifyComment($this->getUser(), $receiver, $comment);
 
         if ($request->isXmlHttpRequest()) {
-            // Aici modifici să returnezi HTML-ul randat din Twig (fragmentul cu comentariul)
             $html = $this->renderView('comment/partial.html.twig', [
                 'comment' => $comment,
             ]);

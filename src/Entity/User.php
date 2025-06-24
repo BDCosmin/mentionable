@@ -94,6 +94,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: FriendRequest::class, mappedBy: 'receiver', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $receivedFriendRequests;
 
+    /**
+     * @var Collection<int, Interest>
+     */
+    #[ORM\OneToMany(targetEntity: Interest::class, mappedBy: 'user')]
+    private Collection $interests;
+
     public function __construct()
     {
         $this->notes = new ArrayCollection();
@@ -104,6 +110,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->friendsWithMe = new ArrayCollection();
         $this->sentFriendRequests = new ArrayCollection();
         $this->receivedFriendRequests = new ArrayCollection();
+        $this->interests = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -339,6 +346,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getReceivedFriendRequests(): Collection
     {
         return $this->receivedFriendRequests;
+    }
+
+    /**
+     * @return Collection<int, Interest>
+     */
+    public function getInterests(): Collection
+    {
+        return $this->interests;
+    }
+
+    public function addInterest(Interest $interest): static
+    {
+        if (!$this->interests->contains($interest)) {
+            $this->interests->add($interest);
+            $interest->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeInterest(Interest $interest): static
+    {
+        if ($this->interests->removeElement($interest)) {
+            // set the owning side to null (unless already changed)
+            if ($interest->getUser() === $this) {
+                $interest->setUser(null);
+            }
+        }
+
+        return $this;
     }
 
 
