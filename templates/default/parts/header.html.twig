@@ -119,6 +119,7 @@
                         ✕
                     </button>
                 </form>
+                <div id="suggestions" class="list-group position-absolute" style="z-index: 1000; width: 100%; max-width: 350px; background: #2A3038; border-radius: 5px; display: none;"></div>
             </div>
             {# NOTIFICATIONS #}
             <li class="nav-item dropdown border-left">
@@ -406,5 +407,59 @@
         // Inițial și apoi la 10 secunde
         document.addEventListener("DOMContentLoaded", fetchNotifications);
         setInterval(fetchNotifications, 10000);
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+        const input = document.getElementById('searchNametag');
+        const suggestionsBox = document.getElementById('suggestions');
+        const clearBtn = document.getElementById('clearDesktopInput');
+
+        if (!input || !suggestionsBox) return;
+
+        input.addEventListener('input', function () {
+        const query = this.value.trim();
+
+        if (query.length >= 2) {
+        fetch(`/nametag-suggestions?query=${encodeURIComponent(query)}`)
+        .then(res => res.json())
+        .then(data => {
+        suggestionsBox.innerHTML = '';
+        if (data.length === 0) {
+        suggestionsBox.style.display = 'none';
+        return;
+    }
+        data.forEach(nametag => {
+        const item = document.createElement('a');
+        item.classList.add('list-group-item', 'list-group-item-action');
+        item.textContent = nametag;
+        item.href = `/search?nametag=${encodeURIComponent(nametag)}`;
+        suggestionsBox.appendChild(item);
+    });
+        suggestionsBox.style.display = 'block';
+    })
+        .catch(() => {
+        suggestionsBox.innerHTML = '';
+        suggestionsBox.style.display = 'none';
+    });
+    } else {
+        suggestionsBox.innerHTML = '';
+        suggestionsBox.style.display = 'none';
+    }
+    });
+
+        clearBtn.addEventListener('click', function () {
+        input.value = '';
+        suggestionsBox.innerHTML = '';
+        suggestionsBox.style.display = 'none';
+        input.focus();
+    });
+
+        // Optional: ascunde sugestiile dacă se dă click în afara inputului/sugestiilor
+        document.addEventListener('click', function(e) {
+        if (!input.contains(e.target) && !suggestionsBox.contains(e.target)) {
+        suggestionsBox.style.display = 'none';
+    }
+    });
+    });
     </script>
 {% endblock %}

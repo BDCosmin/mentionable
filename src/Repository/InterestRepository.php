@@ -40,4 +40,16 @@ class InterestRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+
+    public function findUsersWithInterest(string $title): array
+    {
+        $query = $this->getEntityManager()->createQuery(
+            'SELECT u FROM App\Entity\User u
+     JOIN u.interests i
+     WHERE i.title = :title'
+        )->setParameter('title', $title);
+
+        return $query->getResult();
+
+    }
 }

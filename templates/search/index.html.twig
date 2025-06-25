@@ -8,6 +8,15 @@
             {# CENTERED CONTAINER #}
             <div class="row justify-content-center mb-4">
                 <div class="col-lg-8 p-2" style="background-color: #181b20; border-radius: 5px;">
+                    <form method="GET" action="{{ path('app_find_nametag') }}">
+                        <input type="text" name="nametag" id="nametag-search"
+                               class="form-control mb-2"
+                               placeholder="Search by nametag..."
+                               autocomplete="off"
+                               value="{{ nametag }}"
+                               style="opacity:0; height:0; position:absolute; left:-9999px;" />
+                        <div id="suggestions" class="list-group"></div>
+                    </form>
                     <h1 class="m-3 mb-3">Search Results for "{{ nametag }}"</h1>
                     <div class="ms-3 p-0 mb-3" id="errorWhilePosting" style="display: {{ divVisibility }};">
                         <span class="badge bg-danger">{{ error }}</span>
@@ -36,4 +45,83 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block javascript %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const input = document.getElementById('searchNametag');
+    const suggestionsBox = document.getElementById('suggestions');
+    const clearBtn = document.getElementById('clearDesktopInput');
+
+    if (!input || !suggestionsBox) return;
+
+    input.addEventListener('input', function () {
+        const query = this.value.trim();
+
+        if (query.length >= 2) {
+            fetch(`/nametag-suggestions?query=${encodeURIComponent(query)}`)
+                .then(res => res.json())
+                .then(data => {
+                    suggestionsBox.innerHTML = '';
+                    if (data.length === 0) {
+                        suggestionsBox.style.display = 'none';
+                        return;
+                    }
+                    data.forEach(nametag => {
+                        const item = document.createElement('a');
+                        item.classList.add('list-group-item', 'list-group-item-action');
+                        item.textContent = nametag;
+                        item.href = `/search?nametag=${encodeURIComponent(nametag)}`;
+                        suggestionsBox.appendChild(item);
+                    });
+                    suggestionsBox.style.display = 'block';
+                })
+                .catch(() => {
+                    suggestionsBox.innerHTML = '';
+                    suggestionsBox.style.display = 'none';
+                });
+        } else {
+            suggestionsBox.innerHTML = '';
+            suggestionsBox.style.display = 'none';
+        }
+    });
+
+    clearBtn.addEventListener('click', function () {
+        input.value = '';
+        suggestionsBox.innerHTML = '';
+        suggestionsBox.style.display = 'none';
+        input.focus();
+    });
+
+    // Optional: ascunde sugestiile dacă se dă click în afara inputului/sugestiilor
+    document.addEventListener('click', function(e) {
+        if (!input.contains(e.target) && !suggestionsBox.contains(e.target)) {
+            suggestionsBox.style.display = 'none';
+        }
+    });
+});
+</script>
+{% verbatim %}
+<script>
+        function showDefaultIcon(img) {
+            const wrapper = img.parentNode;
+            wrapper.innerHTML = '<i class="fa fa-user-circle" style="font-size: 32px; color: #ccc;"></i>';
+        }
+</script>
+{% endverbatim %}
+
+<script>
+        function showDefaultImage(img) {
+            const wrapper = img.parentNode;
+           wrapper.innerHTML = '<img src="{{ asset("uploads/notes/default-image.jpg") }}" class="img-fluid" alt="default-image"/>';
+        }
+</script>
+
+<script>
+        function showDefaultAvatar(img) {
+            const wrapper = img.parentNode;
+           wrapper.innerHTML = `<img src="{{ asset("uploads/avatars/default.jpg") }}" class="img-thumbnail img-fluid rounded-circle mt-3" style="width: 400px; height: auto; alt="default-avatar-image"/>`;
+        }
+</script>
 {% endblock %}

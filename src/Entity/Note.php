@@ -16,7 +16,7 @@ class Note
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(type: 'text')]
     private ?string $content = null;
 
     #[ORM\Column(type: 'integer', nullable: false)]
