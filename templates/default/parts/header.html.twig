@@ -44,20 +44,24 @@
                       method="POST"
                       action="{{ url('app_find_nametag') }}"
                       enctype="multipart/form-data">
-                    <span class="input-group-text bg-secondary btn btn-secondary disabled"
-                          style="font-size: 20px; color: #434343; height: 2.575rem; border-bottom-right-radius: none; border-top-right-radius: none">@</span>
-                    <input type="text"
-                           class="form-control"
-                           name="searchNametag"
-                           id="searchNametag"
-                           placeholder="  Search nametag ..."
-                           style="border-left: none; font-size: 0.85rem; padding: 0.2rem; border-bottom-left-radius: none; border-top-left-radius: none">
-                    <button type="button"
-                            id="clearDesktopInput"
-                            class="btn"
-                            style="background-color: #2A3038; color: gray; height: 2.575rem">
-                        ✕
-                    </button>
+                    <div class="input-group" style="flex-wrap: nowrap;">
+        <span class="input-group-text bg-secondary btn btn-secondary disabled"
+              style="font-size: 20px; color: #434343; height: 2.575rem;">@</span>
+                        <input type="text"
+                               class="form-control"
+                               name="searchNametag"
+                               id="searchNametag"
+                               placeholder="  Search nametag ..."
+                               autocomplete="off"
+                               style="font-size: 0.85rem; padding: 0.2rem;">
+                        <button type="button"
+                                id="clearDesktopInput"
+                                class="btn"
+                                style="background-color: #2A3038; color: gray; height: 2.575rem;">
+                            ✕
+                        </button>
+                    </div>
+                    <div style="background-color: #191c24; margin-left: 42px; font-size: 16px" id="suggestions" class="p-2"></div>
                 </form>
             </li>
         </ul>
@@ -99,27 +103,36 @@
             <div id="mobileSearchWrapper"
                  class="mobile-search-wrapper d-md-none position-absolute start-0 px-2"
                  style="top: 70px; width: 100%; z-index: 9999; background-color: #191c24; padding-top: 10px; padding-bottom: 10px;">
-                <form id="mobileSearchForm"
-                      class="input-group"
-                      method="POST"
-                      action="{{ url('app_find_nametag') }}"
-                      enctype="multipart/form-data"
-                      style="background-color: #1e1e1e; border-radius: 5px;">
-                    <span class="input-group-text bg-secondary btn btn-secondary disabled"
-                          style="font-size: 20px; color: #434343; height: 2.575rem; border-bottom-right-radius: none; border-top-right-radius: none">@</span>
-                    <input type="text"
-                           class="form-control"
-                           name="searchNametag"
-                           placeholder="  Search nametag ..."
-                           style="border-left: none; font-size: 0.85rem; padding: 0.4rem; border-bottom-left-radius: none; border-top-left-radius: none">
-                    <button type="button"
-                            id="closeSearch"
-                            class="btn btn-outline-secondary"
-                            style="background-color: #2A3038; color: gray;">
-                        ✕
-                    </button>
-                </form>
-                <div id="suggestions" class="list-group position-absolute" style="z-index: 1000; width: 100%; max-width: 350px; background: #2A3038; border-radius: 5px; display: none;"></div>
+
+                <div style="position: relative; max-width: 350px; margin: auto;">
+                    <form id="mobileSearchForm"
+                          class="input-group"
+                          method="POST"
+                          action="{{ url('app_find_nametag') }}"
+                          enctype="multipart/form-data"
+                          style="background-color: #1e1e1e; border-radius: 5px;">
+            <span class="input-group-text bg-secondary btn btn-secondary disabled"
+                  style="font-size: 20px; color: #434343; height: 2.575rem;">@</span>
+                        <input type="text"
+                               class="form-control"
+                               name="searchNametag"
+                               id="mobileSearchNametag"
+                               placeholder="  Search nametag ..."
+                               autocomplete="off"
+                               style="border-left: none; font-size: 0.85rem; padding: 0.4rem;">
+                        <button type="button"
+                                id="closeSearch"
+                                class="btn btn-outline-secondary"
+                                style="background-color: #2A3038; color: gray;">
+                            ✕
+                        </button>
+                    </form>
+
+                    <div id="mobileSuggestions"
+                         class="position-absolute"
+                         style="top: 100%; left: 0; right: 0; background-color: #191c24; font-size: 16px; border-radius: 0 0 5px 5px; display: none; z-index: 1000;">
+                    </div>
+                </div>
             </div>
             {# NOTIFICATIONS #}
             <li class="nav-item dropdown border-left">
@@ -408,58 +421,5 @@
         document.addEventListener("DOMContentLoaded", fetchNotifications);
         setInterval(fetchNotifications, 10000);
     </script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-        const input = document.getElementById('searchNametag');
-        const suggestionsBox = document.getElementById('suggestions');
-        const clearBtn = document.getElementById('clearDesktopInput');
-
-        if (!input || !suggestionsBox) return;
-
-        input.addEventListener('input', function () {
-        const query = this.value.trim();
-
-        if (query.length >= 2) {
-        fetch(`/nametag-suggestions?query=${encodeURIComponent(query)}`)
-        .then(res => res.json())
-        .then(data => {
-        suggestionsBox.innerHTML = '';
-        if (data.length === 0) {
-        suggestionsBox.style.display = 'none';
-        return;
-    }
-        data.forEach(nametag => {
-        const item = document.createElement('a');
-        item.classList.add('list-group-item', 'list-group-item-action');
-        item.textContent = nametag;
-        item.href = `/search?nametag=${encodeURIComponent(nametag)}`;
-        suggestionsBox.appendChild(item);
-    });
-        suggestionsBox.style.display = 'block';
-    })
-        .catch(() => {
-        suggestionsBox.innerHTML = '';
-        suggestionsBox.style.display = 'none';
-    });
-    } else {
-        suggestionsBox.innerHTML = '';
-        suggestionsBox.style.display = 'none';
-    }
-    });
-
-        clearBtn.addEventListener('click', function () {
-        input.value = '';
-        suggestionsBox.innerHTML = '';
-        suggestionsBox.style.display = 'none';
-        input.focus();
-    });
-
-        // Optional: ascunde sugestiile dacă se dă click în afara inputului/sugestiilor
-        document.addEventListener('click', function(e) {
-        if (!input.contains(e.target) && !suggestionsBox.contains(e.target)) {
-        suggestionsBox.style.display = 'none';
-    }
-    });
-    });
-    </script>
+    <script src="{{ asset('../assets/js/feed.js') }}"></script>
 {% endblock %}
