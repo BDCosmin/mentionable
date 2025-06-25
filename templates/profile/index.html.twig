@@ -71,7 +71,9 @@
                                     <div class="d-flex flex-wrap gap-2 m-0 p-1 rounded">
                                         {% for interest in interests %}
                                             <div class="bg-light px-2 py-1 text-dark rounded-pill" style="user-select: none">
-                                                #{{ interest }}
+                                                <a href="{{ path('app_interest_show', { id: interest.id }) }}" class="text-dark" style="text-decoration: none;">
+                                                    #{{ interest }}
+                                                </a>
                                                 <a href="#" class="delete-interest text-dark ms-2" data-interest-id="{{ interest.id }}" style="text-decoration: none; font-weight: bold;">x</a>
                                             </div>
                                         {% endfor %}
@@ -107,7 +109,9 @@
                                     <div class="d-flex flex-wrap gap-2 m-0 p-1 rounded">
                                         {% for interest in interests %}
                                             <div class="bg-light px-2 py-1 text-dark rounded-pill" style="user-select: none">
-                                                #{{ interest }}
+                                                <a href="{{ path('app_interest_show', { id: interest.id }) }}" class="text-dark" style="text-decoration: none;">
+                                                    #{{ interest }}
+                                                </a>
                                             </div>
                                         {% endfor %}
                                     </div>

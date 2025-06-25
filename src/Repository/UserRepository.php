@@ -48,4 +48,15 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 
         return $qb->getQuery()->getResult();
     }
+
+    public function findByNametag(string $nametag): array
+    {
+        return $this->createQueryBuilder('u')
+            ->where('u.nametag = :nametag')
+            ->setParameter('nametag', $nametag)
+            ->getQuery()
+            ->useQueryCache(false)
+            ->getResult();
+    }
+
 }
