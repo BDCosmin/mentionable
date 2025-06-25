@@ -64,7 +64,7 @@
             </a>
         </li>
         <li class="nav-item menu-items">
-            <a class="nav-link" href="#">
+            <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#donationsModal">
                 <span class="menu-icon">
                     <i class='bx bx-donate-heart'></i>
                 </span>
@@ -92,11 +92,11 @@
             </div>
         </li>
         <li class="nav-item menu-items">
-            <a class="nav-link" href="#">
+            <a class="nav-link" href="{{ path('app_support') }}">
                 <span class="menu-icon">
                     <i class='bx bx-help-circle'></i>
                 </span>
-                <span class="menu-title">Help</span>
+                <span class="menu-title">Support</span>
             </a>
         </li>
     </ul>
@@ -119,6 +119,31 @@
                     <button type="submit" class="btn btn-danger">Delete</button>
                 </form>
             </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="donationsModal" tabindex="-1" aria-labelledby="donationsModalLabel" aria-hidden="true" style="overflow-y: hidden;">
+    <div class="modal-dialog">
+        <div class="modal-content border-warning">
+            <div class="modal-header bg-warning text-white">
+                <h5 class="modal-title" id="donationsModalLabel">Donations</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pb-0">
+                Want to support our work? Every donation helps! You can contribute via PayPal.
+            </div>
+            <form action="https://www.paypal.com/donate" method="post" target="_top" class="d-flex ms-auto me-md-4">
+                <!-- Identify your business so that you can collect the payments. -->
+                <input type="hidden" name="business" value="donations@kcparkfriends.org">
+                <!-- Specify details about the contribution -->
+                <input type="hidden" name="no_recurring" value="0">
+                <input type="hidden" name="item_name" value="Friends of the Park">
+                <input type="hidden" name="item_number" value="Fall Cleanup Campaign">
+                <input type="hidden" name="currency_code" value="EUR">
+                <!-- Display the payment button. -->
+                <input type="image" name="submit" src="https://lavendercottagecattery.co.uk/wp-content/uploads/2022/10/CITYPNG.COMDownload-PayPal-Yellow-Payment-Button-PNG-2100x770-2.png" style="width: 160px; height: 65px" alt="Donate">
+                <img alt="" width="1" height="1" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" >
+            </form>
         </div>
     </div>
 </div>
