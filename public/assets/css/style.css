@@ -23683,6 +23683,18 @@ input[type="file"]::file-selector-button {
     margin: auto;
   }
 }
+#suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  border-top: none;
+  max-height: 200px;
+  overflow-y: auto;
+  display: none;
+}
+
 .auth .brand-logo {
   margin-bottom: 2rem;
 }

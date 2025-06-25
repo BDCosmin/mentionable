@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Interest{% endblock %}
+
+{% block body %}
+    <div class="main-panel">
+        <div class="content-wrapper p-0">
+            <div class="row justify-content-center px-0 mb-4 mt-5">
+                <div class="col-lg-8 p-2" style="background-color: #181b20; border-radius: 5px;">
+                    <div class="ms-3 p-0 mb-3" id="errorWhilePosting" style="display: {{ divVisibility }};">
+                        <span class="badge bg-danger">{{ error }}</span>
+                    </div>
+                    {% set seen = [] %}
+                    <h3 class="pt-4 ps-4 pe-4 pb-0">All the interests from Mentionable:</h3>
+                    <div class="d-flex flex-wrap gap-2 m-0 p-4 rounded">
+                        {% for interest in interests %}
+                            {% if interest.title not in seen %}
+                                {% set seen = seen|merge([interest.title]) %}
+                                <a href="{{ path('app_interest_show', { id: interest.id }) }}" style="text-decoration: none;">
+                                    <div class="bg-light px-2 py-1 text-dark rounded-pill" style="user-select: none">
+                                        <h4 class="pt-1">#{{ interest.title }}</h4>
+                                    </div>
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

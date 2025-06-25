@@ -33,4 +33,25 @@ final class InterestController extends AbstractController
         ]);
     }
 
+    #[Route('/interests', name: 'app_interests_list', methods: ['GET'])]
+    public function showListInterests(
+        InterestRepository $interestRepository
+    ): Response {
+
+        $interests = $interestRepository->findBy([]);
+
+        $error = '';
+        $divVisibility = 'none';
+
+        if (!$interests) {
+            throw $this->createNotFoundException('Interests not found.');
+        }
+
+        return $this->render('interest/list.html.twig', [
+            'interests' => $interests,
+            'divVisibility' => $divVisibility,
+            'error' => $error,
+        ]);
+    }
+
 }
