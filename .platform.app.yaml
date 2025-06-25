@@ -15,9 +15,10 @@ variables:
     APP_SECRET: '${env:APP_SECRET}'
     APP_ENV: 'prod'
     APP_DEBUG: '1'
+    UPLOADS_DIR: '${env:UPLOADS_DIR}'
 
 mounts:
-  'public/uploads':
+  '/public/uploads':
     source: local
     source_path: uploads
   'var/log':
