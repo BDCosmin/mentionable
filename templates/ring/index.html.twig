@@ -1,0 +1,108 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Feed - Mentionable{% endblock %}
+
+{% block body %}
+    <div class="main-panel">
+        <div class="content-wrapper p-0">
+            <div class="row justify-content-center mb-4">
+                <div class="col-lg-7 m-0 p-0 mb-3" id="errorWhilePosting" style="display: {{ divVisibility }};">
+                    <span class="badge bg-danger">{{ error }}</span>
+                </div>
+                <div class="row mt-5 mb-3">
+                    <div class="col-lg-12 d-flex justify-content-end">
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#newRingModal" >
+                            <span class="badge bg-light text-dark" style="border-radius: 50%; font-size: 16px; font-weight: bold">+</span>
+                        </a>
+                    </div>
+                    <!-- Modal create community -->
+                    <div class="modal fade" id="newRingModal" tabindex="-1" aria-labelledby="newRingModalLabel" aria-hidden="true" style="overflow-y: hidden;">
+                        <div class="modal-dialog mt-5" style="max-width: 850px;">
+                            <div class="modal-content" style="background-color: #181b20; border-radius: 5px;">
+                                <div class="modal-body">
+                                    {{ form_start(ringForm, {
+                                        'action': path('app_rings_discover'),
+                                        'attr': {'class': 'forms-sample'}
+                                    }) }}
+                                    {{ form_errors(ringForm) }}
+                                    <div class="form-group">
+                                        {{ form_label(ringForm.title) }}
+                                        {{ form_widget(ringForm.title, {'attr': {'class': 'form-control'}}) }}
+                                        {{ form_errors(ringForm.title) }}
+                                    </div>
+                                    <div class="form-group">
+                                        {{ form_label(ringForm.description) }}
+                                        {{ form_widget(ringForm.description, {'attr': {'class': 'form-control'}}) }}
+                                        {{ form_errors(ringForm.description) }}
+                                    </div>
+                                    <div class="form-group">
+                                        {{ form_label(ringForm.banner) }}
+                                        {{ form_widget(ringForm.banner, {'attr': {'class': 'form-control'}}) }}
+                                        {{ form_errors(ringForm.banner) }}
+                                    </div>
+                                    <div class="form-group">
+                                        {{ form_label(ringForm.interest) }}
+                                        {{ form_widget(ringForm.interest, {'attr': {'class': 'form-control'}}) }}
+                                        {{ form_errors(ringForm.interest) }}
+                                    </div>
+                                    <div class="d-flex justify-content-end">
+                                        <button type="button" class="btn btn-danger me-2" data-bs-dismiss="modal" aria-label="Close">Close</button>
+                                        <button type="submit" class="btn btn-light me-2" style="width: 120px;">Create</button>
+                                    </div>
+                                    {{ form_end(ringForm) }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row d-flex justify-content-center">
+                        <div class="col-lg-12 mb-2 p-0 d-flex flex-row justify-content-center align-items-center">
+                            <img src="{{ asset('uploads/rings/rings-logo.png') }}" style="width: 100px; height: 100px" />
+                            <h1 class="m-0">Rings</h1>
+                        </div>
+                        <div class="col-lg-12 mb-4 p-0 d-flex flex-column justify-content-center align-items-center text-center">
+                            <p class="m-0" style="font-size: 20px">Connect with people through shared interests on communities.</p>
+                            <p class="m-0" style="font-size: 20px">Join circles, spark ideas and discover.</p>
+                        </div>
+                    </div>
+                    <div class="row d-flex justify-content-center">
+                        <div class="col-lg-10 mb-3 p-0" style="border-radius: 5px; margin-top: 2rem;">
+                            <h3 class="mb-2">What's new</h3>
+                            <div class="row g-3">
+                                {% for ring in rings %}
+                                    <div class="col-6 col-sm-4 col-md-3 col-lg-3">
+                                        <div class="card h-100" style="background-color: #181b20;">
+                                            <img src="{{ asset('uploads/rings/' ~ ring.banner) }}" class="card-img-top" alt="banner">
+                                            <div class="card-body">
+                                                <h5 class="card-title">{{ ring.title }}</h5>
+                                                <p class="card-text">{{ ring.description }}</p>
+                                                <a href="#" class="btn btn-light">Visit</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {# MOST POPULAR COMMUNITIES #}
+                        <div class="col-lg-10 mb-3 p-0" style="border-radius: 5px; margin-top: 2rem;">
+                            <h3 class="mb-2">Most popular</h3>
+                            <div class="row g-3">
+                                {% for ring in rings %}
+                                    <div class="col-6 col-sm-4 col-md-3 col-lg-3">
+                                        <div class="card h-100" style="background-color: #181b20;">
+                                            <img src="{{ asset('uploads/rings/' ~ ring.banner) }}" class="card-img-top" alt="banner">
+                                            <div class="card-body">
+                                                <h5 class="card-title">{{ ring.title }}</h5>
+                                                <p class="card-text">{{ ring.description }}</p>
+                                                <a href="#" class="btn btn-light">Visit</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

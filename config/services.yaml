@@ -6,6 +6,7 @@
 parameters:
     avatars_directory: '%kernel.project_dir%/public/uploads/avatars'
     notes_directory: '%kernel.project_dir%/public/uploads/notes'
+    rings_directory: '%kernel.project_dir%/public/uploads/rings'
 
 services:
     # default configuration for services in *this* file

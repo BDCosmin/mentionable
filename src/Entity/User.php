@@ -100,6 +100,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Interest::class, mappedBy: 'user')]
     private Collection $interests;
 
+    /**
+     * @var Collection<int, Ring>
+     */
+    #[ORM\OneToMany(targetEntity: Ring::class, mappedBy: 'user')]
+    private Collection $rings;
+
+    /**
+     * @var Collection<int, RingMembers>
+     */
+    #[ORM\OneToMany(targetEntity: RingMembers::class, mappedBy: 'user')]
+    private Collection $ringMembers;
+
     public function __construct()
     {
         $this->notes = new ArrayCollection();
@@ -111,6 +123,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->sentFriendRequests = new ArrayCollection();
         $this->receivedFriendRequests = new ArrayCollection();
         $this->interests = new ArrayCollection();
+        $this->rings = new ArrayCollection();
+        $this->ringMembers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -372,6 +386,66 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($interest->getUser() === $this) {
                 $interest->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Ring>
+     */
+    public function getRings(): Collection
+    {
+        return $this->rings;
+    }
+
+    public function addRing(Ring $ring): static
+    {
+        if (!$this->rings->contains($ring)) {
+            $this->rings->add($ring);
+            $ring->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRing(Ring $ring): static
+    {
+        if ($this->rings->removeElement($ring)) {
+            // set the owning side to null (unless already changed)
+            if ($ring->getUser() === $this) {
+                $ring->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, RingMembers>
+     */
+    public function getRingMembers(): Collection
+    {
+        return $this->ringMembers;
+    }
+
+    public function addRingMember(RingMembers $ringMember): static
+    {
+        if (!$this->ringMembers->contains($ringMember)) {
+            $this->ringMembers->add($ringMember);
+            $ringMember->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRingMember(RingMembers $ringMember): static
+    {
+        if ($this->ringMembers->removeElement($ringMember)) {
+            // set the owning side to null (unless already changed)
+            if ($ringMember->getUser() === $this) {
+                $ringMember->setUser(null);
             }
         }
 
