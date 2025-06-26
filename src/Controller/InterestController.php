@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Repository\InterestRepository;
+use App\Repository\RingRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -12,6 +13,7 @@ final class InterestController extends AbstractController
     #[Route('/interest/{id}', name: 'app_interest_show', methods: ['GET'])]
     public function showInterest(
         InterestRepository $interestRepository,
+        RingRepository $ringRepository,
         int $id
     ): Response {
         $interest = $interestRepository->find($id);
@@ -25,9 +27,13 @@ final class InterestController extends AbstractController
 
         $usersWithSameInterest = $interestRepository->findUsersWithInterest($interest->getTitle());
 
+        // ✅ Rings care au același interest
+        $ringsWithSameInterest = $ringRepository->findBy(['interest' => $interest]);
+
         return $this->render('interest/index.html.twig', [
             'interest' => $interest,
             'users' => $usersWithSameInterest,
+            'rings' => $ringsWithSameInterest,
             'divVisibility' => $divVisibility,
             'error' => $error,
         ]);

@@ -39,7 +39,7 @@ class RingForm extends AbstractType
                         'maxMessage' => 'Title cannot be longer than {{ limit }} characters.',
                     ]),
                     new Regex([
-                        'pattern' => '/^[A-Z][A-Za-z0-9]*$/',
+                        'pattern' => '/^[A-Z][A-Za-z0-9 ]*$/',
                         'message' => 'Title can only contain letters and numbers.',
                     ]),
                 ],

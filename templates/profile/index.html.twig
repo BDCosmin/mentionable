@@ -376,9 +376,30 @@
                                     {% endif %}
                             </div>
                             <div class="col-md-4">
-                                <h4 class="mt-5 text-center text-md-center">Rings</h4>
-                                <div class="mt-3 bg-dark rounded p-4 shadow text-white">
-                                    coming soon...
+                                <h4 class="mt-5 text-center">Rings</h4>
+                                <div class="mt-3 bg-dark rounded p-3 shadow text-dark">
+                                    {% if rings|length %}
+                                        <div class="d-flex flex-column gap-3">
+                                            {% for ring in rings %}
+                                                <div class="d-flex align-items-center bg-secondary rounded p-2">
+                                                    <img src="{{ asset('uploads/rings/' ~ ring.banner) }}"
+                                                         class="rounded-circle me-3"
+                                                         alt="banner"
+                                                         style="width: 50px; height: 50px; object-fit: cover;"
+                                                         onerror="this.src='default-banner.png'">
+
+                                                    <div class="flex-grow-1">
+                                                        <h6 class="mb-0">{{ ring.title }}</h6>
+                                                        <small class="text-dark">#{{ ring.interest.title }}</small>
+                                                    </div>
+
+                                                    <a href="#" class="btn btn-sm btn-info text-dark">Visit</a>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        <p class="text-muted text-center">No communities joined.</p>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
