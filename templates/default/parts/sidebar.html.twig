@@ -56,12 +56,19 @@
             </a>
         </li>
         <li class="nav-item menu-items">
-            <a class="nav-link" href="#">
-                <span class="menu-icon">
-                    <i class='bx bx-circle-dashed'></i>
-                </span>
+            <a class="nav-link" data-bs-toggle="collapse" href="#rings-collapse" aria-expanded="false" aria-controls="rings-collapse">
+                 <span class="menu-icon">
+                    <i class="fa fa-cogs"></i>
+                  </span>
                 <span class="menu-title">Rings</span>
+                <i class="menu-arrow"></i>
             </a>
+            <div class="collapse" id="rings-collapse">
+                <ul class="nav flex-column sub-menu">
+                    <li class="nav-item"> <a class="nav-link" href="#">Discover</a></li>
+                    <li class="nav-item"> <a class="nav-link" href="#">My communities</a></li>
+                </ul>
+            </div>
         </li>
         <li class="nav-item menu-items">
             <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#donationsModal">
