@@ -237,8 +237,7 @@
     </div>
 {% endif %}
 
-{% block javascript %}
-    <script>
+<script>
         document.addEventListener("DOMContentLoaded", function () {
         const toggleBtn = document.getElementById('toggleSearch');
         const searchForm = document.getElementById('searchForm');
@@ -263,8 +262,8 @@
         }
       });
      });
-    </script>
-    <script>
+</script>
+<script>
         document.addEventListener('DOMContentLoaded', function () {
         const toggleSearchBtn = document.getElementById('toggleSearch');
         const mobileSearchWrapper = document.getElementById('mobileSearchWrapper');
@@ -290,8 +289,8 @@
         searchInputDesktop.value = '';
     });
     }})
-    </script>
-    <script>
+</script>
+<script>
         function fetchNotifications() {
         fetch('/notifications/fetch', { credentials: 'same-origin' })
             .then(response => response.json())
@@ -420,6 +419,4 @@
         // Inițial și apoi la 10 secunde
         document.addEventListener("DOMContentLoaded", fetchNotifications);
         setInterval(fetchNotifications, 10000);
-    </script>
-    <script src="{{ asset('../assets/js/feed.js') }}"></script>
-{% endblock %}
+</script>
