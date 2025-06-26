@@ -81,6 +81,12 @@ class ProfileController extends AbstractController
     {
         $error = '';
 
+        $user = $this->getUser();
+        if (count($user->getInterests()) >= 5) {
+            $this->addFlash('error', 'You can only have up to 5 interests.');
+            return $this->redirect($request->headers->get('referer'));
+        }
+
         if ($request->isMethod('POST')) {
             $content = $request->request->get('interest-content');
 
