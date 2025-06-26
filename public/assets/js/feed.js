@@ -12,9 +12,36 @@ const voteHandler = (noteId, type) => {
             if (data.success) {
                 document.querySelector(`#upvotes-${noteId}`).textContent = data.upvotes;
                 document.querySelector(`#downvotes-${noteId}`).textContent = data.downvotes;
+
+                const upBtn = document.querySelector(`.upvote-btn[data-id="${noteId}"]`);
+                const downBtn = document.querySelector(`.downvote-btn[data-id="${noteId}"]`);
+
+                if (type === 'upvote') {
+                    // Toggle activ
+                    if (upBtn.classList.contains('btn-light')) {
+                        upBtn.classList.remove('btn-light');
+                        upBtn.classList.add('btn-outline-light');
+                    } else {
+                        upBtn.classList.add('btn-light');
+                        upBtn.classList.remove('btn-outline-light');
+                        downBtn.classList.remove('btn-light');
+                        downBtn.classList.add('btn-outline-light');
+                    }
+                } else if (type === 'downvote') {
+                    if (downBtn.classList.contains('btn-light')) {
+                        downBtn.classList.remove('btn-light');
+                        downBtn.classList.add('btn-outline-light');
+                    } else {
+                        downBtn.classList.add('btn-light');
+                        downBtn.classList.remove('btn-outline-light');
+                        upBtn.classList.remove('btn-light');
+                        upBtn.classList.add('btn-outline-light');
+                    }
+                }
             }
         });
 };
+
 
 document.querySelectorAll('.upvote-btn').forEach(btn => {
     btn.addEventListener('click', () => {

@@ -19,11 +19,12 @@ use Symfony\Component\Routing\Attribute\Route;
 final class DefaultController extends AbstractController
 {
     #[Route('/', name: 'homepage')]
-    public function index(EntityManagerInterface $em,
-                          NotificationService $notificationService,
-                          NotificationRepository $notificationRepository,
-                          NoteVoteRepository $noteVoteRepository,
-                          FriendRequestRepository $friendRequestRepository,
+    public function index(
+        EntityManagerInterface $em,
+        NotificationService $notificationService,
+        NotificationRepository $notificationRepository,
+        NoteVoteRepository $noteVoteRepository,
+        FriendRequestRepository $friendRequestRepository,
     ): Response
     {
         $error = '';
@@ -40,12 +41,25 @@ final class DefaultController extends AbstractController
             $note->mentionedUserId = $note->getMentionedUserId($em);
         }
 
+        // Construim map-ul voturilor utilizatorului curent
+        $votesMap = [];
+        foreach ($noteVotes as $vote) {
+            if ($vote->getUser() === $user) {
+                if ($vote->isUpvoted()) {
+                    $votesMap[$vote->getNote()->getId()] = 'upvote';
+                } elseif ($vote->isDownvoted()) {
+                    $votesMap[$vote->getNote()->getId()] = 'downvote';
+                }
+            }
+        }
+
         return $this->render('default/index.html.twig', [
             'notes' => $notes,
             'currentUserNametag' => $user->getNametag(),
             'divVisibility' => 'none',
             'error' => $error,
             'noteVotes' => $noteVotes,
+            'votesMap' => $votesMap,
         ]);
     }
 

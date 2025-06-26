@@ -123,10 +123,15 @@ class NoteController extends AbstractController
 
     #[Route('/note/{id}/update', name: 'app_note_update', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_USER')]
-    public function update(Request $request, Note $note, EntityManagerInterface $em, SluggerInterface $slugger): Response
+    public function update(Request $request, Note $note, NoteVoteRepository $noteVoteRepository, EntityManagerInterface $em, SluggerInterface $slugger): Response
     {
         $error = '';
         $divVisibility = 'none';
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->redirectToRoute('app_login');
+        }
+        $noteVotes = $noteVoteRepository->findBy([]);
 
         $note->mentionedUserId = $note->getMentionedUserId($em);
 
@@ -176,15 +181,28 @@ class NoteController extends AbstractController
             }
         }
 
+        $votesMap = [];
+        foreach ($noteVotes as $vote) {
+            if ($vote->getUser() === $user) {
+                if ($vote->isUpvoted()) {
+                    $votesMap[$vote->getNote()->getId()] = 'upvote';
+                } elseif ($vote->isDownvoted()) {
+                    $votesMap[$vote->getNote()->getId()] = 'downvote';
+                }
+            }
+        }
+
         return $this->render('note/update.html.twig', [
             'error' => $error,
             'divVisibility' => $divVisibility,
             'note' => $note,
+            'noteVotes' => $noteVotes,
+            'votesMap' => $votesMap,
         ]);
     }
 
     #[Route('/note/{noteId}', name: 'app_note_show')]
-    public function show(int $noteId, NoteRepository $noteRepository, FriendRequestRepository $friendRequestRepository, NotificationService $notificationService, EntityManagerInterface $em): Response
+    public function show(int $noteId, NoteRepository $noteRepository,NoteVoteRepository $noteVoteRepository,EntityManagerInterface $em): Response
     {
         $user = $this->getUser();
 
@@ -194,16 +212,28 @@ class NoteController extends AbstractController
 
         if (!$note) {
             return $this->redirectToRoute('homepage');
-        } else {
-
-            $comments = $note->getComments();
-
-            return $this->render('note/index.html.twig', [
-                'divVisibility' => 'none',
-                'note' => $note,
-                'comments' => $comments,
-            ]);
         }
+
+        $votesMap = [];
+        if ($user) {
+            $noteVote = $noteVoteRepository->findOneByUserAndNote($user, $note);
+            if ($noteVote) {
+                if ($noteVote->isUpvoted()) {
+                    $votesMap[$note->getId()] = 'upvote';
+                } elseif ($noteVote->isDownvoted()) {
+                    $votesMap[$note->getId()] = 'downvote';
+                }
+            }
+        }
+
+        $comments = $note->getComments();
+
+        return $this->render('note/index.html.twig', [
+            'divVisibility' => 'none',
+            'note' => $note,
+            'comments' => $comments,
+            'votesMap' => $votesMap,
+        ]);
     }
 
     #[Route('/note/{id}/report', name: 'app_note_report', methods: ['GET', 'POST'])]
@@ -254,40 +284,38 @@ class NoteController extends AbstractController
                            NoteVoteRepository $noteVoteRepository): JsonResponse
     {
         $user = $this->getUser();
-
         $existingVote = $noteVoteRepository->findOneBy([
             'user' => $user,
             'note' => $note,
         ]);
 
-        if (!$existingVote) {
+        $shouldRemoveVote = false;
 
+        if (!$existingVote) {
             $vote = new NoteVote();
             $vote->setUser($user);
             $vote->setNote($note);
             $vote->setIsUpvoted(true);
             $vote->setIsDownvoted(false);
-
             $note->incrementUpVote();
             $em->persist($vote);
 
         } else {
-            if ($existingVote->isUpvoted() && !($existingVote->isDownvoted())) {
-
+            if ($existingVote->isUpvoted() && !$existingVote->isDownvoted()) {
                 $existingVote->setIsUpvoted(false);
                 $note->decrementUpVote();
+                $shouldRemoveVote = true;
 
-            } elseif ($existingVote->isDownvoted() && !($existingVote->isUpvoted())) {
-
+            } elseif ($existingVote->isDownvoted() && !$existingVote->isUpvoted()) {
                 $existingVote->setIsDownvoted(false);
                 $existingVote->setIsUpvoted(true);
                 $note->decrementDownVote();
                 $note->incrementUpVote();
-
             }
         }
 
-        if ($existingVote && !$existingVote->isUpvoted() && !$existingVote->isDownvoted()) {
+        // Important: verificăm flagul, nu recitim proprietățile
+        if ($shouldRemoveVote && $existingVote) {
             $em->remove($existingVote);
         }
 
@@ -298,7 +326,6 @@ class NoteController extends AbstractController
             'upvotes' => $note->getUpVote(),
             'downvotes' => $note->getDownVote(),
         ]);
-
     }
 
     #[Route('/note/{id}/downvote', name: 'note_downvote', methods: ['POST'])]
@@ -313,6 +340,8 @@ class NoteController extends AbstractController
             'user' => $user,
             'note' => $note,
         ]);
+
+        $shouldRemoveVote = false;
 
         if (!$existingVote) {
 
@@ -341,7 +370,7 @@ class NoteController extends AbstractController
             }
         }
 
-        if ($existingVote && !$existingVote->isUpvoted() && !$existingVote->isDownvoted()) {
+        if ($shouldRemoveVote && $existingVote) {
             $em->remove($existingVote);
         }
 

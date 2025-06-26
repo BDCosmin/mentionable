@@ -11,6 +11,7 @@ use App\Form\ChangePasswordType;
 use App\Form\ProfileType;
 use App\Repository\InterestRepository;
 use App\Repository\NoteRepository;
+use App\Repository\NoteVoteRepository;
 use App\Repository\NotificationRepository;
 use App\Repository\UserRepository;
 use App\Repository\FriendRequestRepository;
@@ -30,13 +31,14 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 class ProfileController extends AbstractController
 {
     #[Route('/{id}', name: 'app_profile')]
-    public function index(int $id, FriendRequestRepository $friendRequestRepository, NoteRepository $noteRepository, UserRepository $userRepository, NotificationRepository $notificationRepository, EntityManagerInterface $em): Response
+    public function index(int $id, FriendRequestRepository $friendRequestRepository, NoteVoteRepository $noteVoteRepository,NoteRepository $noteRepository, UserRepository $userRepository, NotificationRepository $notificationRepository, EntityManagerInterface $em): Response
     {
         $user = $userRepository->find($id);
 
         if (!$user) {
             throw $this->createAccessDeniedException();
         }
+        $noteVotes = $noteVoteRepository->findBy([]);
 
         $friendRequests = $friendRequestRepository->findBy(['receiver' => $user]);
         $notifications = $notificationRepository->findBy(['receiver' => $user]);
@@ -47,12 +49,26 @@ class ProfileController extends AbstractController
             $note->mentionedUserId = $note->getMentionedUserId($em);
         }
 
+        // Construim map-ul voturilor utilizatorului curent
+        $votesMap = [];
+        foreach ($noteVotes as $vote) {
+            if ($vote->getUser() === $user) {
+                if ($vote->isUpvoted()) {
+                    $votesMap[$vote->getNote()->getId()] = 'upvote';
+                } elseif ($vote->isDownvoted()) {
+                    $votesMap[$vote->getNote()->getId()] = 'downvote';
+                }
+            }
+        }
+
         return $this->render('profile/index.html.twig', [
             'user' => $user,
             'notes' => $notes,
             'friendRequests' => $friendRequests,
             'notifications' => $notifications,
             'interests' => $interests,
+            'noteVotes' => $noteVotes,
+            'votesMap' => $votesMap,
         ]);
     }
 

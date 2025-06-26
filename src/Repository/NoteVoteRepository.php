@@ -2,7 +2,9 @@
 
 namespace App\Repository;
 
+use App\Entity\Note;
 use App\Entity\NoteVote;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -40,4 +42,14 @@ class NoteVoteRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+    public function findOneByUserAndNote(User $user, Note $note): ?NoteVote
+    {
+        return $this->createQueryBuilder('nv')
+            ->andWhere('nv.user = :user')
+            ->andWhere('nv.note = :note')
+            ->setParameter('user', $user)
+            ->setParameter('note', $note)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

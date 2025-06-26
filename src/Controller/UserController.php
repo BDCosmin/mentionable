@@ -7,6 +7,7 @@ use App\Entity\Notification;
 use App\Entity\User;
 use App\Repository\FriendRequestRepository;
 use App\Repository\NoteRepository;
+use App\Repository\NoteVoteRepository;
 use App\Repository\NotificationRepository;
 use App\Repository\UserRepository;
 use App\Service\NotificationService;
@@ -39,10 +40,11 @@ final class UserController extends AbstractController
     }
 
     #[Route('/my-notes/user', name: 'app_user_notes')]
-    public function myNotes(NoteRepository $noteRepository, FriendRequestRepository $friendRequestRepository, NotificationService $notificationService, EntityManagerInterface $em): Response
+    public function myNotes(NoteRepository $noteRepository, NoteVoteRepository $noteVoteRepository,FriendRequestRepository $friendRequestRepository, NotificationService $notificationService, EntityManagerInterface $em): Response
     {
         $user = $this->getUser();
         $notes = $noteRepository->findBy(['user' => $user], ['publicationDate' => 'DESC']);
+        $noteVotes = $noteVoteRepository->findBy([]);
 
         foreach ($notes as $note) {
             $note->mentionedUserId = $note->getMentionedUserId($em);
@@ -53,12 +55,26 @@ final class UserController extends AbstractController
 
         $notesCount = count($notes);
 
+        // Construim map-ul voturilor utilizatorului curent
+        $votesMap = [];
+        foreach ($noteVotes as $vote) {
+            if ($vote->getUser() === $user) {
+                if ($vote->isUpvoted()) {
+                    $votesMap[$vote->getNote()->getId()] = 'upvote';
+                } elseif ($vote->isDownvoted()) {
+                    $votesMap[$vote->getNote()->getId()] = 'downvote';
+                }
+            }
+        }
+
         return $this->render('user/index.html.twig', [
             'user' => $user,
             'notesCount' => $notesCount,
             'notes' => $notes,
             'notifications' => $notifications,
-            'friendRequests' => $friendRequests
+            'friendRequests' => $friendRequests,
+            'noteVotes' => $noteVotes,
+            'votesMap' => $votesMap,
         ]);
     }
 

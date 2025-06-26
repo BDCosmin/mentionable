@@ -25398,4 +25398,11 @@ input[type="file"]::file-selector-button {
 .toggle-password:hover {
   color: white;
 }
+
+button.upvote-btn.active,
+button.downvote-btn.active {
+  background-color: white;
+  color: black;
+}
+
 /*# sourceMappingURL=maps/style.css.map */
