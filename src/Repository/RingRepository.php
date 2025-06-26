@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Ring;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -40,4 +41,16 @@ class RingRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+// src/Repository/RingRepository.php
+    public function findByUserOrMember(User $user): array
+    {
+        return $this->createQueryBuilder('r')
+            ->leftJoin('r.ringMembers', 'rm')
+            ->leftJoin('rm.user', 'memberUser')
+            ->where('r.user = :user OR memberUser = :user')
+            ->setParameter('user', $user)
+            ->orderBy('r.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }

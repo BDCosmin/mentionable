@@ -20,24 +20,54 @@
                         </div>
                     </div>
 
+                        {# Filtrăm utilizatorii să excludem user-ul curent #}
+                        {% set filteredUsers = users|filter(user => user.id != app.user.id) %}
                         <h4 class="mt-4 ms-3">Users with this interest:</h4>
-
-                        {% if users is not empty %}
+                        {# Dacă avem utilizatori în listă (după filtrare) #}
+                        {% if filteredUsers is not empty %}
                             <ul>
-                                {% for user in users %}
-                                    {% if user.id != app.user.id %}
-                                        <div class="d-flex flex-row m-0 p-0 mb-1 mt-2">
-                                            <a href="{{ path('app_profile', {id: user.id}) }}" class="ms-3">
-                                                <img class="img-sm rounded-circle" src="{{ asset('Uploads/avatars/' ~ user.avatar) }}" alt="avatar" onerror="showDefaultIcon(this)">
-                                            </a>
-                                            <a href="{{ path('app_profile', {id: user.id}) }}" class="text-white ms-3" style="text-decoration: none;">
-                                                <span style="font-size: 20px">@{{ user.nametag }}</span>
-                                            </a>
-                                        </div>
-                                    {% endif %}
+                                {% for user in filteredUsers %}
+                                    <div class="d-flex flex-row m-0 p-0 mb-1 mt-2">
+                                        <a href="{{ path('app_profile', {id: user.id}) }}" class="ms-3">
+                                            <img class="img-sm rounded-circle" src="{{ asset('Uploads/avatars/' ~ user.avatar) }}" alt="avatar" onerror="showDefaultIcon(this)">
+                                        </a>
+                                        <a href="{{ path('app_profile', {id: user.id}) }}" class="text-white ms-3" style="text-decoration: none;">
+                                            <span style="font-size: 20px">@{{ user.nametag }}</span>
+                                        </a>
+                                    </div>
                                 {% endfor %}
                             </ul>
+                        {% else %}
+                            <p class="text-muted ms-3">No users found with this interest.</p>
                         {% endif %}
+                    {% endif %}
+                    <h4 class="mt-5 ms-3">Rings with this interest:</h4>
+
+                    {% if rings is defined and rings|length %}
+                        <div class="d-flex flex-column gap-3 mt-3 ms-3 me-3">
+                            {% for ring in rings %}
+                                <div class="d-flex align-items-center bg-dark rounded p-3 shadow-sm">
+                                    <img src="{{ asset('uploads/rings/' ~ ring.banner) }}"
+                                         class="rounded-circle me-3"
+                                         alt="banner"
+                                         style="width: 50px; height: 50px; object-fit: cover;"
+                                         onerror="this.src='default-banner.png'">
+
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1 text-white">{{ ring.title }}</h6>
+                                        <small class="text-light">by
+                                            <a href="{{ path('app_profile', {'id': ring.user.id}) }}" class="text-decoration-none text-warning">
+                                                @{{ ring.user.nametag }}
+                                            </a>
+                                        </small>
+                                    </div>
+
+                                    <a href="#" class="btn btn-outline-light btn-sm">Visit</a>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted ms-3">No rings with this interest yet.</p>
                     {% endif %}
                 </div>
             </div>

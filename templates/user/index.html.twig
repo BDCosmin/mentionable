@@ -27,7 +27,7 @@
                                 {# NOTE PROFILE #}
                                 <div class="navbar-profile d-flex flex-row text-light mb-3" style="width: 100%;">
                                     <a class="nav-link me-3 mt-2" id="avatarNote" href="{{ path('app_profile', {'id': note.user.id}) }}">
-                                        <img class="img-sm rounded-circle" src="{{ asset('Uploads/avatars/' ~ note.user.avatar) }}" alt="avatar" onerror="showDefaultIcon(this)">
+                                        <img class="img-sm rounded-circle" src="{{ asset('uploads/avatars/' ~ note.user.avatar) }}" alt="avatar" onerror="showDefaultIcon(this)">
                                     </a>
                                     <div class="d-flex flex-column">
                                         <a class="nav-link mt-3" id="nametagNote" href="{{ path('app_profile', {'id': note.user.id}) }}">

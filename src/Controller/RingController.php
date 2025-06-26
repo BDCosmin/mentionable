@@ -13,6 +13,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
 final class RingController extends AbstractController
@@ -20,120 +21,109 @@ final class RingController extends AbstractController
     #[Route('/rings/discover', name: 'app_rings_discover', methods: ['GET', 'POST'])]
     public function index(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger, RingRepository $ringRepository): Response
     {
-        $error = '';
-
         $rings = $ringRepository->findBy([], ['createdAt' => 'DESC'], 4);
 
         $form = $this->createForm(RingForm::class);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            /** @var Ring $ring */
-            $ring = $form->getData();
-            $ring->setUser($this->getUser());
-            $ring->setCreatedAt(new \DateTime());
+        if ($form->isSubmitted()) {
+            if ($form->isValid()) {
+                /** @var Ring $ring */
+                $ring = $form->getData();
 
-            $interestTitle = $form->get('interest')->getData();
+                $interestTitle = $form->get('interest')->getData();
+                $banner = $form->get('banner')->getData();
 
-            $existingInterest = $entityManager->getRepository(Interest::class)->findOneBy(['title' => $interestTitle]);
+                // Verificare banner separat, fiindcă e mapped = false și required = false
+                if (!$banner) {
+                    $this->addFlash('error', 'Please upload a banner image.');
+                } else {
+                    $ring->setUser($this->getUser());
+                    $ring->setCreatedAt(new \DateTime());
 
-            if ($existingInterest) {
-                $ring->setInterest($existingInterest);
+                    $existingInterest = $entityManager->getRepository(Interest::class)->findOneBy(['title' => $interestTitle]);
+
+                    if ($existingInterest) {
+                        $ring->setInterest($existingInterest);
+                    } else {
+                        $newInterest = new Interest();
+                        $newInterest->setTitle($interestTitle);
+                        $newInterest->setUser($this->getUser());
+                        $entityManager->persist($newInterest);
+                        $ring->setInterest($newInterest);
+                    }
+
+                    $originalFilename = pathinfo($banner->getClientOriginalName(), PATHINFO_FILENAME);
+                    $safeFilename = $slugger->slug($originalFilename);
+                    $newFilename = $safeFilename . '-' . uniqid() . '.' . $banner->guessExtension();
+
+                    $banner->move($this->getParameter('rings_directory'), $newFilename);
+                    $ring->setBanner($newFilename);
+
+                    $entityManager->persist($ring);
+                    $entityManager->flush();
+
+                    $this->addFlash('success', 'Community ring created successfully!');
+                    return $this->redirectToRoute('app_rings_discover');
+                }
             } else {
-                $newInterest = new Interest();
-                $newInterest->setTitle($interestTitle);
-                $newInterest->setUser($this->getUser());
-                $entityManager->persist($newInterest);
-                $ring->setInterest($newInterest);
+                // Ia toate erorile de la form și le afișează
+                foreach ($form->getErrors(true) as $error) {
+                    $this->addFlash('error', $error->getMessage());
+                }
+
+                // Validări personalizate pentru câmpurile mapped false
+                $interestTitle = $form->get('interest')->getData();
+                if (empty($interestTitle)) {
+                    $this->addFlash('error', 'Interest cannot be blank.');
+                }
             }
-
-            $banner = $form->get('banner')->getData();
-            if ($banner) {
-                $originalFilename = pathinfo($banner->getClientOriginalName(), PATHINFO_FILENAME);
-                $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename . '-' . uniqid() . '.' . $banner->guessExtension();
-
-                $banner->move($this->getParameter('rings_directory'), $newFilename);
-                $ring->setBanner($newFilename);
-            }
-
-            $entityManager->persist($ring);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_rings_discover');
         }
 
         return $this->render('ring/index.html.twig', [
             'divVisibility' => 'none',
-            'error' => $error,
             'ringForm' => $form->createView(),
             'rings' => $rings
         ]);
     }
 
-//    #[Route('/rings/new', name: 'app_new_ring', methods: ['GET', 'POST'])]
-//    public function new(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
-//    {
-//        $error = '';
-//
-//        $form = $this->createForm(RingForm::class);
-//        $form->handleRequest($request);
-//
-//        if ($request->isMethod('POST')) {
-//            $title = $request->request->get('title');
-//            $description = $request->request->get('description');
-//            $interest = $request->request->get('interest');
-//
-//            if (empty(trim($title)) || empty(trim($description)) || empty(trim($interest))) {
-//                $error = 'Error: Please check your inputs';
-//                return $this->render('ring/index.html.twig', [
-//                    'error' => $error,
-//                    'divVisibility' => 'block',
-//                ]);
-//            } else {
-//                $ring = new Ring();
-//                $ring->setUser($this->getUser());
-//                $ring->setTitle($title);
-//                $ring->setDescription($description);
-//                $ring->setCreatedAt(new \DateTime());
-//
-//                $existingInterest = $entityManager->getRepository(Interest::class)->findOneBy([
-//                    'title' => $interest
-//                ]);
-//
-//                if ($existingInterest) {
-//                    $ring->setInterest($existingInterest);
-//                } else {
-//                    $ring->setInterest($interest);
-//                }
-//
-//                $banner = $request->files->get('banner');
-//                if ($banner) {
-//                    $originalFilename = pathinfo($banner->getClientOriginalName(), PATHINFO_FILENAME);
-//                    $safeFilename = $slugger->slug($originalFilename);
-//                    $newFilename = $safeFilename . '-' . uniqid() . '.' . $banner->guessExtension();
-//
-//                    $banner->move(
-//                        $this->getParameter('rings_directory'),
-//                        $newFilename
-//                    );
-//
-//
-//                    $ring->setBanner($banner);
-//
-//                }
-//
-//                $entityManager->persist($ring);
-//                $entityManager->flush();
-//
-//                return $this->redirectToRoute('app_rings_discover');
-//            }
-//        }
-//
-//        return $this->render('ring/index.html.twig', [
-//            'divVisibility' => 'none',
-//            'error' => $error,
-//            'ringForm' => $form->createView(),
-//        ]);
-//    }
+    #[Route('/ring/{id}/delete', name: 'app_ring_delete', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function delete(int $id, Request $request, EntityManagerInterface $em, RingRepository $ringRepository): Response
+    {
+        $ring = $ringRepository->find($id);
+
+        if (!$ring) {
+            $this->addFlash('error', 'Ring not found.');
+            return $this->redirectToRoute('app_rings_discover');
+        }
+
+        $em->remove($ring);
+        $em->flush();
+
+        $this->addFlash('success', 'Ring deleted successfully.');
+
+        return $this->redirect($request->headers->get('referer') ?? $this->generateUrl('app_rings_discover'));
+    }
+
+    #[Route('/rings/my', name: 'app_my_rings', methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
+    public function myRings(RingRepository $ringRepository): Response
+    {
+        $error = ' ';
+
+
+        $user = $this->getUser();
+
+        $rings = $ringRepository->findBy(['user' => $user], ['createdAt' => 'DESC']);
+
+        return $this->render('user/rings.html.twig', [
+            'rings' => $rings,
+            'ringsCount' => count($rings),
+            'error' => $error,
+            'divVisibility' => 'none',
+        ]);
+    }
+
+
 }

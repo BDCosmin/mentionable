@@ -13,6 +13,7 @@ use App\Repository\InterestRepository;
 use App\Repository\NoteRepository;
 use App\Repository\NoteVoteRepository;
 use App\Repository\NotificationRepository;
+use App\Repository\RingRepository;
 use App\Repository\UserRepository;
 use App\Repository\FriendRequestRepository;
 use App\Service\NotificationService;
@@ -31,7 +32,7 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 class ProfileController extends AbstractController
 {
     #[Route('/{id}', name: 'app_profile')]
-    public function index(int $id, FriendRequestRepository $friendRequestRepository, NoteVoteRepository $noteVoteRepository,NoteRepository $noteRepository, UserRepository $userRepository, NotificationRepository $notificationRepository, EntityManagerInterface $em): Response
+    public function index(int $id, FriendRequestRepository $friendRequestRepository, RingRepository $ringRepository,NoteVoteRepository $noteVoteRepository,NoteRepository $noteRepository, UserRepository $userRepository, NotificationRepository $notificationRepository, EntityManagerInterface $em): Response
     {
         $user = $userRepository->find($id);
 
@@ -46,6 +47,7 @@ class ProfileController extends AbstractController
         $notifications = $notificationRepository->findBy(['receiver' => $user]);
         $notes = $em->getRepository(Note::class)->findBy(['user' => $user], ['publicationDate' => 'DESC']);
         $interests = $user->getInterests();
+        $rings = $ringRepository->findByUserOrMember($user);
 
         foreach ($notes as $note) {
             $note->mentionedUserId = $note->getMentionedUserId($em);
@@ -71,6 +73,7 @@ class ProfileController extends AbstractController
             'interests' => $interests,
             'noteVotes' => $noteVotes,
             'votesMap' => $votesMap,
+            'rings' => $rings,
         ]);
     }
 

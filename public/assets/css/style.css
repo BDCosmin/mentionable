@@ -25405,4 +25405,20 @@ button.downvote-btn.active {
   color: black;
 }
 
+@media (max-width: 375px) {
+  .card-img-top {
+    width: 70px !important; /* mai mică decât 100px */
+    height: 70px !important;
+  }
+
+  .card-body {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  .card-title, .card-text {
+    font-size: 0.9rem; /* text puțin mai mic */
+  }
+}
+
 /*# sourceMappingURL=maps/style.css.map */
