@@ -96,16 +96,29 @@
                                 {# VOTE & COMMENTS – ALWAYS SHOWN #}
                                 <div class="d-flex flex-row flex-wrap">
                                     {# UPVOTE #}
-                                    <button class="upvote-btn btn btn-sm btn-outline-light d-flex align-items-center border-0" data-id="{{ note.id }}">
+                                    <button class="upvote-btn btn btn-sm d-flex align-items-center border-0
+                                        {% if votesMap[note.id] is defined and votesMap[note.id] == 'upvote' %}
+                                            btn-light
+                                        {% else %}
+                                            btn-outline-light
+                                        {% endif %}"
+                                        data-id="{{ note.id }}">
                                         <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
                                         <span class="ms-1" id="upvotes-{{ note.id }}">{{ note.getUpVote() }}</span>
                                     </button>
 
                                     {# DOWNVOTE #}
-                                    <button class="downvote-btn btn btn-sm btn-outline-light d-flex align-items-center border-0" data-id="{{ note.id }}">
+                                    <button class="downvote-btn btn btn-sm d-flex align-items-center border-0
+                                        {% if votesMap[note.id] is defined and votesMap[note.id] == 'downvote' %}
+                                            btn-light
+                                        {% else %}
+                                            btn-outline-light
+                                        {% endif %}"
+                                        data-id="{{ note.id }}">
                                         <i class='bx bx-arrow-down' style="font-size: 20px;"></i>
                                         <span class="ms-1" id="downvotes-{{ note.id }}">{{ note.getDownVote() }}</span>
                                     </button>
+
 
                                     {# COMMENTS BUTTON #}
                                     <button type="button"
@@ -223,6 +236,9 @@
 
 {% block javascript %}
 {{ parent() }}
+<script>
+    window.votesMap = {{ votesMap|json_encode|raw }};
+</script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const buttons = document.querySelectorAll(".toggle-comments");
