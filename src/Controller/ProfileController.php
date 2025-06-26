@@ -35,6 +35,8 @@ class ProfileController extends AbstractController
     {
         $user = $userRepository->find($id);
 
+        $currentUser = $this->getUser();
+
         if (!$user) {
             throw $this->createAccessDeniedException();
         }
@@ -52,7 +54,7 @@ class ProfileController extends AbstractController
         // Construim map-ul voturilor utilizatorului curent
         $votesMap = [];
         foreach ($noteVotes as $vote) {
-            if ($vote->getUser() === $user) {
+            if ($vote->getUser() === $currentUser) {
                 if ($vote->isUpvoted()) {
                     $votesMap[$vote->getNote()->getId()] = 'upvote';
                 } elseif ($vote->isDownvoted()) {
