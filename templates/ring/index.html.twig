@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Feed - Mentionable{% endblock %}
+{% block title %}Discover Rings - Mentionable{% endblock %}
 
 {% block body %}
     <style>
@@ -28,7 +28,7 @@
                             <span class="badge bg-light text-dark" style="border-radius: 50%; font-size: 16px; font-weight: bold">+</span>
                         </a>
                     </div>
-                    <!-- Modal create community -->
+                    {# ADD RING MODAL #}
                     <div class="modal fade" id="newRingModal" tabindex="-1" aria-labelledby="newRingModalLabel" aria-hidden="true" style="overflow-y: hidden;">
                         <div class="modal-dialog mt-5" style="max-width: 850px;">
                             <div class="modal-content" style="background-color: #181b20; border-radius: 5px;">
@@ -115,13 +115,16 @@
                                                 <a href="{{ path('app_ring_show', {'id': ring.id}) }}" style="text-decoration: none">
                                                     <h5 class="card-title text-white mb-0">{{ ring.title }}</h5>
                                                 </a>
-                                                <small class="text-muted">
-                                                    Created by
+                                                <small class="text-white">
+                                                    by
                                                     <a href="{{ path('app_profile', {'id': ring.user.id}) }}"
                                                        class="text-white fw-bold text-decoration-none">
                                                         {{ ring.user.nametag }}
                                                     </a>
                                                 </small>
+                                                <p class="mb-1 text-muted">
+                                                    {{ members|length }} {{ members|length == 1 ? 'member' : 'members' }}
+                                                </p>
                                                 <p class="card-text text-light mt-2" style="user-select: none">{{ ring.description }}</p>
                                                 <a href="{{ path('app_interest_show', {'id': ring.interest.id}) }}">
                                                     <div class="bg-light px-1 text-dark rounded-pill d-inline-block">
@@ -162,7 +165,7 @@
                         <div class="col-lg-10 mb-3 p-0" style="border-radius: 5px; margin-top: 4rem;">
                             <h3 class="mb-2">Most popular</h3>
                             <div class="row g-2">
-                                {% for ring in rings %}
+                                {% for ring in mostPopularRings %}
                                     <div class="col-6 col-sm-4 col-md-3 col-lg-3">
                                         <div class="card h-100 position-relative" style="background-color: #181b20; border-radius: 8px;">
                                             {# RING MENU #}
@@ -186,22 +189,25 @@
                                             </div>
 
                                             {# RING CARD #}
-                                            <a href="#" class="mx-auto mt-3">
+                                            <a href="{{ path('app_ring_show',{'id' : ring.id}) }}" class="mx-auto mt-3">
                                                 <img src="{{ asset('uploads/rings/' ~ ring.banner) }}"
                                                      class="card-img-top rounded-circle img-fluid ring-image"
                                                      style="width: 200px; height: 200px; object-fit: cover;" alt="banner">
                                             </a>
                                             <div class="card-body px-3 py-4">
-                                                <a href="#" style="text-decoration: none">
+                                                <a href="{{ path('app_ring_show',{'id' : ring.id}) }}" style="text-decoration: none">
                                                     <h5 class="card-title text-white mb-0">{{ ring.title }}</h5>
                                                 </a>
-                                                <small class="text-muted">
-                                                    Created by
+                                                <small class="text-white">
+                                                    by
                                                     <a href="{{ path('app_profile', {'id': ring.user.id}) }}"
                                                        class="text-white fw-bold text-decoration-none">
                                                         {{ ring.user.nametag }}
                                                     </a>
                                                 </small>
+                                                <p class="mb-1 text-muted">
+                                                    {{ members|length }} {{ members|length == 1 ? 'member' : 'members' }}
+                                                </p>
                                                 <p class="card-text text-light mt-2" style="user-select: none">{{ ring.description }}</p>
                                                 <a href="{{ path('app_interest_show', {'id': ring.interest.id}) }}">
                                                     <div class="bg-light px-1 text-dark rounded-pill d-inline-block">

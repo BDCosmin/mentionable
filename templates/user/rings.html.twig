@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}My rings{% endblock %}
+{% block title %}My Rings - Mentionable{% endblock %}
 
 {% block body %}
     <div class="main-panel">
@@ -9,46 +9,39 @@
                 <div class="col-lg-8 p-3 justify-content-center">
                     <div class="d-flex flex-row justify-content-center">
                         <h1 class="text-center">
-                            My rings
+                            My Rings
                         </h1>
                         <span class="badge badge-light text-dark mt-2 ms-2" style="height: 25px">{{ ringsCount }}</span>
                     </div>
                 </div>
 
-                {# Error message #}
                 <div class="col-lg-7 m-0 p-0 mb-3" id="errorWhilePosting" style="display: {{ divVisibility|default('none') }};">
                     <span class="badge bg-danger">{{ error|default('') }}</span>
                 </div>
 
-                {# Rings list #}
                 <div class="row justify-content-center mb-4">
                     {% if rings is defined and rings|length > 0 %}
                         {% for ring in rings %}
                             <div class="col-lg-7 pt-4 ps-4 pe-4 pb-3 mb-4" style="background-color: #181b20; border-radius: 5px;">
                                 <div class="d-flex text-light align-items-start mb-3">
 
-                                    {# Ring banner & link to profile #}
                                     <a href="{{ path('app_profile', {'id': ring.user.id}) }}" class="me-3">
                                         <img src="{{ asset('uploads/rings/' ~ ring.banner) }}"
                                              alt="banner"
                                              class="rounded-circle"
                                              style="width: 60px; height: 60px; object-fit: cover;"
-                                             onerror="this.src='default-banner.png'">
+                                        >
                                     </a>
 
-                                    {# Ring title & author #}
                                     <div>
-                                        <h5 class="mb-1 text-white">{{ ring.title }}</h5>
-                                        <small class="text-muted">
-                                            Created by
-                                            <a href="{{ path('app_profile', {'id': ring.user.id}) }}"
-                                               class="text-white fw-bold text-decoration-none">
-                                                {{ ring.user.nametag }}
-                                            </a>
-                                        </small>
+                                        <a href="{{ path('app_ring_show',{'id' : ring.id}) }}" class="text-decoration-none">
+                                            <h5 class="mb-1 text-white">{{ ring.title }}</h5>
+                                        </a>
+                                        <p class="mb-1 me-1 text-muted">
+                                            {{ members|length }} {{ members|length == 1 ? 'member' : 'members' }}
+                                        </p>
                                     </div>
 
-                                    {# Dropdown menu #}
                                     <div class="dropdown ms-auto mt-1">
                                         <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                             <i class="fa fa-ellipsis-h text-white"></i>
@@ -76,20 +69,14 @@
                                     </div>
                                 </div>
 
-                                {# Ring description #}
                                 <p class="text-light">{{ ring.description }}</p>
 
-                                {# Interest badge #}
                                 <div class="bg-light px-2 py-1 text-dark rounded-pill d-inline-block mb-3">
-                                    <span>#{{ ring.interest.title }}</span>
+                                    <a href="{{ path('app_interest_show', {'id': ring.interest.id}) }}" class="text-decoration-none text-dark">
+                                        <span>#{{ ring.interest.title }}</span>
+                                    </a>
                                 </div>
 
-                                {# Visit button #}
-                                <div class="d-flex justify-content-end">
-                                    <a href="#" class="btn btn-light">Visit</a>
-                                </div>
-
-                                {# Delete Modal #}
                                 <div class="modal fade" id="deleteRingModal-{{ ring.id }}" tabindex="-1" aria-labelledby="deleteRingModalLabel-{{ ring.id }}" aria-hidden="true">
                                     <div class="modal-dialog">
                                         <div class="modal-content border-warning">

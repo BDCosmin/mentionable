@@ -41,7 +41,6 @@ final class DefaultController extends AbstractController
             $note->mentionedUserId = $note->getMentionedUserId($em);
         }
 
-        // Construim map-ul voturilor utilizatorului curent
         $votesMap = [];
         foreach ($noteVotes as $vote) {
             if ($vote->getUser() === $user) {
