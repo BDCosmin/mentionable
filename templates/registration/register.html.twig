@@ -39,7 +39,7 @@
             <div class="content-wrapper container-fluid page-body-wrapper full-page-wrapper d-flex align-items-center auth login-bg">
                 <div class="card col-lg-4 mx-auto">
                     <div class="card-body px-5 py-5">
-                        <h3 class="card-title text-start mb-3">Register</h3>
+                        <h3 class="d-flex justify-content-center card-title text-start mb-3">Register</h3>
                         {{ form_start(registrationForm, {'attr': {'class': 'forms-sample'}}) }}
                         {{ form_errors(registrationForm) }}
                         <div class="form-group">
@@ -57,20 +57,23 @@
                             {{ form_widget(registrationForm.nametag, {'attr': {'class': 'form-control'}}) }}
                             {{ form_errors(registrationForm.nametag) }}
                         </div>
-                        <div class="form-group">
+                        <div class="form-group mb-3 pb-0">
                             {{ form_label(registrationForm.avatar) }}
                             {{ form_widget(registrationForm.avatar, {'attr': {'class': 'form-control'}}) }}
                             {{ form_errors(registrationForm.avatar) }}
                         </div>
-                        <div class="form-check form-group">
+                        <div class="form-check form-group ms-2 mt-0 pt-0">
                             {{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'form-check-input'}}) }}
-                            {{ form_label(registrationForm.agreeTerms, 'I agree to the terms', {'label_attr': {'class': 'form-check-label'}}) }}
+                            {{ form_label(registrationForm.agreeTerms, 'I agree to the terms', {'label_attr': {'class': 'form-check-label ps-0'}}) }}
                             {{ form_errors(registrationForm.agreeTerms) }}
                         </div>
-                        <button type="submit" class="btn btn-primary me-2">Create account</button>
+                        <div class="m-0 p-0 d-flex justify-content-center align-items-center">
+                            <button type="submit" class="btn btn-light w-50">Create account</button>
+                        </div>
                         {{ form_end(registrationForm) }}
                         <br/>
-                        <p>Already a member? <a href="{{ path('app_login') }}">Login here</a></p>
+                        <p class="d-flex justify-content-center mb-0">Already a member?</p>
+                        <a href="{{ path('app_login') }}" class="d-flex justify-content-center text-white" style="font-size: 12px">Login here</a>
                     </div>
                 </div>
             </div>
