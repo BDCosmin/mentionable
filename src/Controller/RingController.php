@@ -7,6 +7,8 @@ use App\Entity\Note;
 use App\Entity\Ring;
 use App\Entity\User;
 use App\Form\RingForm;
+use App\Repository\NoteRepository;
+use App\Repository\NoteVoteRepository;
 use App\Repository\RingRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -34,7 +36,6 @@ final class RingController extends AbstractController
                 $interestTitle = $form->get('interest')->getData();
                 $banner = $form->get('banner')->getData();
 
-                // Verificare banner separat, fiindcă e mapped = false și required = false
                 if (!$banner) {
                     $this->addFlash('error', 'Please upload a banner image.');
                 } else {
@@ -84,6 +85,22 @@ final class RingController extends AbstractController
             'divVisibility' => 'none',
             'ringForm' => $form->createView(),
             'rings' => $rings
+        ]);
+    }
+
+    #[Route('/ring/{id}', name: 'app_ring_show', methods: ['GET', 'POST'])]
+    public function show(int $id, RingRepository $ringRepository): Response
+    {
+        $user = $this->getUser();
+        $ring = $ringRepository->find($id);
+
+        if (!$ring) {
+            return $this->redirectToRoute('app_rings_discover');
+        }
+
+        return $this->render('ring/page.html.twig', [
+            'divVisibility' => 'none',
+            'ring' => $ring,
         ]);
     }
 
