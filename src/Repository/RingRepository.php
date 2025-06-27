@@ -53,4 +53,17 @@ class RingRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function findTopRingsByPopularity(int $limit = 4): array
+    {
+        return $this->createQueryBuilder('r')
+            ->leftJoin('r.ringMembers', 'm')
+            ->addSelect('COUNT(m) AS HIDDEN memberCount')
+            ->groupBy('r.id')
+            ->orderBy('memberCount', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
 }

@@ -19,11 +19,8 @@
                             <h4 class="pt-1">#{{ interest.title }}</h4>
                         </div>
                     </div>
-
-                        {# Filtrăm utilizatorii să excludem user-ul curent #}
                         {% set filteredUsers = users|filter(user => user.id != app.user.id) %}
                         <h4 class="mt-4 ms-3">Users with this interest:</h4>
-                        {# Dacă avem utilizatori în listă (după filtrare) #}
                         {% if filteredUsers is not empty %}
                             <ul>
                                 {% for user in filteredUsers %}
@@ -41,28 +38,30 @@
                             <p class="text-muted ms-3">No users found with this interest.</p>
                         {% endif %}
                     {% endif %}
-                    <h4 class="mt-5 ms-3">Rings with this interest:</h4>
+                    <h4 class="mt-4 ms-3">Rings with this interest:</h4>
 
                     {% if rings is defined and rings|length %}
-                        <div class="d-flex flex-column gap-3 mt-3 ms-3 me-3">
+                        <div class="d-flex flex-column gap-3 mt-2 ms-3 me-3">
                             {% for ring in rings %}
-                                <div class="d-flex align-items-center bg-dark rounded p-3 shadow-sm">
-                                    <img src="{{ asset('uploads/rings/' ~ ring.banner) }}"
-                                         class="rounded-circle me-3"
-                                         alt="banner"
-                                         style="width: 50px; height: 50px; object-fit: cover;"
-                                         onerror="this.src='default-banner.png'">
-
+                                <div class="d-flex align-items-center rounded p-3 shadow-sm" style="background-color: #191c24">
+                                    <a href="{{ path('app_ring_show', {'id': ring.id}) }}">
+                                        <img src="{{ asset('uploads/rings/' ~ ring.banner) }}"
+                                             class="rounded-circle me-3"
+                                             alt="banner"
+                                             style="width: 50px; height: 50px; object-fit: cover;">
+                                    </a>
                                     <div class="flex-grow-1">
-                                        <h6 class="mb-1 text-white">{{ ring.title }}</h6>
-                                        <small class="text-light">by
-                                            <a href="{{ path('app_profile', {'id': ring.user.id}) }}" class="text-decoration-none text-warning">
+                                        <a href="{{ path('app_ring_show', {'id': ring.id}) }}" class="text-decoration-none text-white">
+                                            <h4 class="mb-1 text-white">{{ ring.title }}</h4>
+                                        </a>
+                                        <small class="text-white">by
+                                            <a href="{{ path('app_profile', {'id': ring.user.id}) }}" class="text-decoration-none text-white" style="font-weight: bold">
                                                 @{{ ring.user.nametag }}
                                             </a>
                                         </small>
                                     </div>
 
-                                    <a href="#" class="btn btn-outline-light btn-sm">Visit</a>
+                                    <a href="{{ path('app_ring_show', {'id': ring.id}) }}" class="btn btn-outline-light btn-sm" style="font-weight: bold">Visit</a>
                                 </div>
                             {% endfor %}
                         </div>

@@ -9,6 +9,7 @@ use App\Entity\User;
 use App\Form\RingForm;
 use App\Repository\NoteRepository;
 use App\Repository\NoteVoteRepository;
+use App\Repository\RingMemberRepository;
 use App\Repository\RingRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,9 +22,12 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 final class RingController extends AbstractController
 {
     #[Route('/rings/discover', name: 'app_rings_discover', methods: ['GET', 'POST'])]
-    public function index(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger, RingRepository $ringRepository): Response
+    public function index(Request $request, EntityManagerInterface $entityManager, RingMemberRepository $ringMemberRepository, SluggerInterface $slugger, RingRepository $ringRepository): Response
     {
         $rings = $ringRepository->findBy([], ['createdAt' => 'DESC'], 4);
+        $mostPopularRings = $ringRepository->findTopRingsByPopularity(4);
+
+        $members = $ringMemberRepository->findBy([]);
 
         $form = $this->createForm(RingForm::class);
         $form->handleRequest($request);
@@ -68,12 +72,10 @@ final class RingController extends AbstractController
                     return $this->redirectToRoute('app_rings_discover');
                 }
             } else {
-                // Ia toate erorile de la form și le afișează
                 foreach ($form->getErrors(true) as $error) {
                     $this->addFlash('error', $error->getMessage());
                 }
 
-                // Validări personalizate pentru câmpurile mapped false
                 $interestTitle = $form->get('interest')->getData();
                 if (empty($interestTitle)) {
                     $this->addFlash('error', 'Interest cannot be blank.');
@@ -84,15 +86,18 @@ final class RingController extends AbstractController
         return $this->render('ring/index.html.twig', [
             'divVisibility' => 'none',
             'ringForm' => $form->createView(),
-            'rings' => $rings
+            'rings' => $rings,
+            'mostPopularRings' => $mostPopularRings,
+            'members' => $members
         ]);
     }
 
     #[Route('/ring/{id}', name: 'app_ring_show', methods: ['GET', 'POST'])]
-    public function show(int $id, RingRepository $ringRepository): Response
+    public function show(int $id, RingRepository $ringRepository, RingMemberRepository $ringMemberRepository): Response
     {
         $user = $this->getUser();
         $ring = $ringRepository->find($id);
+        $members = $ringMemberRepository->findBy([]);
 
         if (!$ring) {
             return $this->redirectToRoute('app_rings_discover');
@@ -101,6 +106,7 @@ final class RingController extends AbstractController
         return $this->render('ring/page.html.twig', [
             'divVisibility' => 'none',
             'ring' => $ring,
+            'members' => $members,
         ]);
     }
 
@@ -123,22 +129,23 @@ final class RingController extends AbstractController
         return $this->redirect($request->headers->get('referer') ?? $this->generateUrl('app_rings_discover'));
     }
 
-    #[Route('/my-rings/user', name: 'app_my_rings', methods: ['GET'])]
+    #[Route('/rings/{id}/dashboard', name: 'app_my_rings', methods: ['GET'])]
     #[IsGranted('ROLE_USER')]
-    public function myRings(RingRepository $ringRepository): Response
+    public function myRings(int $id, RingRepository $ringRepository, RingMemberRepository $ringMemberRepository): Response
     {
         $error = ' ';
-
 
         $user = $this->getUser();
 
         $rings = $ringRepository->findBy(['user' => $user], ['createdAt' => 'DESC']);
+        $members = $ringMemberRepository->findBy([]);
 
         return $this->render('user/rings.html.twig', [
             'rings' => $rings,
             'ringsCount' => count($rings),
             'error' => $error,
             'divVisibility' => 'none',
+            'members' => $members
         ]);
     }
 
