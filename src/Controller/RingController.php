@@ -123,7 +123,7 @@ final class RingController extends AbstractController
         return $this->redirect($request->headers->get('referer') ?? $this->generateUrl('app_rings_discover'));
     }
 
-    #[Route('/rings/my', name: 'app_my_rings', methods: ['GET'])]
+    #[Route('/my-rings/user', name: 'app_my_rings', methods: ['GET'])]
     #[IsGranted('ROLE_USER')]
     public function myRings(RingRepository $ringRepository): Response
     {
