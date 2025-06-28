@@ -5,12 +5,14 @@ namespace App\Controller;
 use App\Entity\Interest;
 use App\Entity\Note;
 use App\Entity\Ring;
+use App\Entity\RingMembers;
 use App\Entity\User;
 use App\Form\RingForm;
 use App\Repository\NoteRepository;
 use App\Repository\NoteVoteRepository;
 use App\Repository\RingMemberRepository;
 use App\Repository\RingRepository;
+use App\Service\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,6 +30,16 @@ final class RingController extends AbstractController
         $mostPopularRings = $ringRepository->findTopRingsByPopularity(4);
 
         $members = $ringMemberRepository->findBy([]);
+        $memberCounts = [];
+
+        foreach ($members as $row) {
+            $ringId = $row->getRing()->getId();
+            if (!isset($memberCounts[$ringId])) {
+                $memberCounts[$ringId] = 0;
+            }
+            $memberCounts[$ringId]++;
+        }
+
 
         $form = $this->createForm(RingForm::class);
         $form->handleRequest($request);
@@ -88,16 +100,49 @@ final class RingController extends AbstractController
             'ringForm' => $form->createView(),
             'rings' => $rings,
             'mostPopularRings' => $mostPopularRings,
-            'members' => $members
+            'members' => $members,
+            'memberCounts' => $memberCounts,
         ]);
     }
 
     #[Route('/ring/{id}', name: 'app_ring_show', methods: ['GET', 'POST'])]
-    public function show(int $id, RingRepository $ringRepository, RingMemberRepository $ringMemberRepository): Response
+    public function show(int $id,
+                         RingRepository $ringRepository,
+                         NoteRepository $noteRepository,
+                         RingMemberRepository $ringMemberRepository,
+                         NoteVoteRepository $noteVoteRepository,
+                         EntityManagerInterface $em
+    ): Response
     {
+        $error = '';
         $user = $this->getUser();
+
         $ring = $ringRepository->find($id);
-        $members = $ringMemberRepository->findBy([]);
+        if (!$ring) {
+            return $this->redirectToRoute('app_rings_discover');
+        }
+        $ringNotes = $noteRepository->findBy(
+            ['ring' => $ring, 'isFromRing' => 1],
+            ['publicationDate' => 'DESC']
+        );
+        $members = $ringMemberRepository->findBy(['ring' => $ring]);
+
+        $noteVotes = $noteVoteRepository->findBy([]);
+
+        foreach ($ringNotes as $note) {
+            $note->mentionedUserId = $note->getMentionedUserId($em);
+        }
+
+        $votesMap = [];
+        foreach ($noteVotes as $vote) {
+            if ($vote->getUser() === $user) {
+                if ($vote->isUpvoted()) {
+                    $votesMap[$vote->getNote()->getId()] = 'upvote';
+                } elseif ($vote->isDownvoted()) {
+                    $votesMap[$vote->getNote()->getId()] = 'downvote';
+                }
+            }
+        }
 
         if (!$ring) {
             return $this->redirectToRoute('app_rings_discover');
@@ -107,6 +152,9 @@ final class RingController extends AbstractController
             'divVisibility' => 'none',
             'ring' => $ring,
             'members' => $members,
+            'ringNotes' => $ringNotes,
+            'votesMap' => $votesMap,
+            'error' => $error
         ]);
     }
 
@@ -149,5 +197,65 @@ final class RingController extends AbstractController
         ]);
     }
 
+    #[Route('/ring/{id}/join', name: 'app_join_ring', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function join(int $id,
+                         RingRepository $ringRepository,
+                         NoteRepository $noteRepository,
+                         RingMemberRepository $ringMemberRepository,
+                         NoteVoteRepository $noteVoteRepository,
+                         EntityManagerInterface $em,
+    ): Response
+    {
+        $error = '';
+        $user = $this->getUser();
+
+        $member = $ringMemberRepository->findBy(['user' => $user]);
+
+        $ring = $ringRepository->find($id);
+        if (!$ring) {
+            return $this->redirectToRoute('app_rings_discover');
+        }
+        $ringNotes = $noteRepository->findBy(
+            ['ring' => $ring, 'isFromRing' => 1],
+            ['publicationDate' => 'DESC']
+        );
+
+        $noteVotes = $noteVoteRepository->findBy([]);
+
+        foreach ($ringNotes as $note) {
+            $note->mentionedUserId = $note->getMentionedUserId($em);
+        }
+
+        $votesMap = [];
+        foreach ($noteVotes as $vote) {
+            if ($vote->getUser() === $user) {
+                if ($vote->isUpvoted()) {
+                    $votesMap[$vote->getNote()->getId()] = 'upvote';
+                } elseif ($vote->isDownvoted()) {
+                    $votesMap[$vote->getNote()->getId()] = 'downvote';
+                }
+            }
+        }
+
+        if (!$ring) {
+            return $this->redirectToRoute('app_rings_discover');
+        }
+
+        if(!$member)
+        {
+            $newMember = new RingMembers();
+            $newMember->setRing($ring);
+            $newMember->setUser($user);
+            $newMember->setRole('member');
+            $newMember->setStatus('OK');
+            $newMember->setJoinedAt(new \DateTime());
+
+            $em->persist($newMember);
+            $em->flush();
+        }
+
+        return $this->redirectToRoute('app_ring_show', ['id' => $id]);
+    }
 
 }

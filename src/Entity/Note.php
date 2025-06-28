@@ -65,6 +65,12 @@ class Note
     #[ORM\OneToMany(targetEntity: NoteReport::class, mappedBy: 'note', cascade: ['remove'], orphanRemoval: true)]
     private Collection $noteReports;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $isFromRing = null;
+
+    #[ORM\ManyToOne(inversedBy: 'notes')]
+    private ?Ring $ring = null;
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
@@ -345,6 +351,30 @@ class Note
         }
 
         return null;
+    }
+
+    public function isFromRing(): ?bool
+    {
+        return $this->isFromRing;
+    }
+
+    public function setIsFromRing(?bool $isFromRing): static
+    {
+        $this->isFromRing = $isFromRing;
+
+        return $this;
+    }
+
+    public function getRing(): ?Ring
+    {
+        return $this->ring;
+    }
+
+    public function setRing(?Ring $ring): static
+    {
+        $this->ring = $ring;
+
+        return $this;
     }
 
 }
