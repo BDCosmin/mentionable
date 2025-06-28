@@ -40,4 +40,13 @@ class RingMemberRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+    public function countMembersByRings(): array
+    {
+        $qb = $this->createQueryBuilder('rm')
+            ->select('IDENTITY(rm.ring) AS ringId, COUNT(rm.id) AS memberCount')
+            ->groupBy('rm.ring');
+
+        return $qb->getQuery()->getResult();
+    }
+
 }
