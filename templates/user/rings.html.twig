@@ -79,7 +79,7 @@
                                         </a>
                                         <ul class="dropdown-menu dropdown-menu-end">
                                             {% if app.user and app.user.id == ring.user.id %}
-                                                <li><a class="dropdown-item" href="#">Edit...</a></li>
+                                                <li><a class="dropdown-item" href="{{ path('app_ring_update',{'id': ring.id}) }}">Edit...</a></li>
                                                 <li>
                                                     <a class="dropdown-item" href="#"
                                                        data-bs-toggle="modal"
@@ -110,8 +110,8 @@
 
                                 <div class="modal fade" id="deleteRingModal-{{ ring.id }}" tabindex="-1" aria-labelledby="deleteRingModalLabel-{{ ring.id }}" aria-hidden="true">
                                     <div class="modal-dialog">
-                                        <div class="modal-content border-warning">
-                                            <div class="modal-header bg-warning text-white">
+                                        <div class="modal-content border-danger">
+                                            <div class="modal-header bg-danger text-white">
                                                 <h5 class="modal-title" id="deleteRingModalLabel-{{ ring.id }}">Confirm ring deletion</h5>
                                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
@@ -122,7 +122,7 @@
                                                 <form method="post" action="{{ path('app_ring_delete', {id: ring.id}) }}">
                                                     <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ ring.id) }}">
                                                     <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
-                                                    <button type="submit" class="btn btn-warning">Delete</button>
+                                                    <button type="submit" class="btn btn-danger">Delete</button>
                                                 </form>
                                             </div>
                                         </div>
@@ -139,4 +139,8 @@
             </div>
         </div>
     </div>
+{% endblock %}
+{% block javascript %}
+{{ parent() }}
+<script src="{{ asset('../assets/js/feed.js') }}"></script>
 {% endblock %}

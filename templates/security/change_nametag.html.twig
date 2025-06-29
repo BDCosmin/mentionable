@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Change Nametag{% endblock %}
+
+{% block body %}
+    <div class="main-panel">
+        <div class="content-wrapper">
+            <div class="row justify-content-center mb-4">
+                <div class="col-lg-7 p-3" style="background-color: #181b20; border-radius: 5px;">
+                    <h2 class="mb-4 text-center">Change Nametag</h2>
+
+                    {% for message in app.flashes('success') %}
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                    {% for message in app.flashes('error') %}
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+
+                    {{ form_start(form) }}
+                    <div class="mb-3">
+                        {{ form_label(form.nametag, 'New Nametag', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.nametag, {'attr': {'class': 'form-control', 'maxlength': 30}}) }}
+                        {{ form_errors(form.nametag) }}
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">Change Nametag</button>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
