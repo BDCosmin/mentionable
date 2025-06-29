@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Ring - Mentionable{% endblock %}
+
+{% block body %}
+    <div class="main-panel">
+        <div class="content-wrapper">
+            <div class="row justify-content-center mb-4">
+                <div class="col-lg-7 mt-4 p-0" style="background-color: #354765; border-top-left-radius: 5px; border-top-right-radius: 5px;">
+                    <p class="text-gray ms-2 mt-1 mb-1">Edit Ring...</p>
+                </div>
+                <div class="col-lg-7 ps-4 pe-4 pb-3" style="background-color: #181b20; border-bottom-left-radius: 5px; border-bottom-right-radius: 5px;">
+
+                    {{ form_start(ringForm, {'attr': {'enctype': 'multipart/form-data'}}) }}
+
+                    <div class="mb-3 text-light">
+                        {{ form_label(ringForm.title) }}
+                        {{ form_widget(ringForm.title, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(ringForm.title) }}
+                    </div>
+
+                    <div class="mb-3 text-light">
+                        {{ form_label(ringForm.interest) }}
+                        {{ form_widget(ringForm.interest, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(ringForm.interest) }}
+                    </div>
+
+                    <div class="mb-3 text-light">
+                        {{ form_label(ringForm.description) }}
+                        {{ form_widget(ringForm.description, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(ringForm.description) }}
+                    </div>
+
+                    <div class="mb-3 text-light">
+                        <label for="{{ ringForm.banner.vars.id }}">Change Banner (optional)</label><br>
+                        {% if ring.banner %}
+                            <img src="{{ asset('uploads/rings/' ~ ring.banner) }}" alt="Ring Banner" class="mb-2" style="max-width: 100%;">
+                        {% endif %}
+                        {{ form_widget(ringForm.banner, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(ringForm.banner) }}
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-success">Save Changes</button>
+                    </div>
+
+                    {{ form_end(ringForm) }}
+
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

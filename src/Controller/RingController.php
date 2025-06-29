@@ -14,7 +14,9 @@ use App\Repository\RingMemberRepository;
 use App\Repository\RingRepository;
 use App\Service\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Exception\ORMException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -58,7 +60,13 @@ final class RingController extends AbstractController
                     $ring->setUser($this->getUser());
                     $ring->setCreatedAt(new \DateTime());
 
-                    $existingInterest = $entityManager->getRepository(Interest::class)->findOneBy(['title' => $interestTitle]);
+                    $existingInterest = $entityManager->getRepository(Interest::class)
+                        ->createQueryBuilder('i')
+                        ->where('LOWER(TRIM(i.title)) = :title')
+                        ->setParameter('title', strtolower(trim($interestTitle)))
+                        ->getQuery()
+                        ->getOneOrNullResult();
+
 
                     if ($existingInterest) {
                         $ring->setInterest($existingInterest);
@@ -102,6 +110,92 @@ final class RingController extends AbstractController
             'mostPopularRings' => $mostPopularRings,
             'members' => $members,
             'memberCounts' => $memberCounts,
+        ]);
+    }
+
+    /**
+     * @throws ORMException
+     */
+    #[Route('/ring/{id}/update', name: 'app_ring_update', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function edit(
+        int $id,
+        Request $request,
+        RingRepository $ringRepository,
+        EntityManagerInterface $em,
+        SluggerInterface $slugger
+    ): Response {
+        $ring = $ringRepository->find($id);
+
+        if (!$ring) {
+            $this->addFlash('error', 'Ring not found.');
+            return $this->redirectToRoute('app_rings_discover');
+        }
+
+        if ($ring->getUser() !== $this->getUser()) {
+            $this->addFlash('error', 'You are not authorized to edit this ring.');
+            return $this->redirectToRoute('app_rings_discover');
+        }
+
+        $form = $this->createForm(RingForm::class, $ring);
+        $form->get('interest')->setData($ring->getInterest()?->getTitle());
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var UploadedFile|null $banner */
+            $banner = $form->get('banner')->getData();
+
+            if ($banner) {
+                $originalFilename = pathinfo($banner->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $banner->guessExtension();
+
+                $banner->move($this->getParameter('rings_directory'), $newFilename);
+                $ring->setBanner($newFilename);
+            }
+
+            $interestTitle = trim($form->get('interest')->getData());
+            $normalizedTitle = strtolower($interestTitle);
+
+            $existingInterest = $em->getRepository(Interest::class)
+                ->createQueryBuilder('i')
+                ->where('LOWER(TRIM(i.title)) = :title')
+                ->setParameter('title', $normalizedTitle)
+                ->getQuery()
+                ->getOneOrNullResult();
+
+            $oldInterest = $ring->getInterest();
+
+            if ($existingInterest) {
+                $ring->setInterest($existingInterest);
+            } else {
+                $newInterest = new Interest();
+                $newInterest->setTitle($interestTitle);
+                $newInterest->setUser($this->getUser());
+                $em->persist($newInterest);
+
+                $ring->setInterest($newInterest);
+            }
+
+            // Dacă interesul vechi este diferit și nu mai e folosit, îl ștergem
+            if ($oldInterest && $oldInterest !== $ring->getInterest()) {
+                $otherRings = $em->getRepository(Ring::class)->findBy(['interest' => $oldInterest]);
+
+                // Dacă acest ring era singurul asociat, ștergem interesul
+                if (count($otherRings) === 1) {
+                    $em->remove($oldInterest);
+                }
+            }
+
+            $em->flush();
+
+            $this->addFlash('success', 'Ring updated successfully!');
+            return $this->redirectToRoute('app_rings_discover');
+        }
+
+        return $this->render('ring/update.html.twig', [
+            'ringForm' => $form->createView(),
+            'ring' => $ring
         ]);
     }
 

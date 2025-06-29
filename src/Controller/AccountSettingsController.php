@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Form\ChangeNametagTypeForm;
 use App\Form\ChangePasswordType;
 use App\Form\ProfileType;
 use App\Repository\CommentVoteRepository;
@@ -55,31 +56,29 @@ final class AccountSettingsController extends AbstractController
         ]);
     }
 
-    #[Route('/change-password', name: 'app_change_password')]
-    public function changePassword(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager): Response
+    #[Route('/change-nametag', name: 'app_change_nametag')]
+    public function changeNametag(Request $request, EntityManagerInterface $entityManager): Response
     {
         $user = $this->getUser();
-        $form = $this->createForm(ChangePasswordType::class);
+
+        $form = $this->createForm(ChangeNametagTypeForm::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $data = $form->getData();
-            $newPassword = $data['newPassword'];
-            $hashedPassword = $passwordHasher->hashPassword($user, $newPassword);
-            $user->setPassword($hashedPassword);
 
             $entityManager->persist($user);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Password has been changed successfully!');
+            $this->addFlash('success', 'Nametag has been changed successfully!');
 
-            return $this->redirectToRoute('app_change_password');
+            return $this->redirectToRoute('app_change_nametag');  // poți schimba ruta aici după preferințe
         }
 
-        return $this->render('profile/change_password.html.twig', [
+        return $this->render('security/change_nametag.html.twig', [
             'form' => $form->createView(),
         ]);
     }
+
 
     #[Route('/delete', name: 'app_delete_account', methods: ['POST'])]
     public function deleteAccount(UserRepository $userRepository, TokenStorageInterface $tokenStorage, Request $request, EntityManagerInterface $em): Response

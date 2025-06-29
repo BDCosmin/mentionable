@@ -92,7 +92,7 @@
                                                 </a>
                                                 <ul class="dropdown-menu dropdown-menu-end">
                                                     {% if app.user == ring.user %}
-                                                        <li><a class="dropdown-item" href="#">Edit...</a></li>
+                                                        <li><a class="dropdown-item" href="{{ path('app_ring_update',{'id': ring.id}) }}">Edit...</a></li>
                                                         <li>
                                                             <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#deleteRingModal-{{ ring.id }}"
                                                                data-note-id="{{ ring.id }}" data-note-token="{{ csrf_token('delete' ~ ring.id) }}">
@@ -248,4 +248,8 @@
             </div>
         </div>
     </div>
+{% endblock %}
+{% block javascript %}
+{{ parent() }}
+<script src="{{ asset('../assets/js/feed.js') }}"></script>
 {% endblock %}
