@@ -26,7 +26,7 @@ final class RingController extends AbstractController
     #[Route('/rings/discover', name: 'app_rings_discover', methods: ['GET', 'POST'])]
     public function index(Request $request, EntityManagerInterface $entityManager, RingMemberRepository $ringMemberRepository, SluggerInterface $slugger, RingRepository $ringRepository): Response
     {
-        $rings = $ringRepository->findBy([], ['createdAt' => 'DESC'], 4);
+        $latestrings = $ringRepository->findBy([], ['createdAt' => 'DESC'], 4);
         $mostPopularRings = $ringRepository->findTopRingsByPopularity(4);
 
         $members = $ringMemberRepository->findBy([]);
@@ -98,7 +98,7 @@ final class RingController extends AbstractController
         return $this->render('ring/index.html.twig', [
             'divVisibility' => 'none',
             'ringForm' => $form->createView(),
-            'rings' => $rings,
+            'latestrings' => $latestrings,
             'mostPopularRings' => $mostPopularRings,
             'members' => $members,
             'memberCounts' => $memberCounts,
@@ -257,5 +257,34 @@ final class RingController extends AbstractController
 
         return $this->redirectToRoute('app_ring_show', ['id' => $id]);
     }
+
+    #[Route('/ring/{id}/leave', name: 'app_leave_ring', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function leave(
+        int $id,
+        RingRepository $ringRepository,
+        RingMemberRepository $ringMemberRepository,
+        EntityManagerInterface $em
+    ): Response {
+        $user = $this->getUser();
+
+        $ring = $ringRepository->find($id);
+        if (!$ring) {
+            return $this->redirectToRoute('app_rings_discover');
+        }
+
+        $existingMember = $ringMemberRepository->findOneBy([
+            'user' => $user,
+            'ring' => $ring,
+        ]);
+
+        if ($existingMember) {
+            $em->remove($existingMember);
+            $em->flush();
+        }
+
+        return $this->redirectToRoute('app_ring_show', ['id' => $id]);
+    }
+
 
 }
