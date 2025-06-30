@@ -21,7 +21,7 @@
                 <div class="modal-dialog" style="max-width: 850px;">
                     <div class="modal-content" style="background-color: #181b20; border-radius: 5px;">
                         <div class="modal-body">
-                            <form class="forms-sample" method="POST" enctype="multipart/form-data" action="{{ path('app_note_new') }}">
+                            <form id="new-note-form" class="forms-sample" method="POST" enctype="multipart/form-data">
                                 <div class="form-group mb-3">
                                     <textarea name="content" id="post-content" placeholder="Write a note..." class="form-control" style="height: 85px;" required></textarea>
                                 </div>
@@ -57,20 +57,25 @@
                     </li>
                 </ol>
             </nav>
+            <div id="loading-spinner" style="display:none; text-align:center;">
+                <div class="spinner-border text-light" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
             {# NOTE #}
             {% if notes is defined %}
                 {% for note in notes %}
                     <div class="col-lg-7 pt-4 ps-4 pe-4 pb-3" style="background-color: #181b20; border-radius: 5px; margin-top: 2rem;">
                         {# NOTE PROFILE #}
-                        <div class="navbar-profile d-flex flex-row text-light mb-3" style="width: 100%;">
+                        <div class="navbar-profile p-2 ps-3 d-flex flex-row text-light mb-3" style="width: 100%;">
                             <a class="nav-link me-3 mt-2" id="avatarNote" href="{{ path('app_profile', {'id': note.user.id}) }}">
                                 <img class="img-sm rounded-circle" src="{{ asset('uploads/avatars/' ~ note.user.avatar) }}" alt="avatar" onerror="showDefaultIcon(this)">
                             </a>
                             <div class="d-flex flex-column">
-                                <a class="nav-link mt-3" id="nametagNote" href="{{ path('app_profile', {'id': note.user.id}) }}">
+                                <a class="nav-link mt-2" id="nametagNote" href="{{ path('app_profile', {'id': note.user.id}) }}">
                                     <h5 class="mb-0 navbar-profile-name">@{{ note.user.nametag }}</h5>
                                 </a>
-                                <div class="d-flex flex-row m-0 p-0" style="font-size: 12px; color: gray">
+                                <div class="d-flex flex-column m-0 p-0" style="font-size: 12px; color: gray">
                                     <div class="d-flex flex-row m-0 p-0">
                                         {% if note.isEdited %}
                                             <i class="fa fa-clock-o mt-1 me-1"></i>
@@ -81,6 +86,13 @@
                                             <p>View</p>
                                         </a>
                                     </div>
+                                    {% if note.ring %}
+                                        <p class="me-1" style="margin-top: -17px">from
+                                            <a href="{{ path('app_ring_show', {'id': note.ring.id}) }}" style="text-decoration: none; color: white">
+                                            {{ note.ring.title }}
+                                            </a>
+                                        </p>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="dropdown ms-auto mt-1 me-1">
@@ -131,7 +143,7 @@
                             </div>
                         </div>
                         {# NOTE CONTENT #}
-                        <div class="d-flex flex-row text-gray mb-1">
+                        <div class="d-flex flex-row text-gray ps-3 mb-1">
                             <p style="font-size: 16px; white-space: pre-wrap;">{{ note.content }}</p>
                         </div>
                         {# NOTE IMAGE #}
@@ -312,5 +324,45 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 <script src="{{ asset('../assets/js/feed.js') }}"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    $('#new-note-form').on('submit', function (e) {
+        e.preventDefault(); // prevenim redirectul paginii
+        let form = $('#new-note-form')[0];
+        let formData = new FormData(form);
+
+        // Arată loading și notează timpul start
+        $('#loading-spinner').show();
+        const startTime = Date.now();
+
+        $.ajax({
+            url: "{{ path('app_note_new') }}", // Symfony route
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                const modalEl = document.getElementById('newNoteModal');
+                modalEl.classList.remove('show');
+                modalEl.style.display = 'none';
+                document.body.classList.remove('modal-open');
+                $('.modal-backdrop').remove();
+
+                form.reset();
+
+              setTimeout(function () {
+                    $('#loading-spinner').hide();
+                    location.reload();
+                }, 1500);
+
+            },
+            error: function (xhr) {
+                $('#loading-spinner').hide();
+                alert('Error while posting note.');
+            }
+        });
+    });
+});
+</script>
 {% endblock %}
 
