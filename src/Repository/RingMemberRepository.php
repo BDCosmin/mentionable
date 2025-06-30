@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\RingMembers;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @extends ServiceEntityRepository<RingMembers>
@@ -47,6 +48,17 @@ class RingMemberRepository extends ServiceEntityRepository
             ->groupBy('rm.ring');
 
         return $qb->getQuery()->getResult();
+    }
+
+    public function findLastJoinedRingsByUser(UserInterface $user, int $limit = 4): array
+    {
+        return $this->createQueryBuilder('rm')
+            ->andWhere('rm.user = :user')
+            ->setParameter('user', $user)
+            ->orderBy('rm.joinedAt', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
     }
 
 }

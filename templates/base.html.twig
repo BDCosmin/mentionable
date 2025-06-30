@@ -60,6 +60,12 @@
                 {% endverbatim %}
 
                 <script>
+                if (window.performance && window.performance.getEntriesByType("navigation")[0].type === "back_forward") {
+                    window.location.href = window.location.href;
+    }
+                </script>
+
+                <script>
                     function showDefaultImage(img) {
                         const wrapper = img.parentNode;
                        wrapper.innerHTML = '<img src="{{ asset("assets/images/media/default-image.jpg") }}" class="img-fluid" alt="default-image"/>';

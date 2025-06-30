@@ -5,11 +5,13 @@ namespace App\Controller;
 use App\Entity\Interest;
 use App\Entity\Ring;
 use App\Entity\RingMembers;
+use App\Entity\User;
 use App\Form\RingForm;
 use App\Repository\NoteRepository;
 use App\Repository\NoteVoteRepository;
 use App\Repository\RingMemberRepository;
 use App\Repository\RingRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Exception\ORMException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,6 +19,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
@@ -25,8 +28,13 @@ final class RingController extends AbstractController
     #[Route('/rings/discover', name: 'app_rings_discover', methods: ['GET', 'POST'])]
     public function index(Request $request, EntityManagerInterface $entityManager, RingMemberRepository $ringMemberRepository, SluggerInterface $slugger, RingRepository $ringRepository): Response
     {
-        $latestrings = $ringRepository->findBy([], ['createdAt' => 'DESC'], 4);
+        $user = $this->getUser();
+
+        $latestRings = $ringRepository->findBy([], ['createdAt' => 'DESC'], 4);
         $mostPopularRings = $ringRepository->findTopRingsByPopularity(4);
+
+        $memberOf = $ringMemberRepository->findLastJoinedRingsByUser($user);
+        $joinedRings = array_map(fn($membership) => $membership->getRing(), $memberOf);
 
         $members = $ringMemberRepository->findBy([]);
         $memberCounts = [];
@@ -103,10 +111,11 @@ final class RingController extends AbstractController
         return $this->render('ring/index.html.twig', [
             'divVisibility' => 'none',
             'ringForm' => $form->createView(),
-            'latestrings' => $latestrings,
+            'latestrings' => $latestRings,
             'mostPopularRings' => $mostPopularRings,
             'members' => $members,
             'memberCounts' => $memberCounts,
+            'joinedRings' => $joinedRings,
         ]);
     }
 
@@ -284,7 +293,8 @@ final class RingController extends AbstractController
             'ringsCount' => count($rings),
             'error' => $error,
             'divVisibility' => 'none',
-            'members' => $members
+            'members' => $members,
+            'user' => $user
         ]);
     }
 
