@@ -67,25 +67,6 @@
         </ul>
 
         <ul class="navbar-nav navbar-nav-right">
-            {# RINGS NOTIFICATIONS LIST #}
-            <li class="nav-item dropdown border-left" style="padding-top: 5px">
-{#                {% set hasNotification = false %}#}
-{#                {% if latest_notifications is defined %}#}
-{#                    {% for notification in latest_notifications %}#}
-{#                        {% if notification.receiver.nametag == app.user.nametag and not notification.isRead %}#}
-{#                            {% set hasNotification = true %}#}
-{#                        {% endif %}#}
-{#                    {% endfor %}#}
-{#                {% endif %}#}
-
-                <a class="nav-link count-indicator dropdown-toggle" id="ringsNotificationDropdown" href="#" data-bs-toggle="dropdown">
-                    <i class='bx bx-circle-dashed' style='color:#ffffff; font-size: 20px'></i>
-                   {# RINGS BADGE MARK AS READ #}
-                </a>
-                <div class="dropdown-menu dropdown-menu-end navbar-dropdown preview-list" aria-labelledby="ringsNotificationDropdown">
-                    {# RINGS BADGE NOTIFICATIONS #}
-                </div>
-            </li>
 
             <ul class="navbar-nav navbar-nav-right">
                 <li class="nav-item dropdown border-left">

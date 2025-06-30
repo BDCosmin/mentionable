@@ -9,6 +9,7 @@ use App\Entity\User;
 use App\Repository\FriendRequestRepository;
 use App\Repository\NoteVoteRepository;
 use App\Repository\NotificationRepository;
+use App\Repository\RingRepository;
 use App\Service\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -25,6 +26,7 @@ final class DefaultController extends AbstractController
         NotificationRepository $notificationRepository,
         NoteVoteRepository $noteVoteRepository,
         FriendRequestRepository $friendRequestRepository,
+        RingRepository $ringRepository,
     ): Response
     {
         $error = '';

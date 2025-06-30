@@ -153,11 +153,14 @@
                         <div class="ms-md-5 ms-1 mb-2 text-muted" style="font-size: 13px">
                             -- NOTES --
                         </div>
-                        <div class="m-0 p-0 mb-2" id="errorWhilePosting" style="display: {{ divVisibility }};">
-                            <span class="badge bg-danger">{{ error }}</span>
-                        </div>
+                        <div id="note-error-message" class="alert alert-danger mt-2 d-none"></div>
                         {# NOTES LIST #}
                         <div class="row justify-content-center mb-3">
+                            <div id="loading-spinner" style="display:none; text-align:center;">
+                                <div class="spinner-border text-light" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
 {#                             NOTE #}
                             {% if ringNotes is defined %}
                                 {% for note in ringNotes %}
@@ -398,12 +401,12 @@
             </div>
         </div>
     </div>
-    {# JOIN COMMUNITY MODAL #}
+    {# NEW NOTE MODAL #}
     <div class="modal fade" id="newRingNoteModal" tabindex="-1" aria-labelledby="newRingNoteModalLabel" aria-hidden="true" style="overflow-y: hidden;">
         <div class="modal-dialog" style="max-width: 850px;">
             <div class="modal-content" style="background-color: #181b20; border-radius: 5px;">
                 <div class="modal-body">
-                    <form class="forms-sample" method="POST" enctype="multipart/form-data" action="{{ path('app_note_new', {'ringId': ring.id}) }}">
+                    <form id="new-ring-note-form" class="forms-sample" method="POST" enctype="multipart/form-data">
                         <div class="form-group mb-3">
                             <textarea name="content" id="post-content" placeholder="Write a new note in {{ ring.title }}..." class="form-control" style="height: 85px;" required></textarea>
                         </div>
@@ -452,6 +455,53 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             } else {
                 console.error("Nu s-a găsit elementul pentru comentarii cu id: comments-" + noteId);
+            }
+        });
+    });
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    $('#new-ring-note-form').on('submit', function (e) {
+        e.preventDefault(); // prevenim redirectul paginii
+        let form = $('#new-ring-note-form')[0];
+        let formData = new FormData(form);
+
+        // Arată loading și notează timpul start
+        $('#loading-spinner').show();
+        const startTime = Date.now();
+
+        $.ajax({
+            url: "{{ path('app_note_new', {'ringId': ring.id}) }}",
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                const modalEl = document.getElementById('newRingNoteModal');
+                modalEl.classList.remove('show');
+                modalEl.style.display = 'none';
+                document.body.classList.remove('modal-open');
+                $('.modal-backdrop').remove();
+
+                form.reset();
+
+              setTimeout(function () {
+                    $('#loading-spinner').hide();
+                    location.reload();
+                }, 1500);
+
+            },
+            error: function (xhr) {
+                $('#loading-spinner').hide();
+                const errorBox = $('#note-error-message');
+                const response = xhr.responseJSON;
+
+                if (response && response.message) {
+                    errorBox.text(response.message).removeClass('d-none');
+                } else {
+                    errorBox.text('Unexpected error occurred.').removeClass('d-none');
+                }
             }
         });
     });

@@ -36,91 +36,67 @@ class NoteController extends AbstractController
 {
     #[Route('/note/new/{ringId?}', name: 'app_note_new', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_USER')]
-    public function new(?int $ringId,
-                        Request $request,
-                        EntityManagerInterface $em,
-                        NotificationService $notificationService,
-                        NoteRepository $noteRepository,
-                        NoteVoteRepository $noteVoteRepository,
-                        SluggerInterface $slugger,
-                        RingRepository $ringRepository,
-                        RingMemberRepository $ringMemberRepository
-    ): Response
-    {
-        $error = '';
+    public function new(
+        ?int $ringId,
+        Request $request,
+        EntityManagerInterface $em,
+        NotificationService $notificationService,
+        NoteRepository $noteRepository,
+        NoteVoteRepository $noteVoteRepository,
+        SluggerInterface $slugger,
+        RingRepository $ringRepository,
+        RingMemberRepository $ringMemberRepository
+    ): Response {
         $user = $this->getUser();
+        $error = '';
 
-        if($ringId){
+        $ring = null;
+        $ringNotes = [];
+        $members = [];
+
+        if ($ringId) {
             $ring = $ringRepository->find($ringId);
-            $ringNotes = $noteRepository->findBy(
-                ['ring' => $ring, 'isFromRing' => 1],
-                ['publicationDate' => 'DESC']
-            );
+            $ringNotes = $noteRepository->findBy(['ring' => $ring, 'isFromRing' => true], ['publicationDate' => 'DESC']);
             $members = $ringMemberRepository->findBy(['ring' => $ring]);
-            $notes = $noteRepository->findBy(
-                ['ring' => $ring, 'isFromRing' => 1],
-                ['publicationDate' => 'DESC']
-            );
+            $notes = $ringNotes;
         } else {
             $notes = $noteRepository->findBy([], ['publicationDate' => 'DESC']);
         }
+
         $noteVotes = $noteVoteRepository->findBy([]);
-
-        foreach ($notes as $note) {
-            $note->mentionedUserId = $note->getMentionedUserId($em);
-        }
-
         $votesMap = [];
+
         foreach ($noteVotes as $vote) {
             if ($vote->getUser() === $user) {
-                if ($vote->isUpvoted()) {
-                    $votesMap[$vote->getNote()->getId()] = 'upvote';
-                } elseif ($vote->isDownvoted()) {
-                    $votesMap[$vote->getNote()->getId()] = 'downvote';
-                }
+                $votesMap[$vote->getNote()->getId()] = $vote->isUpvoted() ? 'upvote' : 'downvote';
             }
         }
 
         if ($request->isMethod('POST')) {
             $content = $request->request->get('content');
             $mentionedNametag = $request->request->get('nametag');
-
             $receiver = $em->getRepository(User::class)->findOneBy(['nametag' => $mentionedNametag]);
 
-            if ($ringId) {
-                $ring = $ringRepository->find($ringId);
-
-                $member = $ringMemberRepository->findOneBy([
-                    'ring' => $ring,
-                    'user' => $receiver
-                ]);
+            $member = null;
+            if ($ringId && $receiver) {
+                $member = $ringMemberRepository->findOneBy(['ring' => $ring, 'user' => $receiver]);
             }
 
-            if (empty(trim($content)) || empty(trim($mentionedNametag)) || ($mentionedNametag == $this->getUser()->getNametag())) {
+            if (empty(trim($content)) || empty(trim($mentionedNametag)) || $mentionedNametag === $user->getNametag()) {
                 $error = 'Error: Invalid input or you can’t post a note to yourself.';
-                if ($ringId) {
-                    return $this->render('ring/page.html.twig', [
-                        'error' => $error,
-                        'divVisibility' => 'block',
-                        'notes' => $notes,
-                        'noteVotes' => $noteVotes,
-                        'votesMap' => $votesMap,
-                        'ring' => $ring,
-                        'members' => $members,
-                        'ringNotes' => $ringNotes
-                    ]);
-                } else {
-                    return $this->render('default/index.html.twig', [
-                        'error' => $error,
-                        'divVisibility' => 'block',
-                        'notes' => $notes,
-                        'noteVotes' => $noteVotes,
-                        'votesMap' => $votesMap
-                    ]);
-                }
-            } else if($ringId && !$member) {
+            } elseif ($ringId && !$member) {
                 $error = 'Error: The person you try to mention is not part of this ring.';
-                return $this->render('ring/page.html.twig', [
+            } elseif (!$receiver) {
+                $error = 'Error: The nametag you entered does not exist.';
+            }
+
+            if ($error !== '') {
+                if ($request->isXmlHttpRequest()) {
+                    return new JsonResponse(['status' => 'error', 'message' => $error], 400);
+                }
+
+                $template = $ringId ? 'ring/page.html.twig' : 'default/index.html.twig';
+                return $this->render($template, [
                     'error' => $error,
                     'divVisibility' => 'block',
                     'notes' => $notes,
@@ -128,68 +104,54 @@ class NoteController extends AbstractController
                     'votesMap' => $votesMap,
                     'ring' => $ring,
                     'members' => $members,
-                    'ringNotes' => $ringNotes
+                    'ringNotes' => $ringNotes,
                 ]);
-            } else if(!$receiver) {
-                $error = 'Error: The nametag you entered does not exist.';
-                if ($ringId) {
-                    return $this->render('ring/page.html.twig', [
-                        'error' => $error,
-                        'divVisibility' => 'block',
-                        'notes' => $notes,
-                        'noteVotes' => $noteVotes,
-                        'votesMap' => $votesMap,
-                        'ring' => $ring,
-                        'members' => $members,
-                        'ringNotes' => $ringNotes
-                    ]);
-                } else {
-                    return $this->render('default/index.html.twig', [
-                        'error' => $error,
-                        'divVisibility' => 'block',
-                        'notes' => $notes,
-                        'noteVotes' => $noteVotes,
-                        'votesMap' => $votesMap
-                    ]);
-                }
-            } else {
-                $note = new Note();
-                $note->setUser($this->getUser());
-                $note->setContent($content);
-                $note->setIsEdited(false);
-                $note->setNametag($mentionedNametag);
-                $note->setPublicationDate(new \DateTime());
-                if ($ringId) {
-                    $note->setRing($ring);
-                    $note->setIsFromRing(true);
-                }
-
-                $noteImageFile = $request->files->get('image');
-                if ($noteImageFile) {
-                    $originalFilename = pathinfo($noteImageFile->getClientOriginalName(), PATHINFO_FILENAME);
-                    $safeFilename = $slugger->slug($originalFilename);
-                    $newFilename = $safeFilename . '-' . uniqid() . '.' . $noteImageFile->guessExtension();
-
-                    $noteImageFile->move(
-                        $this->getParameter('notes_directory'),
-                        $newFilename
-                    );
-
-
-                    $note->setImage($newFilename);
-
-                }
-                $em->persist($note);
-                $em->flush();
-
-                $notificationService->notifyNote($this->getUser(), $receiver, $note);
-
-                if ($ringId) {
-                    return $this->redirectToRoute('app_ring_show', ['id' => $ringId]);
-                } else {
-                    return $this->redirectToRoute('homepage');
-                }
             }
+
+            // All good — save note
+            $note = new Note();
+            $note->setUser($user);
+            $note->setContent($content);
+            $note->setNametag($mentionedNametag);
+            $note->setIsEdited(false);
+            $note->setPublicationDate(new \DateTime());
+
+            if ($ringId) {
+                $note->setRing($ring);
+                $note->setIsFromRing(true);
+            }
+
+            $noteImageFile = $request->files->get('image');
+            if ($noteImageFile) {
+                $originalFilename = pathinfo($noteImageFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $noteImageFile->guessExtension();
+
+                $noteImageFile->move($this->getParameter('notes_directory'), $newFilename);
+                $note->setImage($newFilename);
+            }
+
+            $em->persist($note);
+            $em->flush();
+
+            $note->mentionedUserId = $note->getMentionedUserId($em);
+
+            $notificationService->notifyNote($user, $receiver, $note);
+
+            if ($request->isXmlHttpRequest()) {
+
+                $html = $this->renderView('note/_note_partial.html.twig', ['note' => $note]);
+
+                return new JsonResponse([
+                    'status' => 'success',
+                    'message' => 'Note created successfully',
+                    'noteHtml' => $html
+                ]);
+            }
+
+            return $ringId
+                ? $this->redirectToRoute('app_ring_show', ['ringId' => $ringId])
+                : $this->redirectToRoute('homepage');
         }
 
         return $this->redirect($request->headers->get('referer'));

@@ -3,16 +3,13 @@
 namespace App\Controller;
 
 use App\Entity\Interest;
-use App\Entity\Note;
 use App\Entity\Ring;
 use App\Entity\RingMembers;
-use App\Entity\User;
 use App\Form\RingForm;
 use App\Repository\NoteRepository;
 use App\Repository\NoteVoteRepository;
 use App\Repository\RingMemberRepository;
 use App\Repository\RingRepository;
-use App\Service\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Exception\ORMException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -303,10 +300,13 @@ final class RingController extends AbstractController
     {
         $error = '';
         $user = $this->getUser();
-
-        $member = $ringMemberRepository->findBy(['user' => $user]);
-
         $ring = $ringRepository->find($id);
+
+        $member = $ringMemberRepository->findOneBy([
+            'user' => $user,
+            'ring' => $ring,
+        ]);
+
         if (!$ring) {
             return $this->redirectToRoute('app_rings_discover');
         }
