@@ -40,14 +40,25 @@ final class UserController extends AbstractController
     }
 
     #[Route('/my-notes/user', name: 'app_user_notes')]
-    public function myNotes(NoteRepository $noteRepository, NoteVoteRepository $noteVoteRepository,FriendRequestRepository $friendRequestRepository, NotificationService $notificationService, EntityManagerInterface $em): Response
-    {
+    public function myNotes(
+        NoteRepository $noteRepository,
+        NoteVoteRepository $noteVoteRepository,
+        FriendRequestRepository $friendRequestRepository,
+        NotificationService $notificationService,
+        EntityManagerInterface $em
+    ): Response {
         $user = $this->getUser();
+
         $notes = $noteRepository->findBy(['user' => $user], ['publicationDate' => 'DESC']);
         $noteVotes = $noteVoteRepository->findBy([]);
 
+        $notesWithMentionedUser = [];
         foreach ($notes as $note) {
-            $note->mentionedUserId = $note->getMentionedUserId($em);
+            $mentionedUser = $note->getMentionedUser(); // Fetch the User object
+            $notesWithMentionedUser[] = [
+                'note' => $note,
+                'mentionedUser' => $mentionedUser, // Pass the User object
+            ];
         }
 
         $notifications = $notificationService->getLatestUserNotifications();
@@ -55,7 +66,6 @@ final class UserController extends AbstractController
 
         $notesCount = count($notes);
 
-        // Construim map-ul voturilor utilizatorului curent
         $votesMap = [];
         foreach ($noteVotes as $vote) {
             if ($vote->getUser() === $user) {
@@ -75,6 +85,7 @@ final class UserController extends AbstractController
             'friendRequests' => $friendRequests,
             'noteVotes' => $noteVotes,
             'votesMap' => $votesMap,
+            'notesWithMentionedUser' => $notesWithMentionedUser,
         ]);
     }
 

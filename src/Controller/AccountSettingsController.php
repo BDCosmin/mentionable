@@ -7,6 +7,7 @@ use App\Form\ChangeNametagTypeForm;
 use App\Form\ChangePasswordType;
 use App\Form\ProfileType;
 use App\Repository\CommentVoteRepository;
+use App\Repository\NoteRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -57,21 +58,36 @@ final class AccountSettingsController extends AbstractController
     }
 
     #[Route('/change-nametag', name: 'app_change_nametag')]
-    public function changeNametag(Request $request, EntityManagerInterface $entityManager): Response
+    public function changeNametag(Request $request, EntityManagerInterface $entityManager, NoteRepository $noteRepository): Response
     {
         $user = $this->getUser();
+
+        $oldNametag = $user->getNametag();
 
         $form = $this->createForm(ChangeNametagTypeForm::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
 
+            $newNametag = $user->getNametag();
+
+            if ($oldNametag !== $newNametag) {
+                $notes = $noteRepository->findByMention($oldNametag);
+
+                foreach ($notes as $note) {
+                    $content = $note->getContent();
+                    $updatedContent = str_replace('@' . $oldNametag, '@' . $newNametag, $content);
+                    $note->setContent($updatedContent);
+                    $entityManager->persist($note);
+                }
+            }
+
             $entityManager->persist($user);
             $entityManager->flush();
 
             $this->addFlash('success', 'Nametag has been changed successfully!');
 
-            return $this->redirectToRoute('app_change_nametag');  // poți schimba ruta aici după preferințe
+            return $this->redirectToRoute('app_change_nametag');
         }
 
         return $this->render('security/change_nametag.html.twig', [

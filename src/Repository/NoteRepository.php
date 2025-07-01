@@ -40,4 +40,15 @@ class NoteRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+    public function findAllWithMentionedUser()
+    {
+        return $this->createQueryBuilder('n')
+            ->leftJoin('n.mentionedUser', 'mu')
+            ->addSelect('mu')
+            ->orderBy('n.publicationDate', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
 }

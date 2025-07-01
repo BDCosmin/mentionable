@@ -54,6 +54,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Note::class, mappedBy: 'user', orphanRemoval: true)]
     private Collection $notes;
 
+    /**
+     * @var Collection<int, Note>
+     */
+    #[ORM\OneToMany(targetEntity: Note::class, mappedBy: 'mentionedUser')]
+    private Collection $mentionedNotes;
+
     #[ORM\OneToMany(targetEntity: Notification::class, mappedBy: 'sender')]
     private Collection $senderNotifications;
 
@@ -125,6 +131,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->interests = new ArrayCollection();
         $this->rings = new ArrayCollection();
         $this->ringMembers = new ArrayCollection();
+        $this->mentionedNotes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -221,6 +228,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->nametag = $nametag;
 
+        return $this;
+    }
+
+    public function getMentionedNotes(): Collection
+    {
+        return $this->mentionedNotes;
+    }
+
+    public function addMentionedNote(Note $note): static
+    {
+        if (!$this->mentionedNotes->contains($note)) {
+            $this->mentionedNotes->add($note);
+            $note->setMentionedUser($this);
+        }
+        return $this;
+    }
+
+    public function removeMentionedNote(Note $note): static
+    {
+        if ($this->mentionedNotes->removeElement($note)) {
+            if ($note->getMentionedUser() === $this) {
+                $note->setMentionedUser(null);
+            }
+        }
         return $this;
     }
 

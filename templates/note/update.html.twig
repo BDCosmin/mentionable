@@ -17,7 +17,7 @@
                             {# NOTE PROFILE #}
                             <div class="navbar-profile d-flex flex-row text-light mb-3" style="width: 100%;">
                                 <a class="nav-link me-3 mt-2" id="avatarNote" href="#">
-                                    <img class="img-sm rounded-circle" src="{{ asset('uploads/avatars/' ~ note.user.avatar) }}" alt="avatar" onerror="showDefaultIcon(this)">
+                                    <img class="img-sm rounded-circle" src="{{ asset('Uploads/avatars/' ~ note.user.avatar) }}" alt="avatar" onerror="showDefaultIcon(this)">
                                 </a>
                                 <div class="d-flex flex-column">
                                     <a class="nav-link mt-3" id="nametagNote" href="#">
@@ -30,7 +30,7 @@
                                 </div>
                             </div>
                             {# EDIT NOTE CONTENT & IMAGE #}
-                            <form method="POST" action="{{ path('app_note_update', {id: note.id}) }}" enctype="multipart/form-data">
+                            <form method="POST" action="{{ path('app_note_update', {'id': note.id, 'ringId': ringId}) }}" enctype="multipart/form-data">
                                 <div class="d-flex flex-column text-gray mb-3">
                                     <textarea name="content" id="content" class="form-control" rows="4" style="height: 120px;" required>{{ note.content }}</textarea>
                                 </div>
@@ -38,7 +38,7 @@
                                 <div class="d-flex flex-column text-gray mb-3">
                                     <label for="image" class="text-light mb-2">Change Image (optional)</label>
                                     {% if note.image %}
-                                        <img src="{{ asset('uploads/notes/' ~ note.image)}}" alt="noteImage" class="mb-2" style="max-width: 100%;">
+                                        <img src="{{ asset('Uploads/notes/' ~ note.image)}}" alt="noteImage" class="mb-2" style="max-width: 100%;">
                                     {% endif %}
                                     <input type="file" name="image" id="image" class="form-control">
                                 </div>
@@ -91,9 +91,9 @@
                                     <div class="d-none d-md-block ps-1 pe-1" style="margin-top: 10px">
                                         <p class="mb-0 mt-0 text-white" style="font-size: 16px">
                                             mentioned
-                                            {% if note.mentionedUserId %}
-                                                <a class="m-0 p-0 text-white" href="{{ path('app_profile', {'id': note.mentionedUserId}) }}" style="text-decoration: none;">
-                                                    <b style="background-color: #2A3038">@{{ note.nametag }}</b>
+                                            {% if note.mentionedUser %}
+                                                <a class="m-0 p-0 text-white" href="{{ path('app_profile', {'id': note.mentionedUser.id}) }}" style="text-decoration: none;">
+                                                    <b style="background-color: #2A3038">@{{ note.mentionedUser.nametag }}</b>
                                                 </a>
                                             {% endif %}
                                         </p>
@@ -104,9 +104,9 @@
                                 <div class="d-block d-md-none w-100 mt-2 ps-3 pe-1 mb-2">
                                     <p class="text-white" style="margin-bottom: -2px; font-size: 16px">
                                         mentioned
-                                        {% if note.mentionedUserId %}
-                                            <a class="m-0 p-0 text-white" href="{{ path('app_profile', {'id': note.mentionedUserId}) }}" style="text-decoration: none;">
-                                                <b style="background-color: #2A3038">@{{ note.nametag }}</b>
+                                        {% if note.mentionedUser %}
+                                            <a class="m-0 p-0 text-white" href="{{ path('app_profile', {'id': note.mentionedUser.id}) }}" style="text-decoration: none;">
+                                                <b style="background-color: #2A3038">@{{ note.mentionedUser.nametag }}</b>
                                             </a>
                                         {% endif %}
                                     </p>
@@ -128,4 +128,5 @@
 <script>
     window.votesMap = {{ votesMap|json_encode|raw }};
 </script>
+<script src="{{ asset('../assets/js/feed.js') }}"></script>
 {% endblock %}
