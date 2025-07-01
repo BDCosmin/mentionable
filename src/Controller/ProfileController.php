@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Interest;
 use App\Entity\Note;
 use App\Repository\InterestRepository;
+use App\Repository\NoteRepository;
 use App\Repository\NoteVoteRepository;
 use App\Repository\NotificationRepository;
 use App\Repository\RingRepository;
@@ -24,28 +25,41 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 class ProfileController extends AbstractController
 {
     #[Route('/profile/{id}', name: 'app_profile')]
-    public function index(int $id, FriendRequestRepository $friendRequestRepository, RingRepository $ringRepository,NoteVoteRepository $noteVoteRepository,UserRepository $userRepository, NotificationRepository $notificationRepository, EntityManagerInterface $em): Response
+    public function index(
+        int $id,
+        FriendRequestRepository $friendRequestRepository,
+        RingRepository $ringRepository,
+        NoteVoteRepository $noteVoteRepository,
+        UserRepository $userRepository,
+        NotificationRepository $notificationRepository,
+        EntityManagerInterface $em,
+    ): Response
     {
         $user = $userRepository->find($id);
-
         $currentUser = $this->getUser();
 
         if (!$user) {
             throw $this->createAccessDeniedException();
         }
-        $noteVotes = $noteVoteRepository->findBy([]);
 
+        $noteVotes = $noteVoteRepository->findBy([]);
         $friendRequests = $friendRequestRepository->findBy(['receiver' => $user]);
         $notifications = $notificationRepository->findBy(['receiver' => $user]);
         $notes = $em->getRepository(Note::class)->findBy(['user' => $user], ['publicationDate' => 'DESC']);
         $interests = $user->getInterests();
         $rings = $ringRepository->findByUserOrMember($user);
 
+        // Build array for notes + mentionedUser
+        $notesWithMentionedUser = [];
         foreach ($notes as $note) {
-            $note->mentionedUserId = $note->getMentionedUserId($em);
+            $mentionedUser = $note->getMentionedUser(); // Fetch the User object
+            $notesWithMentionedUser[] = [
+                'note' => $note,
+                'mentionedUser' => $mentionedUser, // Pass the User object, not an ID
+            ];
         }
 
-        // Construim map-ul voturilor utilizatorului curent
+        // Build votes map
         $votesMap = [];
         foreach ($noteVotes as $vote) {
             if ($vote->getUser() === $currentUser) {
@@ -59,7 +73,7 @@ class ProfileController extends AbstractController
 
         return $this->render('profile/index.html.twig', [
             'user' => $user,
-            'notes' => $notes,
+            'notesWithMentionedUser' => $notesWithMentionedUser,
             'friendRequests' => $friendRequests,
             'notifications' => $notifications,
             'interests' => $interests,

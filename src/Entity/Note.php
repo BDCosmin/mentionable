@@ -29,6 +29,11 @@ class Note
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?User $user = null;
 
+
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'mentionedNotes')]
+    #[ORM\JoinColumn(name: "mentioned_user_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
+    private ?User $mentionedUser = null;
+
     /**
      * @var Collection<int, Comment>
      */
@@ -313,6 +318,17 @@ class Note
         return $this;
     }
 
+    public function getMentionedUser(): ?User
+    {
+        return $this->mentionedUser;
+    }
+
+    public function setMentionedUser(?User $user): self
+    {
+        $this->mentionedUser = $user;
+        return $this;
+    }
+
     /**
      * @return Collection<int, NoteReport>
      */
@@ -343,15 +359,15 @@ class Note
         return $this;
     }
 
-    public function getMentionedUserId(EntityManagerInterface $em): ?int
-    {
-        if ($this->nametag) {
-            $user = $em->getRepository(User::class)->findOneBy(['nametag' => $this->nametag]);
-            return $user ? $user->getId() : null;
-        }
-
-        return null;
-    }
+//    public function getMentionedUserId(EntityManagerInterface $em): ?int
+//    {
+//        if ($this->nametag) {
+//            $user = $em->getRepository(User::class)->findOneBy(['nametag' => $this->nametag]);
+//            return $user ? $user->getId() : null;
+//        }
+//
+//        return null;
+//    }
 
     public function isFromRing(): ?bool
     {

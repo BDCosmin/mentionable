@@ -183,11 +183,9 @@ final class RingController extends AbstractController
                 $ring->setInterest($newInterest);
             }
 
-            // Dacă interesul vechi este diferit și nu mai e folosit, îl ștergem
             if ($oldInterest && $oldInterest !== $ring->getInterest()) {
                 $otherRings = $em->getRepository(Ring::class)->findBy(['interest' => $oldInterest]);
 
-                // Dacă acest ring era singurul asociat, ștergem interesul
                 if (count($otherRings) === 1) {
                     $em->remove($oldInterest);
                 }
@@ -206,12 +204,13 @@ final class RingController extends AbstractController
     }
 
     #[Route('/ring/{id}', name: 'app_ring_show', methods: ['GET', 'POST'])]
-    public function show(int $id,
-                         RingRepository $ringRepository,
-                         NoteRepository $noteRepository,
-                         RingMemberRepository $ringMemberRepository,
-                         NoteVoteRepository $noteVoteRepository,
-                         EntityManagerInterface $em
+    public function show(
+        int $id,
+        RingRepository $ringRepository,
+        NoteRepository $noteRepository,
+        RingMemberRepository $ringMemberRepository,
+        NoteVoteRepository $noteVoteRepository,
+        EntityManagerInterface $em
     ): Response
     {
         $error = '';
@@ -221,6 +220,7 @@ final class RingController extends AbstractController
         if (!$ring) {
             return $this->redirectToRoute('app_rings_discover');
         }
+
         $ringNotes = $noteRepository->findBy(
             ['ring' => $ring, 'isFromRing' => 1],
             ['publicationDate' => 'DESC']
@@ -229,8 +229,14 @@ final class RingController extends AbstractController
 
         $noteVotes = $noteVoteRepository->findBy([]);
 
+        // Build array for notes + mentionedUser
+        $notesWithMentionedUser = [];
         foreach ($ringNotes as $note) {
-            $note->mentionedUserId = $note->getMentionedUserId($em);
+            $mentionedUser = $note->getMentionedUser(); // Fetch the User object
+            $notesWithMentionedUser[] = [
+                'note' => $note,
+                'mentionedUser' => $mentionedUser, // Pass the User object
+            ];
         }
 
         $votesMap = [];
@@ -244,15 +250,11 @@ final class RingController extends AbstractController
             }
         }
 
-        if (!$ring) {
-            return $this->redirectToRoute('app_rings_discover');
-        }
-
         return $this->render('ring/page.html.twig', [
             'divVisibility' => 'none',
             'ring' => $ring,
             'members' => $members,
-            'ringNotes' => $ringNotes,
+            'ringNotes' => $notesWithMentionedUser, // Pass notesWithMentionedUser
             'votesMap' => $votesMap,
             'error' => $error
         ]);

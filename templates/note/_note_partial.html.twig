@@ -124,8 +124,8 @@
             <div class="d-none d-md-block ps-1 pe-1" style="margin-top: 10px">
                 <p class="mb-0 mt-0 text-white" style="font-size: 16px">
                     mentioned
-                    {% if note.mentionedUserId %}
-                        <a class="m-0 p-0 text-white" href="{{ path('app_profile', {'id': note.mentionedUserId}) }}" style="text-decoration: none;">
+                    {% if note.mentionedUser %}
+                        <a class="m-0 p-0 text-white" href="{{ path('app_profile', {'id': note.mentionedUser.id}) }}" style="text-decoration: none;">
                             <b style="background-color: #2A3038">@{{ note.nametag }}</b>
                         </a>
                     {% endif %}
@@ -137,8 +137,8 @@
         <div class="d-block d-md-none w-100 mt-2 ps-3 pe-1 mb-2">
             <p class="text-white" style="margin-bottom: -2px; font-size: 16px">
                 mentioned
-                {% if note.mentionedUserId %}
-                    <a class="m-0 p-0 text-white" href="{{ path('app_profile', {'id': note.mentionedUserId}) }}" style="text-decoration: none;">
+                {% if note.mentionedUser %}
+                    <a class="m-0 p-0 text-white" href="{{ path('app_profile', {'id': note.mentionedUser.id}) }}" style="text-decoration: none;">
                         <b style="background-color: #2A3038">@{{ note.nametag }}</b>
                     </a>
                 {% endif %}

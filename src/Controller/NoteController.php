@@ -17,6 +17,7 @@ use App\Repository\NoteRepository;
 use App\Repository\NoteVoteRepository;
 use App\Repository\RingMemberRepository;
 use App\Repository\RingRepository;
+use App\Repository\UserRepository;
 use App\Service\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -108,7 +109,6 @@ class NoteController extends AbstractController
                 ]);
             }
 
-            // All good — save note
             $note = new Note();
             $note->setUser($user);
             $note->setContent($content);
@@ -120,6 +120,8 @@ class NoteController extends AbstractController
                 $note->setRing($ring);
                 $note->setIsFromRing(true);
             }
+
+            $note->setMentionedUser($receiver);
 
             $noteImageFile = $request->files->get('image');
             if ($noteImageFile) {
@@ -134,12 +136,9 @@ class NoteController extends AbstractController
             $em->persist($note);
             $em->flush();
 
-            $note->mentionedUserId = $note->getMentionedUserId($em);
-
             $notificationService->notifyNote($user, $receiver, $note);
 
             if ($request->isXmlHttpRequest()) {
-
                 $html = $this->renderView('note/_note_partial.html.twig', ['note' => $note]);
 
                 return new JsonResponse([
@@ -171,48 +170,69 @@ class NoteController extends AbstractController
 
     #[Route('/note/{id}/update/{ringId?}', name: 'app_note_update', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_USER')]
-    public function update(Request $request, Note $note,
-                           NoteVoteRepository $noteVoteRepository,
-                           EntityManagerInterface $em,
-                           SluggerInterface $slugger,
-                           ?int $ringId,
-                           RingRepository $ringRepository
+    public function update(
+        Request $request,
+        Note $note,
+        EntityManagerInterface $em,
+        SluggerInterface $slugger,
+        UserRepository $userRepository,
+        RingRepository $ringRepository,
+        NoteVoteRepository $noteVoteRepository,
+        ?int $ringId = null
     ): Response
     {
         $error = '';
         $divVisibility = 'none';
         $user = $this->getUser();
+
         if (!$user) {
             return $this->redirectToRoute('app_login');
         }
-        $noteVotes = $noteVoteRepository->findBy([]);
 
-        $note->mentionedUserId = $note->getMentionedUserId($em);
+        if ($note->getUser() !== $user) {
+            throw $this->createAccessDeniedException('You are not allowed to edit this note');
+        }
 
-        $votesMap = [];
-        foreach ($noteVotes as $vote) {
-            if ($vote->getUser() === $user) {
-                if ($vote->isUpvoted()) {
-                    $votesMap[$vote->getNote()->getId()] = 'upvote';
-                } elseif ($vote->isDownvoted()) {
-                    $votesMap[$vote->getNote()->getId()] = 'downvote';
-                }
+        // Validate ringId if provided
+        if ($ringId) {
+            $ring = $ringRepository->find($ringId);
+            if (!$ring) {
+                throw $this->createNotFoundException('Ring not found');
             }
         }
 
+        $mentionedUser = $note->getMentionedUser();
+
+        $votesMap = [];
+        $vote = $noteVoteRepository->findOneBy(['note' => $note, 'user' => $user]);
+        if ($vote) {
+            $votesMap[$note->getId()] = $vote->isUpvote() ? 'upvote' : 'downvote';
+        } else {
+            $votesMap[$note->getId()] = null;
+        }
+
         if ($request->isMethod('POST')) {
-            $newContent = trim((string) $request->request->get('content'));
-            $currentContent = trim((string) $note->getContent());
+            $newContent = trim((string)$request->request->get('content'));
+            $currentContent = trim((string)$note->getContent());
             $newImageFile = $request->files->get('image');
+            $nametag = trim((string)$request->request->get('nametag'));
 
             $isContentInvalid = empty($newContent) || $newContent === $currentContent;
             $isImageInvalid = !$newImageFile instanceof UploadedFile;
 
-            if ($isContentInvalid && $isImageInvalid) {
-                $error = 'Error: Invalid content and/or image.';
-                $divVisibility = 'block';
+            if ($nametag) {
+                $mentionedUser = $userRepository->findOneBy(['nametag' => ltrim($nametag, '@')]);
+                if ($mentionedUser) {
+                    $note->setMentionedUser($mentionedUser);
+                } else {
+                    $error = 'Error: User not found.';
+                    $divVisibility = 'block';
+                }
             } else {
+                $note->setMentionedUser(null);
+            }
 
+            if (!$error) {
                 if (!$isContentInvalid) {
                     $note->setContent($newContent);
                 }
@@ -243,9 +263,9 @@ class NoteController extends AbstractController
 
                     if ($ringId) {
                         return $this->redirectToRoute('app_ring_show', ['id' => $ringId]);
-                    } else {
-                        return $this->redirectToRoute('app_note_show', ['noteId' => $note->getId()]);
                     }
+
+                    return $this->redirectToRoute('app_note_show', ['noteId' => $note->getId()]);
                 }
             }
         }
@@ -254,19 +274,22 @@ class NoteController extends AbstractController
             'error' => $error,
             'divVisibility' => $divVisibility,
             'note' => $note,
-            'noteVotes' => $noteVotes,
+            'mentionedUser' => $mentionedUser,
+            'ringId' => $ringId,
             'votesMap' => $votesMap,
         ]);
     }
 
     #[Route('/note/{noteId}', name: 'app_note_show')]
-    public function show(int $noteId, NoteRepository $noteRepository,NoteVoteRepository $noteVoteRepository,EntityManagerInterface $em): Response
+    public function show(
+        int $noteId,
+        NoteRepository $noteRepository,
+        NoteVoteRepository $noteVoteRepository
+    ): Response
     {
         $user = $this->getUser();
 
         $note = $noteRepository->find($noteId);
-
-        $note->mentionedUserId = $note->getMentionedUserId($em);
 
         if (!$note) {
             return $this->redirectToRoute('homepage');
@@ -286,11 +309,14 @@ class NoteController extends AbstractController
 
         $comments = $note->getComments();
 
+        $mentionedUser = $note->getMentionedUser();
+
         return $this->render('note/index.html.twig', [
             'divVisibility' => 'none',
             'note' => $note,
             'comments' => $comments,
             'votesMap' => $votesMap,
+            'mentionedUser' => $mentionedUser,
         ]);
     }
 
@@ -372,7 +398,6 @@ class NoteController extends AbstractController
             }
         }
 
-        // Important: verificăm flagul, nu recitim proprietățile
         if ($shouldRemoveVote && $existingVote) {
             $em->remove($existingVote);
         }
@@ -502,43 +527,44 @@ class NoteController extends AbstractController
         $divVisibility = 'none';
 
         $comment = $em->getRepository(Comment::class)->find($id);
-        $note = $comment->getNote();
-        $note->mentionedUserId = $note->getMentionedUserId($em);
 
         if (!$comment || !$comment->getNote()) {
             return $this->redirectToRoute('homepage');
-        } else {
-            $note = $comment->getNote();
-            if ($request->isMethod('POST')) {
-                $newMessage = trim((string)$request->request->get('message'));
-                $currentMessage = trim((string)$comment->getMessage());
-
-                $isMessageInvalid = empty($newMessage) || $newMessage === $currentMessage;
-
-                if ($isMessageInvalid) {
-                    $error = 'Error: Invalid content.';
-                    $divVisibility = 'block';
-                } else {
-
-                    $comment->setMessage($newMessage);
-                    $comment->setIsEdited(true);
-                    $comment->setPublicationDate(new \DateTime());
-
-                    $em->persist($comment);
-                    $em->flush();
-
-                    return $this->redirectToRoute('app_note_show', ['noteId' => $comment->getNote()->getId()]);
-                }
-            }
-
-            return $this->render('note/comment_update.html.twig', [
-                'error' => $error,
-                'divVisibility' => $divVisibility,
-                'comment' => $comment,
-                'note' => $note,
-                'noteId' => $note->getId()
-            ]);
         }
+
+        $note = $comment->getNote();
+        // Accesăm direct utilizatorul menționat (dacă e nevoie)
+        $mentionedUser = $note->getMentionedUser();
+
+        if ($request->isMethod('POST')) {
+            $newMessage = trim((string) $request->request->get('message'));
+            $currentMessage = trim((string) $comment->getMessage());
+
+            $isMessageInvalid = empty($newMessage) || $newMessage === $currentMessage;
+
+            if ($isMessageInvalid) {
+                $error = 'Error: Invalid content.';
+                $divVisibility = 'block';
+            } else {
+                $comment->setMessage($newMessage);
+                $comment->setIsEdited(true);
+                $comment->setPublicationDate(new \DateTime());
+
+                $em->persist($comment);
+                $em->flush();
+
+                return $this->redirectToRoute('app_note_show', ['noteId' => $note->getId()]);
+            }
+        }
+
+        return $this->render('note/comment_update.html.twig', [
+            'error' => $error,
+            'divVisibility' => $divVisibility,
+            'comment' => $comment,
+            'note' => $note,
+            'mentionedUser' => $mentionedUser,
+            'noteId' => $note->getId(),
+        ]);
     }
 
     #[Route('note/comment/{noteId}-{id}/report', name: 'note_comment_report', methods: ['GET', 'POST'])]

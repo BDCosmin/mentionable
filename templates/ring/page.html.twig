@@ -12,7 +12,7 @@
                     <div class="col-9">
                         <div class="avatar-pic d-flex justify-content-center align-items-center">
                             <div class="avatar-indicator position-relative d-inline-block">
-                                <img src="{{ asset('uploads/rings/' ~ ring.banner) }}"
+                                <img src="{{ asset('Uploads/rings/' ~ ring.banner) }}"
                                      alt="Banner"
                                      class="img-thumbnail img-fluid rounded-circle mt-3"
                                      style="width: 400px; height: 400px;"/>
@@ -63,7 +63,7 @@
                                                         {% for member in ringMembers %}
                                                             <div class="d-flex flex-row m-0 p-0 mb-1 mt-2">
                                                                 <a href="{{ path('app_profile', {id: member.user.id}) }}" class="ms-3">
-                                                                    <img class="img-sm rounded-circle" src="{{ asset('uploads/avatars/' ~ member.user.avatar) }}" alt="avatar" onerror="showDefaultIcon(this)">
+                                                                    <img class="img-sm rounded-circle" src="{{ asset('Uploads/avatars/' ~ member.user.avatar) }}" alt="avatar" onerror="showDefaultIcon(this)">
                                                                 </a>
                                                                 <a href="{{ path('app_profile', {id: member.user.id}) }}" class="text-white ms-3" style="text-decoration: none;">
                                                                     <span style="font-size: 20px">@{{ member.user.nametag }}</span>
@@ -161,28 +161,28 @@
                                     <span class="visually-hidden">Loading...</span>
                                 </div>
                             </div>
-{#                             NOTE #}
-                            {% if ringNotes is defined %}
-                                {% for note in ringNotes %}
+                            {# NOTE #}
+                            {% if ringNotes is defined and ringNotes|length > 0 %}
+                                {% for item in ringNotes %}
                                     <div class="col-lg-10 pt-4 ps-4 pe-4 pb-3" style="background-color: #181b20; border-radius: 5px; margin-top: 2rem;">
-{#                                         NOTE PROFILE #}
+                                        {# NOTE PROFILE #}
                                         <div class="navbar-profile d-flex flex-row text-light mb-3" style="width: 100%;">
-                                            <a class="nav-link me-3 mt-2" id="avatarNote" href="{{ path('app_profile', {'id': note.user.id}) }}">
-                                                <img class="img-sm rounded-circle" src="{{ asset('uploads/avatars/' ~ note.user.avatar) }}" alt="avatar" onerror="showDefaultIcon(this)">
+                                            <a class="nav-link me-3 mt-2" id="avatarNote" href="{{ path('app_profile', {'id': item.note.user.id}) }}">
+                                                <img class="img-sm rounded-circle" src="{{ asset('Uploads/avatars/' ~ item.note.user.avatar) }}" alt="avatar" onerror="showDefaultIcon(this)">
                                             </a>
                                             <div class="d-flex flex-column">
-                                                <a class="nav-link mt-3" id="nametagNote" href="{{ path('app_profile', {'id': note.user.id}) }}">
-                                                    <h5 class="mb-0 navbar-profile-name">@{{ note.user.nametag }}</h5>
+                                                <a class="nav-link mt-3" id="nametagNote" href="{{ path('app_profile', {'id': item.note.user.id}) }}">
+                                                    <h5 class="mb-0 navbar-profile-name">@{{ item.note.user.nametag }}</h5>
                                                 </a>
                                                 <div class="d-flex flex-row m-0 p-0" style="font-size: 12px; color: gray">
                                                     <div class="d-flex flex-row m-0 p-0">
-                                                        {% if note.isEdited %}
+                                                        {% if item.note.isEdited %}
                                                             <i class="fa fa-clock-o mt-1 me-1"></i>
                                                         {% endif %}
-                                                        <p>{{ note.humanTimePost }}</p>
+                                                        <p>{{ item.note.humanTimePost }}</p>
                                                         {% if isMember %}
                                                             <p class="ms-1 me-1">•</p>
-                                                            <a class="m-0 p-0" style="text-decoration: none; color: #d1d0d0" href="{{ path('app_note_show', {'noteId': note.id}) }}">
+                                                            <a class="m-0 p-0" style="text-decoration: none; color: #d1d0d0" href="{{ path('app_note_show', {'noteId': item.note.id}) }}">
                                                                 <p>View</p>
                                                             </a>
                                                         {% endif %}
@@ -194,24 +194,24 @@
                                                     <i class="fa fa-sort-desc" style="color: white"></i>
                                                 </a>
                                                 <ul class="dropdown-menu">
-                                                    {% if app.user.nametag == note.user.nametag %}
+                                                    {% if app.user.nametag == item.note.user.nametag %}
                                                         {% if isMember %}
                                                             <li>
-                                                                <a class="dropdown-item" href="{{ path('app_note_update', {'id': note.id, 'ringId': ring.id}) }}">Edit...</a>
+                                                                <a class="dropdown-item" href="{{ path('app_note_update', {'id': item.note.id, 'ringId': ring.id}) }}">Edit...</a>
                                                             </li>
                                                         {% endif %}
                                                         <li>
                                                             <a class="dropdown-item" href="#"
                                                                data-bs-toggle="modal"
                                                                data-bs-target="#deleteNoteModal"
-                                                               data-note-id="{{ note.id }}"
-                                                               data-note-token="{{ csrf_token('delete' ~ note.id) }}">
+                                                               data-note-id="{{ item.note.id }}"
+                                                               data-note-token="{{ csrf_token('delete' ~ item.note.id) }}">
                                                                 Delete note
                                                             </a>
                                                         </li>
                                                     {% else %}
                                                         <li>
-                                                            <a class="dropdown-item" href="{{ path('app_note_report', {id: note.id}) }}">Report</a>
+                                                            <a class="dropdown-item" href="{{ path('app_note_report', {id: item.note.id}) }}">Report</a>
                                                         </li>
                                                     {% endif %}
                                                 </ul>
@@ -238,92 +238,86 @@
                                                 </div>
                                             </div>
                                         </div>
-{#                                         NOTE CONTENT #}
+                                        {# NOTE CONTENT #}
                                         <div class="d-flex flex-row text-gray mb-1">
-                                            <p style="font-size: 16px; white-space: pre-wrap;">{{ note.content }}</p>
+                                            <p style="font-size: 16px; white-space: pre-wrap;">{{ item.note.content }}</p>
                                         </div>
-{#                                         NOTE IMAGE #}
-                                        {% if note.image %}
+                                        {# NOTE IMAGE #}
+                                        {% if item.note.image %}
                                             <div class="d-flex flex-row text-gray justify-content-center mb-2">
-                                                <a href="{{ path('app_note_show', {'noteId': note.id}) }}">
-                                                    <img src="{{ asset('uploads/notes/' ~ note.image)}}" class="img-fluid" id="noteImage" alt="noteImage" onerror="showDefaultImage(this)"/>
+                                                <a href="{{ path('app_note_show', {'noteId': item.note.id}) }}">
+                                                    <img src="{{ asset('Uploads/notes/' ~ item.note.image)}}" class="img-fluid" id="noteImage" alt="noteImage" onerror="showDefaultImage(this)"/>
                                                 </a>
                                             </div>
                                         {% endif %}
-{#                                         NOTE NAV – DESKTOP & MOBILE HYBRID #}
+                                        {# NOTE NAV – DESKTOP & MOBILE HYBRID #}
                                         <div class="d-flex flex-wrap align-items-center text-gray mt-2 mb-1 ms-0 ps-0">
-{#                                             VOTE & COMMENTS – ALWAYS SHOWN #}
+                                            {# VOTE & COMMENTS – ALWAYS SHOWN #}
                                             <div class="d-flex flex-row flex-wrap">
-{#                                                 UPVOTE #}
-                                                <button class="upvote-btn btn btn-sm    d-flex align-items-center border-0
-                                        {% if votesMap[note.id] is defined and votesMap[note.id] == 'upvote' %}
-                                            btn-light
-                                        {% else %}
-                                            btn-outline-light
-                                        {% endif %}"
-                                                        data-id="{{ note.id }}">
+                                                {# UPVOTE #}
+                                                <button class="upvote-btn btn btn-sm d-flex align-items-center border-0
+                                                    {% if votesMap[item.note.id] is defined and votesMap[item.note.id] == 'upvote' %}
+                                                        btn-light
+                                                    {% else %}
+                                                        btn-outline-light
+                                                    {% endif %}"
+                                                        data-id="{{ item.note.id }}">
                                                     <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
-                                                    <span class="ms-1" id="upvotes-{{ note.id }}">{{ note.getUpVote() }}</span>
+                                                    <span class="ms-1" id="upvotes-{{ item.note.id }}">{{ item.note.getUpVote() }}</span>
                                                 </button>
-
-{#                                                 DOWNVOTE #}
+                                                {# DOWNVOTE #}
                                                 <button class="downvote-btn btn btn-sm d-flex align-items-center border-0
-                                        {% if votesMap[note.id] is defined and votesMap[note.id] == 'downvote' %}
-                                            btn-light
-                                        {% else %}
-                                            btn-outline-light
-                                        {% endif %}"
-                                                        data-id="{{ note.id }}">
+                                                    {% if votesMap[item.note.id] is defined and votesMap[item.note.id] == 'downvote' %}
+                                                        btn-light
+                                                    {% else %}
+                                                        btn-outline-light
+                                                    {% endif %}"
+                                                        data-id="{{ item.note.id }}">
                                                     <i class='bx bx-arrow-down' style="font-size: 20px;"></i>
-                                                    <span class="ms-1" id="downvotes-{{ note.id }}">{{ note.getDownVote() }}</span>
+                                                    <span class="ms-1" id="downvotes-{{ item.note.id }}">{{ item.note.getDownVote() }}</span>
                                                 </button>
-
-{#                                                 COMMENTS BUTTON #}
+                                                {# COMMENTS BUTTON #}
                                                 <button type="button"
                                                         class="btn btn-outline-light btn-sm d-flex flex-row align-items-center border-0 ps-2 pe-2 ms-1 toggle-comments compact-btn"
-                                                        data-note-id="{{ note.id }}">
+                                                        data-note-id="{{ item.note.id }}">
                                                     <i class='bx bx-message-circle-reply pe-1'></i>
-                                                    <span class="comment-count">{{ note.comments|length }}</span>
+                                                    <span class="comment-count">{{ item.note.comments|length }}</span>
                                                 </button>
-
                                                 <div class="ms-2 me-2 pt-1 d-none d-md-block">
                                                     <p class="text-white" style="margin-top: 7px">•</p>
                                                 </div>
-
-{#                                                 NOTE MENTIONED – SHOWN ONLY ON DESKTOP #}
+                                                {# NOTE MENTIONED – SHOWN ONLY ON DESKTOP #}
                                                 <div class="d-none d-md-block ps-1 pe-1" style="margin-top: 10px">
                                                     <p class="mb-0 mt-0 text-white" style="font-size: 16px">
                                                         mentioned
-                                                        {% if note.mentionedUserId %}
-                                                            <a class="m-0 p-0 text-white" href="{{ path('app_profile', {'id': note.mentionedUserId}) }}" style="text-decoration: none;">
-                                                                <b style="background-color: #2A3038">@{{ note.nametag }}</b>
+                                                        {% if item.mentionedUser %}
+                                                            <a class="m-0 p-0 text-white" href="{{ path('app_profile', {'id': item.mentionedUser.id}) }}" style="text-decoration: none;">
+                                                                <b style="background-color: #2A3038">@{{ item.mentionedUser.nametag }}</b>
                                                             </a>
                                                         {% endif %}
                                                     </p>
                                                 </div>
                                             </div>
-
-{#                                             NOTE MENTIONED – SHOWN ONLY ON MOBILE, BELOW BUTTONS #}
+                                            {# NOTE MENTIONED – SHOWN ONLY ON MOBILE #}
                                             <div class="d-block d-md-none w-100 mt-2 ps-3 pe-1 mb-2">
                                                 <p class="text-white" style="margin-bottom: -2px; font-size: 16px">
                                                     mentioned
-                                                    {% if note.mentionedUserId %}
-                                                        <a class="m-0 p-0 text-white" href="{{ path('app_profile', {'id': note.mentionedUserId}) }}" style="text-decoration: none;">
-                                                            <b style="background-color: #2A3038">@{{ note.nametag }}</b>
+                                                    {% if item.mentionedUser %}
+                                                        <a class="m-0 p-0 text-white" href="{{ path('app_profile', {'id': item.mentionedUser.id}) }}" style="text-decoration: none;">
+                                                            <b style="background-color: #2A3038">@{{ item.mentionedUser.nametag }}</b>
                                                         </a>
                                                     {% endif %}
                                                 </p>
                                             </div>
                                         </div>
-
-{#                                         NOTE COMMENT #}
-                                        <div class="note-comments" id="comments-{{ note.id }}" style="display: none;">
+                                        {# NOTE COMMENT #}
+                                        <div class="note-comments" id="comments-{{ item.note.id }}" style="display: none;">
                                             {% if isMember %}
-{#                                             WRITING COMMENT FORM #}
-                                                <form method="POST" action="{{ path('note_comment', {id: note.id}) }}" class="ajax-comment-form" data-note-id="{{ note.id }}">
+                                                {# WRITING COMMENT FORM #}
+                                                <form method="POST" action="{{ path('note_comment', {id: item.note.id}) }}" class="ajax-comment-form" data-note-id="{{ item.note.id }}">
                                                     <div class="d-flex flex-row mb-3">
                                                         <a class="nav-link me-2" href="#">
-                                                            <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ app.user.avatar)}}" alt="writeCommentAvatar" onerror="showDefaultIcon(this)">
+                                                            <img class="img-xs rounded-circle" src="{{ asset('Uploads/avatars/' ~ app.user.avatar)}}" alt="writeCommentAvatar" onerror="showDefaultIcon(this)">
                                                         </a>
                                                         <div class="d-flex flex-row w-100">
                                                             <input type="text" name="message" class="form-control comment-input mb-1" placeholder="Write a comment..." required>
@@ -339,12 +333,11 @@
                                                 </div>
                                             {% endif %}
                                             <div class="new-comments"></div>
-
-{#                                             COMMENTS LIST #}
-                                            {% for comment in note.comments %}
-                                                <div class="d-flex flex-row mb-3" data-note-id="{{ note.id }}">
+                                            {# COMMENTS LIST #}
+                                            {% for comment in item.note.comments %}
+                                                <div class="d-flex flex-row mb-3" data-note-id="{{ item.note.id }}">
                                                     <a class="nav-link me-2" href="#">
-                                                        <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ comment.user.avatar) }}" alt="avatarComment" onerror="showDefaultIcon(this)">
+                                                        <img class="img-xs rounded-circle" src="{{ asset('Uploads/avatars/' ~ comment.user.avatar) }}" alt="avatarComment" onerror="showDefaultIcon(this)">
                                                     </a>
                                                     <div class="m-0 p-0">
                                                         <div class="d-flex flex-row" style="height: 30px;">
@@ -358,10 +351,10 @@
                                                         </div>
                                                         <div class="d-inline-flex">
                                                             <small style="font-size: 16px; color: white; background-color: #757575; border-radius: 8px; opacity: 0.5; padding: 5px;">{{ comment.message }}</small>
-{#                                                             UPVOTE FORM #}
+                                                            {# UPVOTE FORM #}
                                                             <button
                                                                     class="btn btn-sm btn-outline-light d-flex align-items-center border-0 comment-upvote-btn"
-                                                                    data-note-id="{{ note.id }}"
+                                                                    data-note-id="{{ item.note.id }}"
                                                                     data-comment-id="{{ comment.id }}"
                                                                     data-csrf="{{ csrf_token('vote') }}"
                                                                     type="button">
@@ -377,10 +370,10 @@
                                                             </a>
                                                             <ul class="dropdown-menu m-0">
                                                                 {% if app.user.nametag == comment.user.nametag %}
-                                                                    <li><a class="dropdown-item" href="{{ path('note_comment_update', {id: comment.id, noteId: note.id}) }}">Edit...</a></li>
-                                                                    <li><a class="dropdown-item delete-comment-btn" href="{{ path('note_comment_delete', {id: comment.id, noteId: note.id}) }}">Delete comment</a></li>
+                                                                    <li><a class="dropdown-item" href="{{ path('note_comment_update', {id: comment.id, noteId: item.note.id}) }}">Edit...</a></li>
+                                                                    <li><a class="dropdown-item delete-comment-btn" href="{{ path('note_comment_delete', {id: comment.id, noteId: item.note.id}) }}">Delete comment</a></li>
                                                                 {% else %}
-                                                                    <li><a class="dropdown-item" href="{{ path('note_comment_report', {id: comment.id, noteId: note.id}) }}">Report</a></li>
+                                                                    <li><a class="dropdown-item" href="{{ path('note_comment_report', {id: comment.id, noteId: item.note.id}) }}">Report</a></li>
                                                                 {% endif %}
                                                             </ul>
                                                         </div>
@@ -433,6 +426,7 @@
         </div>
     </div>
 {% endblock %}
+
 {% block javascript %}
 {{ parent() }}
 <script>
@@ -486,11 +480,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 form.reset();
 
-              setTimeout(function () {
+                setTimeout(function () {
                     $('#loading-spinner').hide();
                     location.reload();
                 }, 1500);
-
             },
             error: function (xhr) {
                 $('#loading-spinner').hide();
