@@ -4,13 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Interest;
 use App\Entity\Note;
-use App\Entity\Notification;
-use App\Entity\User;
-use App\Entity\FriendRequest;
-use App\Form\ChangePasswordType;
-use App\Form\ProfileType;
 use App\Repository\InterestRepository;
-use App\Repository\NoteRepository;
 use App\Repository\NoteVoteRepository;
 use App\Repository\NotificationRepository;
 use App\Repository\RingRepository;
@@ -22,17 +16,15 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
-#[Route('/profile')]
 #[IsGranted('ROLE_USER')]
 class ProfileController extends AbstractController
 {
-    #[Route('/{id}', name: 'app_profile')]
-    public function index(int $id, FriendRequestRepository $friendRequestRepository, RingRepository $ringRepository,NoteVoteRepository $noteVoteRepository,NoteRepository $noteRepository, UserRepository $userRepository, NotificationRepository $notificationRepository, EntityManagerInterface $em): Response
+    #[Route('/profile/{id}', name: 'app_profile')]
+    public function index(int $id, FriendRequestRepository $friendRequestRepository, RingRepository $ringRepository,NoteVoteRepository $noteVoteRepository,UserRepository $userRepository, NotificationRepository $notificationRepository, EntityManagerInterface $em): Response
     {
         $user = $userRepository->find($id);
 
@@ -77,7 +69,7 @@ class ProfileController extends AbstractController
         ]);
     }
 
-    #[Route('/interest/new', name: 'app_interest_new', methods: ['GET', 'POST'])]
+    #[Route('/profile/interest/new', name: 'app_interest_new', methods: ['GET', 'POST'])]
     public function interest(Request $request,
                         EntityManagerInterface $em,
                         NotificationService $notificationService,
@@ -111,7 +103,7 @@ class ProfileController extends AbstractController
         return $this->redirect($request->headers->get('referer'));
     }
 
-    #[Route('/interest/delete/{id}', name: 'app_interest_delete', methods: ['DELETE'])]
+    #[Route('/profile/interest/delete/{id}', name: 'app_interest_delete', methods: ['DELETE'])]
     public function deleteInterest(Request $request,
                              EntityManagerInterface $em,
                              NotificationService $notificationService,
