@@ -41,6 +41,15 @@ class NoteRepository extends ServiceEntityRepository
     //        ;
     //    }
 
+    public function findByMention(string $nametag): array
+    {
+        return $this->createQueryBuilder('n')
+            ->where('n.content LIKE :mention')
+            ->setParameter('mention', '%@' . $nametag . '%')
+            ->getQuery()
+            ->getResult();
+    }
+
     public function findAllWithMentionedUser()
     {
         return $this->createQueryBuilder('n')

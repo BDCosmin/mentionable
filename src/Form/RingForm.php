@@ -49,7 +49,7 @@ class RingForm extends AbstractType
                 'attr' => [
                     'rows' => 10,
                     'style' => 'height: 100px',
-                    'maxlength' => 255,
+                    'maxlength' => 512,
                     'autocomplete' => 'off',
                     'placeholder' => 'Ring description',
                 ],
@@ -59,7 +59,7 @@ class RingForm extends AbstractType
                     ]),
                     new Length([
                         'min' => 10,
-                        'max' => 255,
+                        'max' => 512,
                         'minMessage' => 'Description must be at least {{ limit }} characters.',
                         'maxMessage' => 'Description cannot be longer than {{ limit }} characters.',
                     ]),

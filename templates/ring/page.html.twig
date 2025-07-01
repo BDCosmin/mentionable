@@ -3,19 +3,27 @@
 {% block title %}{{ ring.title }} - Rings{% endblock %}
 
 {% block body %}
+    <style>
+        @media (max-width: 767.98px) {
+            .ring-banner-img {
+                width: 240px !important;
+                height: 240px !important;
+            }
+        }
+    </style>
     <div class="main-panel">
         <div class="content-wrapper p-0">
             <div class="row justify-content-center mb-4">
                 {# RING TOP CONTAINER #}
                 <div class="row d-flex justify-content-center mb-2" style="background-color: #181b20; border-radius: 5px; margin-top: 2rem;">
-                    <div class="col-1"></div>
-                    <div class="col-9">
+                    <div class="col-md-1"></div>
+                    <div class="col-12 col-md-9">
                         <div class="avatar-pic d-flex justify-content-center align-items-center">
                             <div class="avatar-indicator position-relative d-inline-block">
-                                <img src="{{ asset('Uploads/rings/' ~ ring.banner) }}"
+                                <img src="{{ asset('uploads/rings/' ~ ring.banner) }}"
                                      alt="Banner"
-                                     class="img-thumbnail img-fluid rounded-circle mt-3"
-                                     style="width: 400px; height: 400px;"/>
+                                     class="img-thumbnail img-fluid rounded-circle mt-3 ring-banner-img"
+                                     style="width: 400px; height: 400px;" />
                             </div>
                         </div>
                         <div class="d-flex flex-row mt-2 mb-3">
@@ -25,10 +33,32 @@
                             <div class="d-flex flex-column">
                                 <div class="d-flex flex-row">
                                     <h1 class="mb-0" style="margin-top: 4px">{{ ring.title }}</h1>
+                                    <div class="col-1 d-md-none d-flex ms-auto">
+                                        <div class="dropdown top-0 end-0 m-2">
+                                            <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                                               class="text-white"
+                                               style="right: 10px; text-decoration: none; z-index: 10;">
+                                                <i class="fa fa-ellipsis-h" style="font-size: 25px;"></i>
+                                            </a>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                {% if app.user == ring.user %}
+                                                    <li><a class="dropdown-item" href="{{ path('app_ring_update',{'id': ring.id}) }}">Edit...</a></li>
+                                                    <li>
+                                                        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#deleteRingModal-{{ ring.id }}"
+                                                           data-note-id="{{ ring.id }}" data-note-token="{{ csrf_token('delete' ~ ring.id) }}">
+                                                            Delete ring
+                                                        </a>
+                                                    </li>
+                                                {% else %}
+                                                    <li><a class="dropdown-item" href="#">Report</a></li>
+                                                {% endif %}
+                                            </ul>
+                                        </div>
+                                    </div>
                                     <a href="{{ path('app_interest_show', {'id': ring.interest.id}) }}"
-                                       class="ms-2 align-self-start text-decoration-none"
+                                       class="ms-2 align-self-start text-decoration-none d-md-flex d-none"
                                        style="line-height: 1; padding: 0;">
-                                        <span class="bg-light px-2 py-1 text-dark rounded-pill d-inline-block"
+                                        <span class="bg-light px-2 py-1 text-dark rounded-pill d-md-inline-flex d-none"
                                               style="font-size: 19px; line-height: 1;margin-top: 13px">
                                             #{{ ring.interest.title }}
                                         </span>
@@ -78,10 +108,100 @@
                                         </div>
                                     </div>
                                 </div>
-                                <p class="mb-3 text-white" style="font-size: 20px">{{ ring.description }}</p>
-                            </div>
+                                <p id="desc-preview" class="m-0 text-white" style="
+                                    font-size: 20px;
+                                    line-height: 26px;
+                                    display: -webkit-box;
+                                    -webkit-line-clamp: 3;
+                                    -webkit-box-orient: vertical;
+                                    overflow: hidden;
+                                    text-overflow: ellipsis;
+                                ">
+                                    {{ ring.description }}
+                                </p>
+                                <a id="view-more-link" href="#" data-bs-toggle="modal" data-bs-target="#viewMoreDescModal"
+                                   style="color: white; font-size: 18px; display: none; width: fit-content;">
+                                    <small>View more</small>
+                                </a>
 
-                            <div class="d-flex flex-row ms-auto mt-2">
+                                <!-- VIEW MORE MODAL -->
+                                <div class="modal fade" id="viewMoreDescModal" tabindex="-1" aria-labelledby="viewMoreDescModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog" style="max-width: 850px;">
+                                        <div class="modal-content bg-dark text-white">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="viewMoreDescModalLabel">Description</h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body" style="max-height: 300px; overflow-y: auto;">
+                                                <div class="d-flex flex-row m-0 p-0 mb-1 mt-2">
+                                                    <p class="m-0 text-white" style="font-size: 20px;">
+                                                        {{ ring.description }}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {# MOBILE BUTTONS #}
+                                <div class="d-flex d-md-none flex-row flex-wrap justify-content-start align-items-start gap-2 mt-2" style="max-width: 100%;">
+                                    {# INTEREST #}
+                                    <div style="order: -1;">
+                                        <a href="{{ path('app_interest_show', {'id': ring.interest.id}) }}"
+                                           class="align-self-start text-decoration-none"
+                                           style="line-height: 1; padding: 0;">
+                                           <span class="bg-light px-2 py-1 text-dark rounded-pill d-inline-block"
+                                                 style="font-size: 19px; line-height: 1; margin-top: 18px;">
+                                              #{{ ring.interest.title }}
+                                           </span>
+                                        </a>
+                                    </div>
+
+                                    {# JOIN / LEAVE / + BUTTONS WRAPPED TOGETHER #}
+                                    <div class="d-flex flex-row flex-wrap align-items-start gap-2">
+                                        {% set isMember = false %}
+                                        {% for member in members %}
+                                            {% if member.user.id == app.user.id %}
+                                                {% set isMember = true %}
+                                            {% endif %}
+                                        {% endfor %}
+
+                                        {% if isMember %}
+                                            <a href="{{ path('app_leave_ring', {'id': ring.id}) }}"
+                                               class="text-decoration-none mt-3"
+                                               style="line-height: 1; padding: 0; margin-top: 4px;">
+                                                <span class="btn btn-danger px-2 py-1 text-dark d-inline-block"
+                                                      style="font-size: 24px; line-height: 1; border-radius: 10px;">
+                                                    Leave
+                                                </span>
+                                            </a>
+                                        {% else %}
+                                            <a href="{{ path('app_join_ring', {'id': ring.id}) }}"
+                                               class="text-decoration-none mt-3"
+                                               style="line-height: 1; padding: 0; margin-top: 4px;">
+                                                <span class="btn btn-success px-2 py-1 text-dark d-inline-block"
+                                                      style="font-size: 24px; line-height: 1; border-radius: 10px;">
+                                                    Join
+                                                </span>
+                                            </a>
+                                        {% endif %}
+
+                                        {% if isMember %}
+                                            <a href="#" data-bs-toggle="modal" data-bs-target="#newRingNoteModal"
+                                               class="text-decoration-none mt-3"
+                                               style="line-height: 1; padding: 0; margin-top: 4px;">
+                                                <span class="btn btn-light px-2 py-1 text-dark d-inline-block"
+                                                      style="font-size: 24px; line-height: 1; border-radius: 10px;">
+                                                    +
+                                                </span>
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                            </div>
+                            {# DESKTOP BUTTONS #}
+                            <div class="d-none d-md-flex flex-row ms-auto">
                                 {# JOIN COMMUNITY #}
                                 {% set isMember = false %}
                                 {% for member in members %}
@@ -124,7 +244,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-1 position-relative">
+                    <div class="col-1 d-md-flex d-none position-relative">
                         <div class="dropdown position-absolute top-0 end-0 m-2">
                             <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
                                class="position-absolute mt-5 text-white"
@@ -499,6 +619,18 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const paragraph = document.getElementById('desc-preview');
+        const viewMoreLink = document.getElementById('view-more-link');
+
+        const maxVisibleHeight = 3 * 26;
+
+        if (paragraph.scrollHeight > maxVisibleHeight) {
+            viewMoreLink.style.display = 'inline-block';
+        }
+    });
 </script>
 <script src="{{ asset('../assets/js/feed.js') }}"></script>
 {% endblock %}

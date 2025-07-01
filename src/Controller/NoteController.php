@@ -206,7 +206,7 @@ class NoteController extends AbstractController
         $votesMap = [];
         $vote = $noteVoteRepository->findOneBy(['note' => $note, 'user' => $user]);
         if ($vote) {
-            $votesMap[$note->getId()] = $vote->isUpvote() ? 'upvote' : 'downvote';
+            $votesMap[$note->getId()] = $vote->isUpvoted() ? 'upvote' : 'downvote';
         } else {
             $votesMap[$note->getId()] = null;
         }
@@ -224,12 +224,14 @@ class NoteController extends AbstractController
                 $mentionedUser = $userRepository->findOneBy(['nametag' => ltrim($nametag, '@')]);
                 if ($mentionedUser) {
                     $note->setMentionedUser($mentionedUser);
+                    $em->persist($note);
                 } else {
                     $error = 'Error: User not found.';
                     $divVisibility = 'block';
                 }
             } else {
                 $note->setMentionedUser(null);
+                $em->persist($note);
             }
 
             if (!$error) {
