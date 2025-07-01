@@ -126,7 +126,15 @@
                                                     <p class="mb-1 text-muted">
                                                         {{ memberCounts[ring.id] ?? 0 }} {{ (memberCounts[ring.id] ?? 0) == 1 ? 'member' : 'members' }}
                                                     </p>
-                                                    <p class="card-text text-light mt-2" style="user-select: none">{{ ring.description }}</p>
+                                                    <p class="card-text text-light mt-2"
+                                                       style="user-select: none; line-height: 26px;
+                                                        display: -webkit-box;
+                                                        -webkit-line-clamp: 3;
+                                                        -webkit-box-orient: vertical;
+                                                        overflow: hidden;
+                                                        text-overflow: ellipsis;">
+                                                            {{ ring.description }}
+                                                    </p>
                                                     <a href="{{ path('app_interest_show', {'id': ring.interest.id}) }}">
                                                         <div class="bg-light px-1 text-dark rounded-pill d-inline-block">
                                                             <span class="text-dark" style="font-size: 14px">#{{ ring.interest.title }}</span>
@@ -215,7 +223,15 @@
                                                     <p class="mb-1 text-muted">
                                                         {{ memberCounts[ring.id] ?? 0 }} {{ (memberCounts[ring.id] ?? 0) == 1 ? 'member' : 'members' }}
                                                     </p>
-                                                    <p class="card-text text-light mt-2" style="user-select: none">{{ ring.description }}</p>
+                                                    <p class="card-text text-light mt-2"
+                                                       style="user-select: none; line-height: 26px;
+                                                        display: -webkit-box;
+                                                        -webkit-line-clamp: 3;
+                                                        -webkit-box-orient: vertical;
+                                                        overflow: hidden;
+                                                        text-overflow: ellipsis;">
+                                                        {{ ring.description }}
+                                                    </p>
                                                     <a href="{{ path('app_interest_show', {'id': ring.interest.id}) }}">
                                                         <div class="bg-light px-1 text-dark rounded-pill d-inline-block">
                                                             <span class="text-dark" style="font-size: 14px">#{{ ring.interest.title }}</span>
@@ -304,7 +320,15 @@
                                                     <p class="mb-1 text-muted">
                                                         {{ memberCounts[ring.id] ?? 0 }} {{ (memberCounts[ring.id] ?? 0) == 1 ? 'member' : 'members' }}
                                                     </p>
-                                                    <p class="card-text text-light mt-2" style="user-select: none">{{ ring.description }}</p>
+                                                    <p class="card-text text-light mt-2"
+                                                       style="user-select: none; line-height: 26px;
+                                                        display: -webkit-box;
+                                                        -webkit-line-clamp: 3;
+                                                        -webkit-box-orient: vertical;
+                                                        overflow: hidden;
+                                                        text-overflow: ellipsis;">
+                                                        {{ ring.description }}
+                                                    </p>
                                                     <a href="{{ path('app_interest_show', {'id': ring.interest.id}) }}">
                                                         <div class="bg-light px-1 text-dark rounded-pill d-inline-block">
                                                             <span class="text-dark" style="font-size: 14px">#{{ ring.interest.title }}</span>
