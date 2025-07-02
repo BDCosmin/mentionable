@@ -9,6 +9,7 @@ use App\Entity\User;
 use App\Repository\FriendRequestRepository;
 use App\Repository\NoteVoteRepository;
 use App\Repository\NotificationRepository;
+use App\Repository\RingMemberRepository;
 use App\Repository\RingRepository;
 use App\Service\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -20,20 +21,27 @@ use Symfony\Component\Routing\Attribute\Route;
 final class DefaultController extends AbstractController
 {
     #[Route('/', name: 'homepage')]
-    public function index(EntityManagerInterface $em, NoteVoteRepository $noteVoteRepository): Response
-    {
+    public function index(
+        EntityManagerInterface $em,
+        NoteVoteRepository $noteVoteRepository,
+        RingMemberRepository $ringMemberRepository
+    ): Response {
         $error = ' ';
-
         $user = $this->getUser();
 
         if (!$user) {
             return $this->redirectToRoute('app_login');
         }
 
-        $notes = $em->getRepository(Note::class)->findAllWithMentionedUser();
+        // Obține ID-urile ringurilor în care userul e membru
+        $memberships = $ringMemberRepository->findBy(['user' => $user]);
+        $ringIds = array_map(fn($m) => $m->getRing()->getId(), $memberships);
 
+        // Doar notele publice și cele din ringuri unde e membru
+        $notes = $em->getRepository(Note::class)->findFeedNotesForUser($ringIds);
+
+        // Vote mapping
         $noteVotes = $noteVoteRepository->findBy(['user' => $user]);
-
         $votesMap = [];
         foreach ($noteVotes as $vote) {
             if ($vote->isUpvoted()) {
@@ -43,6 +51,7 @@ final class DefaultController extends AbstractController
             }
         }
 
+        // Sincronizează utilizatorii menționați după nametag
         foreach ($notes as $note) {
             if ($note->getMentionedUser() === null && $note->getNametag()) {
                 $mentionedUser = $em->getRepository(User::class)->findOneBy(['nametag' => $note->getNametag()]);
@@ -52,6 +61,7 @@ final class DefaultController extends AbstractController
                 }
             }
         }
+
         $em->flush();
 
         return $this->render('default/index.html.twig', [
