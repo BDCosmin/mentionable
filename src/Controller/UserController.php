@@ -9,6 +9,7 @@ use App\Repository\FriendRequestRepository;
 use App\Repository\NoteRepository;
 use App\Repository\NoteVoteRepository;
 use App\Repository\NotificationRepository;
+use App\Repository\RingMemberRepository;
 use App\Repository\UserRepository;
 use App\Service\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -45,12 +46,29 @@ final class UserController extends AbstractController
         NoteVoteRepository $noteVoteRepository,
         FriendRequestRepository $friendRequestRepository,
         NotificationService $notificationService,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        RingMemberRepository $ringMemberRepository,
     ): Response {
         $user = $this->getUser();
 
         $notes = $noteRepository->findBy(['user' => $user], ['publicationDate' => 'DESC']);
         $noteVotes = $noteVoteRepository->findBy([]);
+
+        $rolesMap = [];
+        foreach ($notes as $note) {
+            $ring = $note->getRing();
+            $author = $note->getUser();
+
+            if ($ring && $author) {
+                $member = $ringMemberRepository->findOneBy([
+                    'ring' => $ring,
+                    'user' => $author,
+                ]);
+                if ($member) {
+                    $rolesMap[$author->getId()] = $member->getRole();
+                }
+            }
+        }
 
         $notesWithMentionedUser = [];
         foreach ($notes as $note) {
@@ -86,6 +104,7 @@ final class UserController extends AbstractController
             'noteVotes' => $noteVotes,
             'votesMap' => $votesMap,
             'notesWithMentionedUser' => $notesWithMentionedUser,
+            'rolesMap' => $rolesMap
         ]);
     }
 

@@ -357,19 +357,28 @@
                                                 <div class="d-flex flex-column m-0 p-0" style="font-size: 12px; color: gray">
                                                     <div class="d-flex flex-row m-0 p-0">
                                                         {% if item.note.isEdited %}
-                                                            <i class="fa fa-clock-o mt-1 me-1"></i>
+                                                            <i class="fa fa-clock-o mt-1 me-1 mb-1"></i>
                                                         {% endif %}
-                                                        <p>{{ item.note.humanTimePost }}</p>
-                                                        {% if isMember %}
-                                                            <p class="ms-1 me-1">•</p>
-                                                            <a class="m-0 p-0" style="text-decoration: none; color: #d1d0d0" href="{{ path('app_note_show', {'noteId': item.note.id}) }}">
-                                                                <p>View</p>
-                                                            </a>
-                                                        {% endif %}
+                                                        <p class="mb-1">{{ item.note.humanTimePost }}</p>
+                                                        <p class="ms-1 me-1 mb-1">•</p>
+                                                        <a class="m-0 p-0" style="text-decoration: none; color: #d1d0d0" href="{{ path('app_note_show', {'noteId': item.note.id}) }}">
+                                                            <p class="mb-1">View</p>
+                                                        </a>
                                                     </div>
-                                                    <p class="me-1 text-white" style="margin-top: -17px">
-                                                       ROLE
-                                                    </p>
+                                                    {% set role = rolesMap[item.note.user.id] ?? 'Member' %}
+                                                    <div class="d-flex align-items-center" style="gap: 3px; font-size: 13px;">
+                                                        <p class="mb-0 text-muted" style="white-space: nowrap;">Role:</p>
+                                                        <span style="
+                                                            background-color: #6c757d;
+                                                            color: white;
+                                                            padding: 2px 8px;
+                                                            border-radius: 12px;
+                                                            font-weight: 600;
+                                                            text-transform: capitalize;
+                                                            white-space: nowrap;">
+                                                            {{ role|capitalize }}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="dropdown ms-auto mt-1 me-1">

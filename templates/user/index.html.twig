@@ -45,11 +45,25 @@
                                                 </a>
                                             </div>
                                             {% if note.ring %}
-                                                <p class="me-1" style="margin-top: -17px">from
+                                                <p class="me-1 mb-1" style="margin-top: -17px">from
                                                     <a href="{{ path('app_ring_show', {'id': note.ring.id}) }}" style="text-decoration: none; color: white">
                                                         {{ note.ring.title }}
                                                     </a>
                                                 </p>
+                                                {% set role = rolesMap[note.user.id] ?? 'Member' %}
+                                                <div class="d-flex align-items-center" style="gap: 3px; font-size: 13px;">
+                                                    <p class="mb-0 text-muted" style="white-space: nowrap;">Role:</p>
+                                                    <span style="
+                                                            background-color: #6c757d;
+                                                            color: white;
+                                                            padding: 2px 8px;
+                                                            border-radius: 12px;
+                                                            font-weight: 600;
+                                                            text-transform: capitalize;
+                                                            white-space: nowrap;">
+                                                            {{ role|capitalize }}
+                                                        </span>
+                                                </div>
                                             {% endif %}
                                         </div>
                                     </div>

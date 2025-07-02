@@ -8,6 +8,7 @@ use App\Repository\InterestRepository;
 use App\Repository\NoteRepository;
 use App\Repository\NoteVoteRepository;
 use App\Repository\NotificationRepository;
+use App\Repository\RingMemberRepository;
 use App\Repository\RingRepository;
 use App\Repository\UserRepository;
 use App\Repository\FriendRequestRepository;
@@ -33,6 +34,7 @@ class ProfileController extends AbstractController
         UserRepository $userRepository,
         NotificationRepository $notificationRepository,
         EntityManagerInterface $em,
+        RingMemberRepository $ringMemberRepository,
     ): Response
     {
         $user = $userRepository->find($id);
@@ -71,6 +73,24 @@ class ProfileController extends AbstractController
             }
         }
 
+        // Build rolesMap: noteId => role of note's author in ring (if any)
+        $rolesMap = [];
+        foreach ($notes as $note) {
+            $ring = $note->getRing();
+            $author = $note->getUser();
+
+            if ($ring && $author) {
+                $member = $ringMemberRepository->findOneBy([
+                    'ring' => $ring,
+                    'user' => $author,
+                ]);
+
+                if ($member) {
+                    $rolesMap[$note->getId()] = $member->getRole();
+                }
+            }
+        }
+
         return $this->render('profile/index.html.twig', [
             'user' => $user,
             'notesWithMentionedUser' => $notesWithMentionedUser,
@@ -80,6 +100,7 @@ class ProfileController extends AbstractController
             'noteVotes' => $noteVotes,
             'votesMap' => $votesMap,
             'rings' => $rings,
+            'roles' => $rolesMap,
         ]);
     }
 
