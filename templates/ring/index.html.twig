@@ -118,10 +118,13 @@
                                                     </a>
                                                     <small class="text-white">
                                                         by
-                                                        <a href="{{ path('app_profile', {'id': ring.user.id}) }}"
-                                                           class="text-white fw-bold text-decoration-none">
-                                                            {{ ring.user.nametag }}
-                                                        </a>
+                                                        {% set ownerUser = ownersMap[ring.id] ?? null %}
+                                                        {% if ownerUser %}
+                                                            <a href="{{ path('app_profile', {'id': ownerUser.id}) }}"
+                                                               class="text-white fw-bold text-decoration-none">
+                                                                {{ ownerUser.nametag }}
+                                                            </a>
+                                                        {% endif %}
                                                     </small>
                                                     <p class="mb-1 text-muted">
                                                         {{ memberCounts[ring.id] ?? 0 }} {{ (memberCounts[ring.id] ?? 0) == 1 ? 'member' : 'members' }}
@@ -215,10 +218,13 @@
                                                     </a>
                                                     <small class="text-white">
                                                         by
-                                                        <a href="{{ path('app_profile', {'id': ring.user.id}) }}"
-                                                           class="text-white fw-bold text-decoration-none">
-                                                            {{ ring.user.nametag }}
-                                                        </a>
+                                                        {% set ownerUser = ownersMap[ring.id] ?? null %}
+                                                        {% if ownerUser %}
+                                                            <a href="{{ path('app_profile', {'id': ownerUser.id}) }}"
+                                                               class="text-white fw-bold text-decoration-none">
+                                                                {{ ownerUser.nametag }}
+                                                            </a>
+                                                        {% endif %}
                                                     </small>
                                                     <p class="mb-1 text-muted">
                                                         {{ memberCounts[ring.id] ?? 0 }} {{ (memberCounts[ring.id] ?? 0) == 1 ? 'member' : 'members' }}
@@ -312,10 +318,13 @@
                                                     </a>
                                                     <small class="text-white">
                                                         by
-                                                        <a href="{{ path('app_profile', {'id': ring.user.id}) }}"
-                                                           class="text-white fw-bold text-decoration-none">
-                                                            {{ ring.user.nametag }}
-                                                        </a>
+                                                        {% set ownerUser = ownersMap[ring.id] ?? null %}
+                                                        {% if ownerUser %}
+                                                            <a href="{{ path('app_profile', {'id': ownerUser.id}) }}"
+                                                               class="text-white fw-bold text-decoration-none">
+                                                                {{ ownerUser.nametag }}
+                                                            </a>
+                                                        {% endif %}
                                                     </small>
                                                     <p class="mb-1 text-muted">
                                                         {{ memberCounts[ring.id] ?? 0 }} {{ (memberCounts[ring.id] ?? 0) == 1 ? 'member' : 'members' }}
