@@ -24,7 +24,7 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 #[IsGranted('ROLE_USER')]
 class ProfileController extends AbstractController
 {
-    #[Route('/profile/{id}', name: 'app_profile')]
+    #[Route('/profile/{id}/my_profile', name: 'app_profile')]
     public function index(
         int $id,
         FriendRequestRepository $friendRequestRepository,
