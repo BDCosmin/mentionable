@@ -47,6 +47,13 @@ final class RingController extends AbstractController
             $memberCounts[$ringId]++;
         }
 
+        $owners = $ringMemberRepository->findBy(['role' => 'owner']);
+        $ownersMap = [];
+        foreach ($owners as $ownerMember) {
+            $ringId = $ownerMember->getRing()->getId();
+            $ownersMap[$ringId] = $ownerMember->getUser();
+        }
+
 
         $form = $this->createForm(RingForm::class);
         $form->handleRequest($request);
@@ -63,6 +70,12 @@ final class RingController extends AbstractController
                     $this->addFlash('error', 'Please upload a banner image.');
                 } else {
                     $ring->setUser($this->getUser());
+                    $newMember = new RingMembers();
+                    $newMember->setRing($ring);
+                    $newMember->setUser($user);
+                    $newMember->setRole('owner');
+                    $newMember->setStatus('OK');
+                    $newMember->setJoinedAt(new \DateTime());
                     $ring->setCreatedAt(new \DateTime());
 
                     $existingInterest = $entityManager->getRepository(Interest::class)
@@ -91,6 +104,7 @@ final class RingController extends AbstractController
                     $ring->setBanner($newFilename);
 
                     $entityManager->persist($ring);
+                    $entityManager->persist($newMember);
                     $entityManager->flush();
 
                     $this->addFlash('success', 'Community ring created successfully!');
@@ -116,6 +130,8 @@ final class RingController extends AbstractController
             'members' => $members,
             'memberCounts' => $memberCounts,
             'joinedRings' => $joinedRings,
+            'owners' => $owners,
+            'ownersMap' => $ownersMap,
         ]);
     }
 
@@ -226,16 +242,17 @@ final class RingController extends AbstractController
             ['publicationDate' => 'DESC']
         );
         $members = $ringMemberRepository->findBy(['ring' => $ring]);
+        $owner = $ringMemberRepository->findOneBy(['ring' => $ring, 'role' => 'owner']);
 
         $noteVotes = $noteVoteRepository->findBy([]);
 
         // Build array for notes + mentionedUser
         $notesWithMentionedUser = [];
         foreach ($ringNotes as $note) {
-            $mentionedUser = $note->getMentionedUser(); // Fetch the User object
+            $mentionedUser = $note->getMentionedUser();
             $notesWithMentionedUser[] = [
                 'note' => $note,
-                'mentionedUser' => $mentionedUser, // Pass the User object
+                'mentionedUser' => $mentionedUser,
             ];
         }
 
@@ -254,9 +271,10 @@ final class RingController extends AbstractController
             'divVisibility' => 'none',
             'ring' => $ring,
             'members' => $members,
-            'ringNotes' => $notesWithMentionedUser, // Pass notesWithMentionedUser
+            'ringNotes' => $notesWithMentionedUser,
             'votesMap' => $votesMap,
-            'error' => $error
+            'error' => $error,
+            'owner' => $owner
         ]);
     }
 
@@ -288,11 +306,20 @@ final class RingController extends AbstractController
         $user = $this->getUser();
 
         $rings = $ringRepository->findBy(['user' => $user], ['createdAt' => 'DESC']);
-        $members = $ringMemberRepository->findBy([]);
+        $members = $ringMemberRepository->findBy(['user' => $user]);
+
+        $ownerRingIds = [];
+        foreach ($members as $member) {
+            if ($member->getRole() === 'owner') {
+                $ownerRingIds[] = $member->getRing()->getId();
+            }
+        }
+
+        $ownerRings = array_filter($rings, fn($ring) => in_array($ring->getId(), $ownerRingIds));
 
         return $this->render('user/rings.html.twig', [
-            'rings' => $rings,
-            'ringsCount' => count($rings),
+            'rings' => $ownerRings,
+            'ringsCount' => count($ownerRings),
             'error' => $error,
             'divVisibility' => 'none',
             'members' => $members,
@@ -329,8 +356,13 @@ final class RingController extends AbstractController
 
         $noteVotes = $noteVoteRepository->findBy([]);
 
+        $notesWithMentionedUser = [];
         foreach ($ringNotes as $note) {
-            $note->mentionedUserId = $note->getMentionedUserId($em);
+            $mentionedUser = $note->getMentionedUser();
+            $notesWithMentionedUser[] = [
+                'note' => $note,
+                'mentionedUser' => $mentionedUser,
+            ];
         }
 
         $votesMap = [];
@@ -361,7 +393,7 @@ final class RingController extends AbstractController
             $em->flush();
         }
 
-        return $this->redirectToRoute('app_ring_show', ['id' => $id]);
+        return $this->redirectToRoute('app_ring_show', ['id' => $id, 'ringNotes' => $notesWithMentionedUser]);
     }
 
     #[Route('/ring/{id}/leave', name: 'app_leave_ring', methods: ['GET', 'POST'])]
@@ -392,5 +424,48 @@ final class RingController extends AbstractController
         return $this->redirectToRoute('app_ring_show', ['id' => $id]);
     }
 
+    #[Route('/ring/{ringId}-{id}/remove-member', name: 'app_ring_remove_member', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function removeMember(int $id, int $ringId, Request $request, EntityManagerInterface $em, RingMemberRepository $ringMemberRepository): Response
+    {
+        $ringMember = $ringMemberRepository->findOneBy(['user' => $id, 'ring' => $ringId]);
+
+        if (!$ringMember) {
+            $this->addFlash('error', 'Member not found.');
+            return $this->redirectToRoute('app_rings_discover');
+        }
+
+        $em->remove($ringMember);
+        $em->flush();
+
+        $this->addFlash('success', 'Member deleted successfully.');
+
+        return $this->redirect($request->headers->get('referer') ?? $this->redirectToRoute('app_ring_show', ['ringId' => $ringId]));
+    }
+
+    #[Route('/ring/{ringId}-{id}/change-member-role', name: 'app_ring_change_member_role', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function changeRoleMember(int $id, int $ringId, Request $request, EntityManagerInterface $em, RingMemberRepository $ringMemberRepository): Response
+    {
+        $user = $this->getUser();
+        $ringMember = $ringMemberRepository->findOneBy(['user' => $id, 'ring' => $ringId]);
+        $currentRingMember = $ringMemberRepository->findOneBy(['user' => $user, 'ring' => $ringId]);
+
+        if (!$ringMember) {
+            $this->addFlash('error', 'Member not found.');
+            return $this->redirectToRoute('app_rings_discover');
+        }
+
+        $ringMember->setRole('owner');
+        $currentRingMember->setRole('member');
+        $em->persist($ringMember);
+        $em->persist($currentRingMember);
+
+        $em->flush();
+
+        $this->addFlash('success', 'Roles upgraded successfully.');
+
+        return $this->redirect($request->headers->get('referer') ?? $this->redirectToRoute('app_ring_show', ['ringId' => $ringId]));
+    }
 
 }

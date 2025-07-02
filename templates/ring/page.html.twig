@@ -10,6 +10,12 @@
                 height: 240px !important;
             }
         }
+        @media (max-width: 400px) {
+            .modal-dialog {
+                min-width: 320px;
+                margin: 0 auto;
+            }
+        }
     </style>
     <div class="main-panel">
         <div class="content-wrapper p-0">
@@ -69,18 +75,27 @@
                                         {{ members|filter(member => member.ring.id == ring.id)|length }}
                                         {{ members|filter(member => member.ring.id == ring.id)|length == 1 ? 'member' : 'members' }}
                                     </p>
-                                    <p class="ms-1">•</p>
-                                    <p>
-                                        created by
-                                        <a href="{{ path('app_profile', {'id': ring.user.id}) }}"
-                                           class="text-muted fw-bold text-decoration-none">
-                                            {{ ring.user.nametag }}
-                                        </a>
-                                    </p>
+                                    {% set currentUserRole = 'owner' %}
+
+                                    {% for m in members %}
+                                        {% if m.user.id == app.user.id and m.ring.id == ring.id %}
+                                            {% set currentUserRole = m.role %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% if currentUserRole != 'owner' %}
+                                        <p class="ms-1 me-1">•</p>
+                                        <p>
+                                            created by
+                                            <a href="{{ path('app_profile', {'id': owner.user.id}) }}"
+                                               class="text-muted fw-bold text-decoration-none">
+                                                {{ owner.user.nametag }}
+                                            </a>
+                                        </p>
+                                    {% endif %}
                                 </div>
                                 <!-- Modalul pentru afișarea membrilor ringului -->
                                 <div class="modal fade" id="membersModal-{{ ring.id }}" tabindex="-1" aria-labelledby="membersModalLabel-{{ ring.id }}" aria-hidden="true">
-                                    <div class="modal-dialog">
+                                    <div class="modal-dialog w-100" style="max-width: 700px;">
                                         <div class="modal-content bg-dark text-white">
                                             <div class="modal-header">
                                                 <h5 class="modal-title" id="membersModalLabel-{{ ring.id }}">Members of {{ ring.title }}</h5>
@@ -88,16 +103,54 @@
                                             </div>
                                             <div class="modal-body" style="max-height: 300px; overflow-y: auto;">
                                                 {% set ringMembers = members|filter(member => member.ring.id == ring.id) %}
+                                                {% set currentUserIsOwner = false %}
+                                                {% for m in ringMembers %}
+                                                    {% if m.user.id == app.user.id and m.role == 'owner' %}
+                                                        {% set currentUserIsOwner = true %}
+                                                    {% endif %}
+                                                {% endfor %}
+
                                                 {% if ringMembers|length > 0 %}
                                                     <ul class="list-group list-group-flush">
                                                         {% for member in ringMembers %}
                                                             <div class="d-flex flex-row m-0 p-0 mb-1 mt-2">
                                                                 <a href="{{ path('app_profile', {id: member.user.id}) }}" class="ms-3">
-                                                                    <img class="img-sm rounded-circle" src="{{ asset('Uploads/avatars/' ~ member.user.avatar) }}" alt="avatar" onerror="showDefaultIcon(this)">
+                                                                    <img class="img-sm rounded-circle" src="{{ asset('uploads/avatars/' ~ member.user.avatar) }}" alt="avatar" onerror="showDefaultIcon(this)">
                                                                 </a>
                                                                 <a href="{{ path('app_profile', {id: member.user.id}) }}" class="text-white ms-3" style="text-decoration: none;">
                                                                     <span style="font-size: 20px">@{{ member.user.nametag }}</span>
                                                                 </a>
+                                                                <div class="d-flex justify-content-end align-items-center" style="width: 100%">
+                                                                    {% if member.role == 'owner' %}
+                                                                        <span class="me-2 text-warning" style="font-size: 18px">Owner</span>
+                                                                    {% else %}
+                                                                        <span class="me-2" style="font-size: 18px">Member</span>
+                                                                    {% endif %}
+
+                                                                    {% if currentUserIsOwner and member.user.id != app.user.id %}
+                                                                        <div class="col-1 d-flex">
+                                                                            <div class="dropdown top-0 end-0 m-2">
+                                                                                <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                                                                                   class="text-white"
+                                                                                   style="right: 10px; text-decoration: none; z-index: 10;">
+                                                                                    <i class="fa fa-ellipsis-h" style="font-size: 25px;"></i>
+                                                                                </a>
+                                                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                                                    <li>
+                                                                                        <a class="dropdown-item" href="{{ path('app_ring_remove_member', {'id': member.id, 'ringId': member.ring.id}) }}">
+                                                                                            Remove
+                                                                                        </a>
+                                                                                    </li>
+                                                                                    <li>
+                                                                                        <a class="dropdown-item" href="{{ path('app_ring_change_member_role', {'id': member.user.id, 'ringId': member.ring.id}) }}">
+                                                                                            Make owner
+                                                                                        </a>
+                                                                                    </li>
+                                                                                </ul>
+                                                                            </div>
+                                                                        </div>
+                                                                    {% endif %}
+                                                                </div>
                                                             </div>
                                                         {% endfor %}
                                                     </ul>
@@ -143,74 +196,82 @@
                                     </div>
                                 </div>
 
-                                {# MOBILE BUTTONS #}
-                                <div class="d-flex d-md-none flex-row flex-wrap justify-content-start align-items-start gap-2 mt-2" style="max-width: 100%;">
-                                    {# INTEREST #}
-                                    <div style="order: -1;">
-                                        <a href="{{ path('app_interest_show', {'id': ring.interest.id}) }}"
-                                           class="align-self-start text-decoration-none"
-                                           style="line-height: 1; padding: 0;">
-                                           <span class="bg-light px-2 py-1 text-dark rounded-pill d-inline-block"
-                                                 style="font-size: 19px; line-height: 1; margin-top: 18px;">
-                                              #{{ ring.interest.title }}
-                                           </span>
-                                        </a>
-                                    </div>
-
-                                    {# JOIN / LEAVE / + BUTTONS WRAPPED TOGETHER #}
-                                    <div class="d-flex flex-row flex-wrap align-items-start gap-2">
-                                        {% set isMember = false %}
-                                        {% for member in members %}
-                                            {% if member.user.id == app.user.id %}
-                                                {% set isMember = true %}
-                                            {% endif %}
-                                        {% endfor %}
-
-                                        {% if isMember %}
-                                            <a href="{{ path('app_leave_ring', {'id': ring.id}) }}"
-                                               class="text-decoration-none mt-3"
-                                               style="line-height: 1; padding: 0; margin-top: 4px;">
-                                                <span class="btn btn-danger px-2 py-1 text-dark d-inline-block"
-                                                      style="font-size: 24px; line-height: 1; border-radius: 10px;">
-                                                    Leave
-                                                </span>
-                                            </a>
-                                        {% else %}
-                                            <a href="{{ path('app_join_ring', {'id': ring.id}) }}"
-                                               class="text-decoration-none mt-3"
-                                               style="line-height: 1; padding: 0; margin-top: 4px;">
-                                                <span class="btn btn-success px-2 py-1 text-dark d-inline-block"
-                                                      style="font-size: 24px; line-height: 1; border-radius: 10px;">
-                                                    Join
-                                                </span>
-                                            </a>
-                                        {% endif %}
-
-                                        {% if isMember %}
-                                            <a href="#" data-bs-toggle="modal" data-bs-target="#newRingNoteModal"
-                                               class="text-decoration-none mt-3"
-                                               style="line-height: 1; padding: 0; margin-top: 4px;">
-                                                <span class="btn btn-light px-2 py-1 text-dark d-inline-block"
-                                                      style="font-size: 24px; line-height: 1; border-radius: 10px;">
-                                                    +
-                                                </span>
-                                            </a>
-                                        {% endif %}
-                                    </div>
+                            {# MOBILE BUTTONS #}
+                            <div class="d-flex d-md-none flex-row flex-wrap justify-content-start align-items-start gap-2 mt-2" style="max-width: 100%;">
+                                {# INTEREST #}
+                                <div style="order: -1;">
+                                    <a href="{{ path('app_interest_show', {'id': ring.interest.id}) }}"
+                                       class="align-self-start text-decoration-none"
+                                       style="line-height: 1; padding: 0;">
+                                       <span class="bg-light px-2 py-1 text-dark rounded-pill d-inline-block"
+                                             style="font-size: 19px; line-height: 1; margin-top: 18px;">
+                                          #{{ ring.interest.title }}
+                                       </span>
+                                    </a>
                                 </div>
+
+                                {# JOIN / LEAVE / + BUTTONS WRAPPED TOGETHER #}
+                                <div class="d-flex flex-row flex-wrap align-items-start gap-2">
+                                    {% set isMember = false %}
+                                    {% set isOwner = false %}
+                                    {% for member in members %}
+                                        {% if member.user.id == app.user.id %}
+                                            {% set isMember = true %}
+                                            {% if member.role == 'owner' %}
+                                                {% set isOwner = true %}
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    {% if isMember and not isOwner %}
+                                        <a href="{{ path('app_leave_ring', {'id': ring.id}) }}"
+                                           class="text-decoration-none mt-3"
+                                           style="line-height: 1; padding: 0; margin-top: 4px;">
+                                            <span class="btn btn-danger px-2 py-1 text-dark d-inline-block"
+                                                  style="font-size: 24px; line-height: 1; border-radius: 10px;">
+                                                Leave
+                                            </span>
+                                        </a>
+                                    {% elseif not isMember and not isOwner %}
+                                        <a href="{{ path('app_join_ring', {'id': ring.id}) }}"
+                                           class="text-decoration-none mt-3"
+                                           style="line-height: 1; padding: 0; margin-top: 4px;">
+                                            <span class="btn btn-success px-2 py-1 text-dark d-inline-block"
+                                                  style="font-size: 24px; line-height: 1; border-radius: 10px;">
+                                                Join
+                                            </span>
+                                        </a>
+                                    {% endif %}
+
+                                    {% if isMember %}
+                                        <a href="#" data-bs-toggle="modal" data-bs-target="#newRingNoteModal"
+                                           class="text-decoration-none mt-3"
+                                           style="line-height: 1; padding: 0; margin-top: 4px;">
+                                            <span class="btn btn-light px-2 py-1 text-dark d-inline-block"
+                                                  style="font-size: 24px; line-height: 1; border-radius: 10px;">
+                                                +
+                                            </span>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
 
                             </div>
                             {# DESKTOP BUTTONS #}
                             <div class="d-none d-md-flex flex-row ms-auto">
                                 {# JOIN COMMUNITY #}
                                 {% set isMember = false %}
+                                {% set isOwner = false %}
                                 {% for member in members %}
                                     {% if member.user.id == app.user.id %}
                                         {% set isMember = true %}
+                                        {% if member.role == 'owner' %}
+                                            {% set isOwner = true %}
+                                        {% endif %}
                                     {% endif %}
                                 {% endfor %}
 
-                                {% if isMember %}
+                                {% if isMember and not isOwner %}
                                     <a href="{{ path('app_leave_ring', {'id': ring.id}) }}"
                                        class="ms-auto align-self-start text-decoration-none mt-3"
                                        style="line-height: 1; padding: 0; margin-top: 4px;">
@@ -219,7 +280,7 @@
                                             Leave
                                         </span>
                                     </a>
-                                {% else %}
+                                {% elseif not isMember and not isOwner %}
                                     <a href="{{ path('app_join_ring', {'id': ring.id}) }}"
                                        class="ms-auto align-self-start text-decoration-none mt-3"
                                        style="line-height: 1; padding: 0; margin-top: 4px;">
@@ -231,7 +292,6 @@
                                 {% endif %}
                                 {# ADD NOTE TO COMMUNITY #}
                                 {% if isMember %}
-                                    {# Afișezi formularul/modalul pentru adăugare de note #}
                                     <a href="#" data-bs-toggle="modal" data-bs-target="#newRingNoteModal"
                                        class="ms-auto align-self-start text-decoration-none mt-3 ps-1 pe-1"
                                        style="line-height: 1; padding: 0; margin-top: 4px;">
@@ -294,7 +354,7 @@
                                                 <a class="nav-link mt-3" id="nametagNote" href="{{ path('app_profile', {'id': item.note.user.id}) }}">
                                                     <h5 class="mb-0 navbar-profile-name">@{{ item.note.user.nametag }}</h5>
                                                 </a>
-                                                <div class="d-flex flex-row m-0 p-0" style="font-size: 12px; color: gray">
+                                                <div class="d-flex flex-column m-0 p-0" style="font-size: 12px; color: gray">
                                                     <div class="d-flex flex-row m-0 p-0">
                                                         {% if item.note.isEdited %}
                                                             <i class="fa fa-clock-o mt-1 me-1"></i>
@@ -307,6 +367,9 @@
                                                             </a>
                                                         {% endif %}
                                                     </div>
+                                                    <p class="me-1 text-white" style="margin-top: -17px">
+                                                       ROLE
+                                                    </p>
                                                 </div>
                                             </div>
                                             <div class="dropdown ms-auto mt-1 me-1">
@@ -540,6 +603,27 @@
                             <button type="button" class="btn btn-danger me-2" data-bs-dismiss="modal" aria-label="Close">Close</button>
                             <button type="submit" class="btn btn-light" style="width: 120px;">Post</button>
                         </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {# DELETE RING MODAL #}
+    <div class="modal fade" id="deleteRingModal-{{ ring.id }}" tabindex="-1" aria-labelledby="deleteRingModalLabel-{{ ring.id }}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content border-danger">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteRingModalLabel-{{ ring.id }}">Confirm ring deletion</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete this ring?
+                </div>
+                <div class="modal-footer">
+                    <form method="post" action="{{ path('app_ring_delete', { id: ring.id }) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ ring.id) }}">
+                        <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Delete</button>
                     </form>
                 </div>
             </div>
