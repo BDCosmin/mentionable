@@ -244,6 +244,11 @@ final class RingController extends AbstractController
         $members = $ringMemberRepository->findBy(['ring' => $ring]);
         $owner = $ringMemberRepository->findOneBy(['ring' => $ring, 'role' => 'owner']);
 
+        $rolesMap = [];
+        foreach ($members as $member) {
+            $rolesMap[$member->getUser()->getId()] = $member->getRole(); // ex: 'owner', 'moderator', etc.
+        }
+
         $noteVotes = $noteVoteRepository->findBy([]);
 
         // Build array for notes + mentionedUser
@@ -274,7 +279,8 @@ final class RingController extends AbstractController
             'ringNotes' => $notesWithMentionedUser,
             'votesMap' => $votesMap,
             'error' => $error,
-            'owner' => $owner
+            'owner' => $owner,
+            'rolesMap' => $rolesMap,
         ]);
     }
 
@@ -299,31 +305,43 @@ final class RingController extends AbstractController
 
     #[Route('/rings/{id}/dashboard', name: 'app_my_rings', methods: ['GET'])]
     #[IsGranted('ROLE_USER')]
-    public function myRings(int $id, RingRepository $ringRepository, RingMemberRepository $ringMemberRepository): Response
-    {
-        $error = ' ';
-
+    public function myRings(
+        RingRepository $ringRepository,
+        RingMemberRepository $ringMemberRepository
+    ): Response {
         $user = $this->getUser();
 
-        $rings = $ringRepository->findBy(['user' => $user], ['createdAt' => 'DESC']);
-        $members = $ringMemberRepository->findBy(['user' => $user]);
+        // Toate ringurile create de user (owner)
+        $ownerRings = $ringRepository->findBy(['user' => $user], ['createdAt' => 'DESC']);
 
-        $ownerRingIds = [];
+        // Adună toți membrii pentru ringurile astea
+        $ringIds = array_map(fn($ring) => $ring->getId(), $ownerRings);
+
+        // Membrii tuturor ringurilor pe care userul le deține
+        $members = $ringMemberRepository->findBy(['ring' => $ringIds]);
+
+        // Creează un map ringId => membri (array)
+        $membersByRing = [];
         foreach ($members as $member) {
-            if ($member->getRole() === 'owner') {
-                $ownerRingIds[] = $member->getRing()->getId();
-            }
+            $ringId = $member->getRing()->getId();
+            $membersByRing[$ringId][] = $member;
         }
 
-        $ownerRings = array_filter($rings, fn($ring) => in_array($ring->getId(), $ownerRingIds));
+        $membersCountByRing = [];
+        foreach ($members as $member) {
+            $ringId = $member->getRing()->getId();
+            if (!isset($membersCountByRing[$ringId])) {
+                $membersCountByRing[$ringId] = 0;
+            }
+            $membersCountByRing[$ringId]++;
+        }
 
         return $this->render('user/rings.html.twig', [
             'rings' => $ownerRings,
             'ringsCount' => count($ownerRings),
-            'error' => $error,
-            'divVisibility' => 'none',
-            'members' => $members,
-            'user' => $user
+            'membersByRing' => $membersByRing,
+            'membersCountByRing' => $membersCountByRing,
+            'user' => $user,
         ]);
     }
 

@@ -193,7 +193,6 @@ class NoteController extends AbstractController
             throw $this->createAccessDeniedException('You are not allowed to edit this note');
         }
 
-        // Validate ringId if provided
         if ($ringId) {
             $ring = $ringRepository->find($ringId);
             if (!$ring) {
@@ -286,7 +285,8 @@ class NoteController extends AbstractController
     public function show(
         int $noteId,
         NoteRepository $noteRepository,
-        NoteVoteRepository $noteVoteRepository
+        NoteVoteRepository $noteVoteRepository,
+        RingMemberRepository $ringMemberRepository,
     ): Response
     {
         $user = $this->getUser();
@@ -295,6 +295,21 @@ class NoteController extends AbstractController
 
         if (!$note) {
             return $this->redirectToRoute('homepage');
+        }
+
+        $role = null;
+        $ring = $note->getRing();
+        $author = $note->getUser();
+
+        if ($ring && $author) {
+            $member = $ringMemberRepository->findOneBy([
+                'ring' => $ring,
+                'user' => $author,
+            ]);
+
+            if ($member) {
+                $role = $member->getRole();
+            }
         }
 
         $votesMap = [];
@@ -310,7 +325,6 @@ class NoteController extends AbstractController
         }
 
         $comments = $note->getComments();
-
         $mentionedUser = $note->getMentionedUser();
 
         return $this->render('note/index.html.twig', [
@@ -319,6 +333,7 @@ class NoteController extends AbstractController
             'comments' => $comments,
             'votesMap' => $votesMap,
             'mentionedUser' => $mentionedUser,
+            'role' => $role,
         ]);
     }
 
@@ -535,7 +550,7 @@ class NoteController extends AbstractController
         }
 
         $note = $comment->getNote();
-        // Accesăm direct utilizatorul menționat (dacă e nevoie)
+
         $mentionedUser = $note->getMentionedUser();
 
         if ($request->isMethod('POST')) {

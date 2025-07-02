@@ -38,8 +38,8 @@
                                             <h5 class="mb-1 text-white">{{ ring.title }}</h5>
                                         </a>
                                         <p style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#membersModal-{{ ring.id }}">
-                                            {{ members|filter(member => member.ring.id == ring.id)|length }}
-                                            {{ members|filter(member => member.ring.id == ring.id)|length == 1 ? 'member' : 'members' }}
+                                            {{ membersCountByRing[ring.id]|default(0) }}
+                                            {{ membersCountByRing[ring.id]|default(0) == 1 ? 'member' : 'members' }}
                                         </p>
                                     </div>
                                     <!-- Modalul pentru afișarea membrilor ringului -->
@@ -51,16 +51,16 @@
                                                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
                                                 <div class="modal-body" style="max-height: 300px; overflow-y: auto;">
-                                                    {% set ringMembers = members|filter(member => member.ring.id == ring.id) %}
+                                                    {% set ringMembers = membersByRing[ring.id] ?? [] %}
                                                     {% if ringMembers|length > 0 %}
                                                         <ul class="list-group list-group-flush">
                                                             {% for member in ringMembers %}
                                                                 <div class="d-flex flex-row m-0 p-0 mb-1 mt-2">
-                                                                    <a href="{{ path('app_profile', {id: user.id}) }}" class="ms-3">
-                                                                        <img class="img-sm rounded-circle" src="{{ asset('uploads/avatars/' ~ user.avatar) }}" alt="avatar" onerror="showDefaultIcon(this)">
+                                                                    <a href="{{ path('app_profile', {id: member.user.id}) }}" class="ms-3">
+                                                                        <img class="img-sm rounded-circle" src="{{ asset('uploads/avatars/' ~ member.user.avatar) }}" alt="avatar" onerror="showDefaultIcon(this)">
                                                                     </a>
-                                                                    <a href="{{ path('app_profile', {id: user.id}) }}" class="text-white ms-3" style="text-decoration: none;">
-                                                                        <span style="font-size: 20px">@{{ user.nametag }}</span>
+                                                                    <a href="{{ path('app_profile', {id: member.user.id}) }}" class="text-white ms-3" style="text-decoration: none;">
+                                                                        <span style="font-size: 20px;">@{{ member.user.nametag }}</span>
                                                                     </a>
                                                                 </div>
                                                             {% endfor %}

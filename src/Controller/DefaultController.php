@@ -33,14 +33,28 @@ final class DefaultController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        // Obține ID-urile ringurilor în care userul e membru
         $memberships = $ringMemberRepository->findBy(['user' => $user]);
         $ringIds = array_map(fn($m) => $m->getRing()->getId(), $memberships);
 
-        // Doar notele publice și cele din ringuri unde e membru
         $notes = $em->getRepository(Note::class)->findFeedNotesForUser($ringIds);
 
-        // Vote mapping
+        $rolesMap = [];
+        foreach ($notes as $note) {
+            $ring = $note->getRing();
+            $author = $note->getUser();
+
+            if ($ring && $author) {
+                $member = $ringMemberRepository->findOneBy([
+                    'ring' => $ring,
+                    'user' => $author,
+                ]);
+
+                if ($member) {
+                    $rolesMap[$note->getId()] = $member->getRole();
+                }
+            }
+        }
+
         $noteVotes = $noteVoteRepository->findBy(['user' => $user]);
         $votesMap = [];
         foreach ($noteVotes as $vote) {
@@ -51,7 +65,6 @@ final class DefaultController extends AbstractController
             }
         }
 
-        // Sincronizează utilizatorii menționați după nametag
         foreach ($notes as $note) {
             if ($note->getMentionedUser() === null && $note->getNametag()) {
                 $mentionedUser = $em->getRepository(User::class)->findOneBy(['nametag' => $note->getNametag()]);
@@ -69,7 +82,8 @@ final class DefaultController extends AbstractController
             'currentUserNametag' => $user->getNametag(),
             'votesMap' => $votesMap,
             'divVisibility' => 'none',
-            'error' => $error
+            'error' => $error,
+            'rolesMap' => $rolesMap
         ]);
     }
 
