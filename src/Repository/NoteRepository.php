@@ -60,4 +60,17 @@ class NoteRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function findFeedNotesForUser(array $ringIds): array
+    {
+        return $this->createQueryBuilder('n')
+            ->leftJoin('n.ring', 'r')
+            ->addSelect('r')
+            ->where('n.ring IS NULL')
+            ->orWhere('n.ring IN (:ringIds)')
+            ->setParameter('ringIds', $ringIds)
+            ->orderBy('n.publicationDate', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
 }
