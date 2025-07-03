@@ -25421,4 +25421,13 @@ button.downvote-btn.active {
   }
 }
 
+.btn-responsive {
+  width: 75%;
+}
+
+@media (min-width: 768px) {
+  .btn-responsive {
+    width: 50%;
+  }
+}
 /*# sourceMappingURL=maps/style.css.map */
