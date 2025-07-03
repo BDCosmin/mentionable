@@ -20,6 +20,10 @@ class NotificationRepository extends ServiceEntityRepository
     public function findLatestByReceiverWithSender(User $user, int $limit = 3): array
     {
         return $this->createQueryBuilder('n')
+            ->leftJoin('n.sender', 's')
+            ->addSelect('s')
+            ->leftJoin('n.ring', 'r')
+            ->addSelect('r')
             ->andWhere('n.receiver = :user')
             ->andWhere('n.sender IS NOT NULL')
             ->setParameter('user', $user)
