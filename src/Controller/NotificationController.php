@@ -25,7 +25,10 @@ final class NotificationController extends AbstractController
                 'type' => $notification->getType(),
                 'isRead' => $notification->isRead(),
                 'humanTime' => $notification->getHumanTimeNotification(),
-                'ring' => $ring ? ['title' => $ring->getTitle(), 'banner' => $ring->getBanner()] : null
+                'ring' => $notification->getRing() ? [
+                    'title' => $notification->getRing()->getTitle(),
+                    'banner' => $notification->getRing()->getBanner(),
+                ] : null,
             ];
         }
 

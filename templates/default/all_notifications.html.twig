@@ -34,7 +34,9 @@
                                 <a class="nav-link me-3 mt-2" id="avatarNotif" href="{{ path('app_note_redirect', {'notificationId': notification.id}) }}">
                                     {% if notification.type == 'reported' %}
                                         <i class='bx bx-mail-open' style='color: lightgrey; font-size: 34px'></i>
-                                    {% elseif notification.type == 'ring_kick' || notification.type == 'ring_role_upgrade' %}
+                                    {% elseif notification.type == 'ring_kick' %}
+                                        <img class="img-sm rounded-circle" src="{{ asset('uploads/rings/' ~ notification.ring.banner) }}" alt="bannerNotif" onerror="showDefaultIcon(this)">
+                                    {% elseif notification.type == 'ring_role_upgrade' %}
                                         <img class="img-sm rounded-circle" src="{{ asset('uploads/rings/' ~ notification.ring.banner) }}" alt="bannerNotif" onerror="showDefaultIcon(this)">
                                     {% else %}
                                         {% if notification.sender %}

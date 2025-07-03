@@ -284,7 +284,7 @@ final class UserController extends AbstractController
         return $this->redirect($request->headers->get('referer'));
     }
 
-    #[Route('/user/{id}/clear-all-notifications', name: 'app_user_clear_notifications')]
+    #[Route('/user/{id}/clear-all-notifications', name: 'app_user_clear_notifications', methods: ['GET','POST'])]
     public function clearAllNotifications(Request $request, NotificationService $notificationService): Response
     {
         $user = $this->getUser();
