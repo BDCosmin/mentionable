@@ -366,10 +366,11 @@
                                                         </a>
                                                     </div>
                                                     {% set role = rolesMap[item.note.user.id] ?? 'Member' %}
+                                                    {% set bgColor = role == 'member' ? '#6c757d' : 'orange' %}
                                                     <div class="d-flex align-items-center" style="gap: 3px; font-size: 13px;">
                                                         <p class="mb-0 text-muted" style="white-space: nowrap;">Role:</p>
                                                         <span style="
-                                                            background-color: #6c757d;
+                                                            background-color: {{ bgColor }};
                                                             color: white;
                                                             padding: 2px 8px;
                                                             border-radius: 12px;

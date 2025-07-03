@@ -17,6 +17,7 @@ final class NotificationController extends AbstractController
         $data = [];
 
         foreach ($notifications as $notification) {
+            $ring = $notification->getRing();
             $data[] = [
                 'id' => $notification->getId(),
                 'sender' => $notification->getSender()?->getNametag(),
@@ -24,6 +25,7 @@ final class NotificationController extends AbstractController
                 'type' => $notification->getType(),
                 'isRead' => $notification->isRead(),
                 'humanTime' => $notification->getHumanTimeNotification(),
+                'ring' => $ring ? ['title' => $ring->getTitle(), 'banner' => $ring->getBanner()] : null
             ];
         }
 

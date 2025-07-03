@@ -311,6 +311,10 @@
                         let subtitle = '';
                         let link = `/notification/${notification.id}/redirect`;
                         let extraAttributes = '';
+                        let ringTitle = notification.ring ? notification.ring.title : '';
+                        const imgSrc = notification.ring?.banner
+                            ? `/uploads/rings/${notification.ring.banner}`
+                            : `/uploads/avatars/${notification.avatar ?? 'default.jpg'}`;
 
                         switch (notification.type) {
                             case 'mentioned':
@@ -339,6 +343,15 @@
                                 title = `Your anonymous report has been sent!`;
                                 subtitle = "We will review it shortly.";
                                 break;
+                            case 'ring_kick':
+                                title = `You've been removed from this ring`;
+                                subtitle = `${ringTitle}`;
+                                extraAttributes = 'href="#"';
+                                break;
+                            case 'ring_role_upgrade':
+                                title = `You've been promoted to owner in`;
+                                subtitle = `${ringTitle}`;
+                                break;
                             default:
                                 title = `You have a new notification!`;
                                 subtitle = `Please check your activity.`;
@@ -353,7 +366,7 @@
                         notificationList.innerHTML += `
                         <a class="dropdown-item preview-item" ${extraAttributes}>
                             <div class="preview-thumbnail">
-                                <img class="preview-icon bg-dark rounded-circle" src="/uploads/avatars/${notification.avatar ?? 'default.jpg'}" alt="avatarNotif" onerror="showDefaultIcon(this)">
+                                <img class="preview-icon bg-dark rounded-circle" src="${imgSrc}" alt="avatarNotif" onerror="showDefaultIcon(this)">
                             </div>
                             <div class="preview-item-content">
                                 <p class="preview-subject mb-1">${title}</p>

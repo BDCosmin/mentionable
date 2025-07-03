@@ -194,7 +194,7 @@ final class UserController extends AbstractController
         $message = sprintf('%s sent you a friend request from',$user->getNametag());
         $link = '/profile';
 
-        $notificationService->createNotification(
+        $notificationService->notifyFriendRequest(
             $user,
             $friend,
             $friendRequest,
@@ -280,6 +280,18 @@ final class UserController extends AbstractController
         $entityManager->flush();
 
         $this->addFlash('success', 'Friend removed successfully!');
+
+        return $this->redirect($request->headers->get('referer'));
+    }
+
+    #[Route('/user/{id}/clear-all-notifications', name: 'app_user_clear_notifications')]
+    public function clearAllNotifications(Request $request, NotificationService $notificationService): Response
+    {
+        $user = $this->getUser();
+
+        $notificationService->clearAll($user);
+
+        $this->addFlash('success', 'Notifications cleared successfully!');
 
         return $this->redirect($request->headers->get('referer'));
     }

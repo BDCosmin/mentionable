@@ -47,10 +47,17 @@ class Ring
     #[ORM\OneToMany(targetEntity: Note::class, mappedBy: 'ring')]
     private Collection $notes;
 
+    /**
+     * @var Collection<int, Notification>
+     */
+    #[ORM\OneToMany(targetEntity: Notification::class, mappedBy: 'ring')]
+    private Collection $notifications;
+
     public function __construct()
     {
         $this->ringMembers = new ArrayCollection();
         $this->notes = new ArrayCollection();
+        $this->notifications = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -184,6 +191,36 @@ class Ring
             // set the owning side to null (unless already changed)
             if ($note->getRing() === $this) {
                 $note->setRing(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Notification>
+     */
+    public function getNotifications(): Collection
+    {
+        return $this->notifications;
+    }
+
+    public function addNotification(Notification $notification): static
+    {
+        if (!$this->notifications->contains($notification)) {
+            $this->notifications->add($notification);
+            $notification->setRing($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNotification(Notification $notification): static
+    {
+        if ($this->notifications->removeElement($notification)) {
+            // set the owning side to null (unless already changed)
+            if ($notification->getRing() === $this) {
+                $notification->setRing(null);
             }
         }
 

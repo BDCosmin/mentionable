@@ -5,13 +5,23 @@
 {% block body %}
     <div class="main-panel">
         <div class="content-wrapper p-0">
-            <div class="row justify-content-center mb-4">
+            <div class="row justify-content-center mb-4 mt-2">
                 <div class="col-lg-8 p-3 justify-content-center">
                     <div class="d-flex flex-row justify-content-center">
-                        <h1 class="text-center">
+                        <h1 class="text-center d-none d-md-flex">
+                            My notifications
+                        </h1>
+                        <h1 class="text-center d-flex d-md-none mt-1" style="font-size: 24px">
                             My notifications
                         </h1>
                         <span class="badge badge-light text-dark mt-2 ms-2" style="height: 25px">{{ notifCount }}</span>
+                        {% if allNotifications|length > 0 %}
+                            <a href="{{ path('app_user_clear_notifications', {'id': app.user.id}) }}" style="height: 25px" class="mb-0 pb-0 mt-2 ms-2">
+                                <span class="badge badge-light text-dark" style="height: 25px">
+                                    Clear all
+                                </span>
+                            </a>
+                        {% endif %}
                     </div>
                 </div>
                 {# NOTIFICATIONS LIST #}
@@ -24,6 +34,8 @@
                                 <a class="nav-link me-3 mt-2" id="avatarNotif" href="{{ path('app_note_redirect', {'notificationId': notification.id}) }}">
                                     {% if notification.type == 'reported' %}
                                         <i class='bx bx-mail-open' style='color: lightgrey; font-size: 34px'></i>
+                                    {% elseif notification.type == 'ring_kick' || notification.type == 'ring_role_upgrade' %}
+                                        <img class="img-sm rounded-circle" src="{{ asset('uploads/rings/' ~ notification.ring.banner) }}" alt="bannerNotif" onerror="showDefaultIcon(this)">
                                     {% else %}
                                         {% if notification.sender %}
                                             <img class="img-sm rounded-circle" src="{{ asset('uploads/avatars/' ~ notification.sender.avatar) }}" alt="avatarNotif" onerror="showDefaultIcon(this)">
@@ -66,6 +78,14 @@
                                             <a href="{{ path('app_note_redirect', {'notificationId': notification.id}) }}" style="text-decoration: none !important; color: white !important;">
                                                 <p class="preview-subject mb-1" style="font-size: 20px">Your annonymous report has been sent!</p>
                                                 <p class="text-muted ellipsis mb-0">We will review in short time your request. Thank you!</p>
+                                            </a>
+                                        {% elseif notification.type == 'ring_kick' %}
+                                            <a href="#" style="text-decoration: none !important; color: white !important;">
+                                                <p class="preview-subject mb-1" style="font-size: 20px">You've been removed from the ring {{ notification.ring.title }}</p>
+                                            </a>
+                                        {% elseif notification.type == 'ring_role_upgrade' %}
+                                            <a href="{{ path('app_note_redirect', {'notificationId': notification.id}) }}" style="text-decoration: none !important; color: white !important;">
+                                                <p class="preview-subject mb-1" style="font-size: 20px">You've been promoted to owner in {{ notification.ring.title }}</p>
                                             </a>
                                         {% else %}
                                             <p class="text-muted ellipsis mb-0">An error has occurred. Please try again later!</p>
