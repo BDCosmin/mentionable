@@ -444,9 +444,25 @@ final class RingController extends AbstractController
 
     #[Route('/ring/{ringId}-{id}/remove-member', name: 'app_ring_remove_member', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_USER')]
-    public function removeMember(int $id, int $ringId, Request $request, EntityManagerInterface $em, RingMemberRepository $ringMemberRepository): Response
+    public function removeMember(
+        int $id,
+        int $ringId,
+        Request $request,
+        EntityManagerInterface $em,
+        RingMemberRepository $ringMemberRepository,
+        UserRepository $userRepository,
+        RingRepository $ringRepository
+    ): Response
     {
-        $ringMember = $ringMemberRepository->findOneBy(['user' => $id, 'ring' => $ringId]);
+        $user = $userRepository->find($id);
+        $ring = $ringRepository->find($ringId);
+
+        if (!$user || !$ring) {
+            $this->addFlash('error', 'User or Ring not found.');
+            return $this->redirectToRoute('app_rings_discover');
+        }
+
+        $ringMember = $ringMemberRepository->findOneBy(['user' => $user, 'ring' => $ring]);
 
         if (!$ringMember) {
             $this->addFlash('error', 'Member not found.');
