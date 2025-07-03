@@ -409,8 +409,8 @@
                                                          alt="banner"
                                                          style="width: 48px; height: 48px; object-fit: cover;">
 
-                                                    <div class="flex-grow-1">
-                                                        <h6 class="mb-0 text-light text-truncate" title="{{ ring.title }}">{{ ring.title }}</h6>
+                                                    <div class="flex-grow-1" style="max-width: calc(100% - 120px);">
+                                                        <h6 class="mb-0 text-light" title="{{ ring.title }}">{{ ring.title }}</h6>
 
                                                         <a href="{{ path('app_interest_show', {'id': ring.interest.id}) }}"
                                                            class="ms-2 align-self-start text-decoration-none"
