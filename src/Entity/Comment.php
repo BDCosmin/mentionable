@@ -158,7 +158,7 @@ class Comment
         } elseif ($interval->d === 0 && $interval->h < 24) {
             return $interval->h . 'h' . ' ago';
         } else {
-            return $publishedDate->format('M d');
+            return $publishedDate->format('M j');
         }
     }
 
