@@ -6,6 +6,7 @@ use App\Entity\FriendRequest;
 use App\Entity\Note;
 use App\Entity\Notification;
 use App\Entity\Comment;
+use App\Entity\Ring;
 use App\Entity\User;
 use App\Repository\FriendRequestRepository;
 use App\Repository\NotificationRepository;
@@ -48,7 +49,7 @@ class NotificationService
         $this->em->flush();
     }
 
-    public function createNotification(User $sender, User $receiver, FriendRequest $friendRequest, string $message, string $link): void
+    public function notifyFriendRequest(User $sender, User $receiver, FriendRequest $friendRequest, string $message, string $link): void
     {
         $notification = new Notification();
         $notification->setSender($sender);
@@ -61,6 +62,46 @@ class NotificationService
         $this->em->persist($friendRequest);
         $this->em->persist($notification);
         $this->em->flush();
+    }
+
+    public function notifyRingMemberKick(?User $sender, ?User $receiver, Ring $ring): Notification
+    {
+        if (!$sender instanceof User || !$receiver instanceof User) {
+            throw new \LogicException('Sender and receiver must be instances of App\Entity\User.');
+        }
+
+        $notification = new Notification();
+        $notification->setSender($sender);
+        $notification->setReceiver($receiver);
+        $notification->setType('ring_kick');
+        $notification->setNotifiedDate(new \DateTime());
+        $notification->setRing($ring);
+        $notification->setIsRead(false);
+
+        $this->em->persist($notification);
+        $this->em->flush();
+
+        return $notification;
+    }
+
+    public function notifyRingRoleUpgrade(?User $sender, ?User $receiver, Ring $ring): Notification
+    {
+        if (!$sender instanceof User || !$receiver instanceof User) {
+            throw new \LogicException('Sender and receiver must be instances of App\Entity\User.');
+        }
+
+        $notification = new Notification();
+        $notification->setSender($sender);
+        $notification->setReceiver($receiver);
+        $notification->setType('ring_role_upgrade');
+        $notification->setNotifiedDate(new \DateTime());
+        $notification->setRing($ring);
+        $notification->setIsRead(false);
+
+        $this->em->persist($notification);
+        $this->em->flush();
+
+        return $notification;
     }
 
     public function notifyComment(?User $sender, ?User $receiver, Comment $comment): void
@@ -79,50 +120,6 @@ class NotificationService
         $notification->setComment($comment);
         $notification->setType('commented');
         $notification->setNote($comment->getNote());
-        $notification->setNotifiedDate(new \DateTime());
-        $notification->setIsRead(false);
-
-        $this->em->persist($notification);
-        $this->em->flush();
-    }
-
-    public function notifyUpvote(?User $sender, ?User $receiver, Note $note): void
-    {
-        if (!$sender instanceof User || !$receiver instanceof User) {
-            throw new \LogicException('Sender and receiver must be instances of App\Entity\User.');
-        }
-
-        if ($sender === $note->getUser()) {
-            return;
-        }
-
-        $notification = new Notification();
-        $notification->setSender($sender);
-        $notification->setReceiver($receiver);
-        $notification->setType('upvoted');
-        $notification->setNote($note);
-        $notification->setNotifiedDate(new \DateTime());
-        $notification->setIsRead(false);
-
-        $this->em->persist($notification);
-        $this->em->flush();
-    }
-
-    public function notifyDownvote(?User $sender, ?User $receiver, Note $note): void
-    {
-        if (!$sender instanceof User || !$receiver instanceof User) {
-            throw new \LogicException('Sender and receiver must be instances of App\Entity\User.');
-        }
-
-        if ($sender === $note->getUser()) {
-            return;
-        }
-
-        $notification = new Notification();
-        $notification->setSender($sender);
-        $notification->setReceiver($receiver);
-        $notification->setType('downvoted');
-        $notification->setNote($note);
         $notification->setNotifiedDate(new \DateTime());
         $notification->setIsRead(false);
 
@@ -173,6 +170,19 @@ class NotificationService
 
         foreach ($notifications as $notification) {
             $notification->setIsRead(true);
+        }
+
+        $this->em->flush();
+    }
+
+    public function clearAll(UserInterface $user): void
+    {
+        $notifications = $this->notificationRepository->findBy([
+            'receiver' => $user,
+        ]);
+
+        foreach ($notifications as $notification) {
+            $this->em->remove($notification);
         }
 
         $this->em->flush();

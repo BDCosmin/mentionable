@@ -708,6 +708,12 @@ class NoteController extends AbstractController
             ]);
         }
 
+        if ($notification->getType() === 'ring_role_upgrade') {
+            return $this->redirectToRoute('app_ring_show', [
+                'id' => $notification->getRing()->getId()
+            ]);
+        }
+
         if ($notification->getLink()) {
             return $this->redirect($notification->getLink());
         }

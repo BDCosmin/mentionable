@@ -41,6 +41,9 @@ class Notification
     #[ORM\OneToOne(targetEntity: FriendRequest::class, cascade: ['persist'])]
     private ?FriendRequest $friendRequest = null;
 
+    #[ORM\ManyToOne(inversedBy: 'notifications')]
+    private ?Ring $ring = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -166,6 +169,18 @@ class Notification
     public function setIsRead(bool $isRead): static
     {
         $this->isRead = $isRead;
+
+        return $this;
+    }
+
+    public function getRing(): ?Ring
+    {
+        return $this->ring;
+    }
+
+    public function setRing(?Ring $ring): static
+    {
+        $this->ring = $ring;
 
         return $this;
     }

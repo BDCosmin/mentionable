@@ -12,10 +12,12 @@ use App\Repository\NoteVoteRepository;
 use App\Repository\RingMemberRepository;
 use App\Repository\RingRepository;
 use App\Repository\UserRepository;
+use App\Service\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Exception\ORMException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -451,7 +453,8 @@ final class RingController extends AbstractController
         EntityManagerInterface $em,
         RingMemberRepository $ringMemberRepository,
         UserRepository $userRepository,
-        RingRepository $ringRepository
+        RingRepository $ringRepository,
+        NotificationService $notificationService
     ): Response
     {
         $user = $userRepository->find($id);
@@ -464,6 +467,9 @@ final class RingController extends AbstractController
 
         $ringMember = $ringMemberRepository->findOneBy(['user' => $user, 'ring' => $ring]);
 
+        $sender = $this->getUser();
+        $receiver = $ringMember->getUser();
+
         if (!$ringMember) {
             $this->addFlash('error', 'Member not found.');
             return $this->redirectToRoute('app_rings_discover');
@@ -474,14 +480,37 @@ final class RingController extends AbstractController
 
         $this->addFlash('success', 'Member deleted successfully.');
 
-        return $this->redirect($request->headers->get('referer') ?? $this->redirectToRoute('app_ring_show', ['ringId' => $ringId]));
+        $notification = $notificationService->notifyRingMemberKick($sender, $receiver, $ring);
+
+        if ($request->isXmlHttpRequest()) {
+            $ringTitle = null;
+            $ringBanner = null;
+            if ($notification->getRing() !== null) {
+                $ringTitle = $notification->getRing()->getTitle();
+                $ringBanner = $notification->getRing()->getBanner();
+            }
+
+            return new JsonResponse([
+                'success' => true,
+                'notification' => [
+                    'ring' => [
+                        'title' => $ringTitle,
+                        'banner' => $ringBanner
+                    ],
+                ]
+            ]);
+        }
+
+        return $this->redirect($request->headers->get('referer') ?? $this->generateUrl('app_ring_show', ['ringId' => $ringId]));
     }
 
     #[Route('/ring/{ringId}-{id}/change-member-role', name: 'app_ring_change_member_role', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_USER')]
-    public function changeRoleMember(int $id, int $ringId, Request $request, EntityManagerInterface $em, RingMemberRepository $ringMemberRepository): Response
+    public function changeRoleMember(int $id, int $ringId, Request $request, RingRepository $ringRepository, NotificationService $notificationService, EntityManagerInterface $em, RingMemberRepository $ringMemberRepository): Response
     {
         $user = $this->getUser();
+        $ring = $ringRepository->find($ringId);
+
         $ringMember = $ringMemberRepository->findOneBy(['user' => $id, 'ring' => $ringId]);
         $currentRingMember = $ringMemberRepository->findOneBy(['user' => $user, 'ring' => $ringId]);
 
@@ -492,6 +521,10 @@ final class RingController extends AbstractController
 
         $ringMember->setRole('owner');
         $currentRingMember->setRole('member');
+
+        $sender = $this->getUser();
+        $receiver = $ringMember->getUser();
+
         $em->persist($ringMember);
         $em->persist($currentRingMember);
 
@@ -499,7 +532,28 @@ final class RingController extends AbstractController
 
         $this->addFlash('success', 'Roles upgraded successfully.');
 
-        return $this->redirect($request->headers->get('referer') ?? $this->redirectToRoute('app_ring_show', ['ringId' => $ringId]));
+        $notification = $notificationService->notifyRingRoleUpgrade($sender, $receiver, $ring);
+
+        if ($request->isXmlHttpRequest()) {
+            $ringTitle = null;
+            $ringBanner = null;
+            if ($notification->getRing() !== null) {
+                $ringTitle = $notification->getRing()->getTitle();
+                $ringBanner = $notification->getRing()->getBanner();
+            }
+
+            return new JsonResponse([
+                'success' => true,
+                'notification' => [
+                    'ring' => [
+                        'title' => $ringTitle,
+                        'banner' => $ringBanner
+                    ],
+                ]
+            ]);
+        }
+
+        return $this->redirect($request->headers->get('referer') ?? $this->generateUrl('app_ring_show', ['ringId' => $ringId]));
     }
 
 }
