@@ -67,13 +67,19 @@ class RegistrationController extends AbstractController
                 $entityManager->persist($user);
                 $entityManager->flush();
 
-                $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
-                    (new TemplatedEmail())
-                        ->from(new Address('cosmindanielbalan@gmail.com', 'NoReply'))
-                        ->to((string) $user->getEmail())
-                        ->subject('Please Confirm your Email')
-                        ->htmlTemplate('registration/confirmation_email.html.twig')
-                );
+                try {
+                    $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
+                        (new TemplatedEmail())
+                            ->from(new Address('noreply@test-z0vklo67jrpl7qrx.mlsender.net', 'Mentionable App'))
+                            ->to((string) $user->getEmail())
+                            ->subject('Please Confirm your Email')
+                            ->htmlTemplate('registration/confirmation_email.html.twig')
+                    );
+                } catch (\Exception $emailException) {
+                    // aici prinzi orice eroare de trimitere email și poți loga sau afișa mesaj
+                    $this->addFlash('error', 'Eroare la trimiterea emailului de confirmare: ' . $emailException->getMessage());
+                    // eventual decizi dacă continui cu logarea userului sau nu
+                }
 
                 $security->login($user, 'form_login', 'main');
 
