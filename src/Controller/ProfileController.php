@@ -73,7 +73,7 @@ class ProfileController extends AbstractController
             }
         }
 
-        // Build rolesMap: noteId => role of note's author in ring (if any)
+        // Build rolesMap: userId + ringId => role
         $rolesMap = [];
         foreach ($notes as $note) {
             $ring = $note->getRing();
@@ -86,7 +86,7 @@ class ProfileController extends AbstractController
                 ]);
 
                 if ($member) {
-                    $rolesMap[$note->getId()] = $member->getRole();
+                    $rolesMap[$author->getId() . '_' . $ring->getId()] = $member->getRole();
                 }
             }
         }
