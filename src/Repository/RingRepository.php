@@ -54,6 +54,19 @@ class RingRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function findByUserOrMemberLimit(User $user, int $limit = 5): array
+    {
+        return $this->createQueryBuilder('r')
+            ->leftJoin('r.ringMembers', 'rm')
+            ->leftJoin('rm.user', 'memberUser')
+            ->where('r.user = :user OR memberUser = :user')
+            ->setParameter('user', $user)
+            ->orderBy('r.createdAt', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
     public function findTopRingsByPopularity(int $limit = 4): array
     {
         return $this->createQueryBuilder('r')
