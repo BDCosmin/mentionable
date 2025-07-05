@@ -50,6 +50,7 @@ class ProfileController extends AbstractController
         $notes = $em->getRepository(Note::class)->findBy(['user' => $user], ['publicationDate' => 'DESC']);
         $interests = $user->getInterests();
         $rings = $ringRepository->findByUserOrMember($user);
+        $ringsMobileDisplay = $ringRepository->findByUserOrMemberLimit($user);
 
         // Build array for notes + mentionedUser
         $notesWithMentionedUser = [];
@@ -73,7 +74,6 @@ class ProfileController extends AbstractController
             }
         }
 
-        // Build rolesMap: userId + ringId => role
         $rolesMap = [];
         foreach ($notes as $note) {
             $ring = $note->getRing();
@@ -100,6 +100,7 @@ class ProfileController extends AbstractController
             'noteVotes' => $noteVotes,
             'votesMap' => $votesMap,
             'rings' => $rings,
+            'ringsMobileDisplay' => $ringsMobileDisplay,
             'roles' => $rolesMap,
         ]);
     }
