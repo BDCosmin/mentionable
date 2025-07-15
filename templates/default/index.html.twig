@@ -15,7 +15,7 @@
             <div class="col-lg-7 m-0 p-0 mb-3" id="errorWhilePosting" style="display: {{ divVisibility }};">
                 <span class="badge bg-danger">{{ error }}</span>
             </div>
-            <a class="col-lg-7 note-launch-link d-flex flex-row p-3 mb-2 mt-4 text-white" style="text-decoration: none; background-color: #181b20; border-radius: 10px;" href="#" data-bs-toggle="modal" data-bs-target="#newNoteModal">
+            <a class="col-lg-7 note-launch-link d-flex flex-row p-3 mb-2 mt-4 text-white" style="text-decoration: none; background-color: #bc7b00; border-radius: 10px;" href="#" data-bs-toggle="modal" data-bs-target="#newNoteModal">
                 <h4 class="m-0 p-0">
                     What's on your mind ...
                 </h4>
@@ -27,25 +27,28 @@
                     <div class="modal-content" style="background-color: #181b20; border-radius: 5px;">
                         <div class="modal-body">
                             <form id="new-note-form" class="forms-sample" method="POST" enctype="multipart/form-data">
+                                <h3 class="text-white mb-4">Write a note</h3>
                                 <div class="form-group mb-3">
-                                    <textarea name="content" id="post-content" placeholder="Write a note..." class="form-control" style="height: 85px;" required></textarea>
+                                    <textarea name="content" id="post-content" class="form-control" style="height: 85px;" required></textarea>
                                 </div>
 
-                                <div class="form-group d-flex flex-row mb-3">
-                                    <a class="btn" style="height: 2.575rem; background-color: #2A3038; border-top-right-radius: 0; border-bottom-right-radius: 0;" tabindex="-1" role="button" aria-disabled="true">
-                                        <p style="font-size: 20px; color: #eaeaea;">@</p>
-                                    </a>
-                                    <input type="text" placeholder="Address to someone" name="nametag" id="nametag" class="form-control" style="border-top-left-radius: 0; border-bottom-left-radius: 0;" required>
-                                </div>
+                                {% if app.user.nametag != 'mentionable' %}
+                                    <div class="form-group d-flex flex-row mb-3">
+                                        <a class="btn" style="height: 2.575rem; background-color: #2A3038; border-top-right-radius: 0; border-bottom-right-radius: 0;" tabindex="-1" role="button" aria-disabled="true">
+                                            <p style="font-size: 20px; color: #eaeaea;">@</p>
+                                        </a>
+                                        <input type="text" placeholder="Address to someone" name="nametag" id="nametag" class="form-control" style="border-top-left-radius: 0; border-bottom-left-radius: 0;" required>
+                                    </div>
+                                {% endif %}
 
                                 <div class="form-group mb-3">
                                     <label for="noteImage" class="form-label text-light">Add image</label>
-                                    <input type="file" class="form-control" id="noteImage" name="image" accept="image/*">
+                                    <input type="file" class="form-control" style="height: auto" id="noteImage" name="image" accept="image/*">
                                 </div>
 
                                 <div class="d-flex justify-content-end">
-                                    <button type="button" class="btn btn-danger me-2" data-bs-dismiss="modal" aria-label="Close">Close</button>
-                                    <button type="submit" class="btn btn-light" style="width: 120px;">Post</button>
+                                    <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal" aria-label="Close">Close</button>
+                                    <button type="submit" class="btn btn-warning" style="width: 120px;">Post</button>
                                 </div>
                             </form>
                         </div>
@@ -91,29 +94,32 @@
                                             <p>View</p>
                                         </a>
                                     </div>
-                                    {% if note.ring %}
-                                        <p class="me-1 mb-1" style="margin-top: -17px">from
-                                            <a href="{{ path('app_ring_show', {'id': note.ring.id}) }}" style="text-decoration: none; color: white">
-                                            {{ note.ring.title }}
-                                            </a>
-                                        </p>
-                                        <div class="d-flex align-items-center" style="gap: 3px; font-size: 13px;">
-                                            <p class="mb-0 text-muted" style="white-space: nowrap;">Role:</p>
-                                            {% set bgColor = rolesMap[note.id] == 'member' ? '#6c757d' : 'orange' %}
-                                            <span style="
-                                                background-color: {{ bgColor }};
-                                                color: white;
-                                                padding: 2px 8px;
-                                                border-radius: 12px;
-                                                font-weight: 600;
-                                                text-transform: capitalize;
-                                                white-space: nowrap;">
-                                                {{ rolesMap[note.id]|default('Member') }}
-                                            </span>
-                                        </div>
+                                    {% if note.user.nametag != 'mentionable' %}
+                                        {% if note.ring %}
+                                            <p class="me-1 mb-1" style="margin-top: -17px">from
+                                                <a href="{{ path('app_ring_show', {'id': note.ring.id}) }}" style="text-decoration: none; color: white">
+                                                {{ note.ring.title }}
+                                                </a>
+                                            </p>
+                                            <div class="d-flex align-items-center" style="gap: 3px; font-size: 13px;">
+                                                <p class="mb-0 text-muted" style="white-space: nowrap;">Role:</p>
+                                                {% set bgColor = rolesMap[note.id] == 'member' ? '#6c757d' : 'orange' %}
+                                                <span style="
+                                                    background-color: {{ bgColor }};
+                                                    color: white;
+                                                    padding: 2px 8px;
+                                                    border-radius: 12px;
+                                                    font-weight: 600;
+                                                    text-transform: capitalize;
+                                                    white-space: nowrap;">
+                                                    {{ rolesMap[note.id]|default('Member') }}
+                                                </span>
+                                            </div>
+                                        {% endif %}
                                     {% endif %}
                                 </div>
                             </div>
+                            {% if note.user.id != 24 or (note.user.id == 24 and app.user.id == 24) %}
                             <div class="dropdown ms-auto mt-1 me-1">
                                 <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fa fa-sort-desc" style="color: white"></i>
@@ -132,13 +138,12 @@
                                                 Delete note
                                             </a>
                                         </li>
-                                    {% else %}
+                                    {% elseif note.user.id != 24 and app.user.nametag != note.user.nametag %}
                                         <li>
                                             <a class="dropdown-item" href="{{ path('app_note_report', {id: note.id}) }}">Report</a>
                                         </li>
                                     {% endif %}
                                 </ul>
-
                                 <div class="modal fade" id="deleteNoteModal" tabindex="-1" aria-labelledby="deleteNoteModalLabel" aria-hidden="true" style="overflow-y: hidden;">
                                     <div class="modal-dialog">
                                         <div class="modal-content border-danger">
@@ -160,6 +165,7 @@
                                     </div>
                                 </div>
                             </div>
+                            {% endif %}
                         </div>
                         {# NOTE CONTENT #}
                         <div class="d-flex flex-row text-gray ps-3 mb-1">
@@ -209,36 +215,41 @@
                                     <span class="comment-count">{{ note.comments|length }}</span>
                                 </button>
 
-                                <div class="ms-2 me-2 pt-1 d-none d-md-block">
-                                    <p class="text-white" style="margin-top: 7px">•</p>
-                                </div>
+                                {% if note.user.nametag != 'mentionable' %}
 
-                                {# NOTE MENTIONED – SHOWN ONLY ON DESKTOP #}
-                                <div class="d-none d-md-block ps-1 pe-1" style="margin-top: 10px">
-                                    <p class="mb-0 mt-0 text-white" style="font-size: 16px">
-                                        mentioned
-                                        {% if note.mentionedUser %}
-                                            <a class="m-0 p-0 text-white" href="{{ path('app_profile', {'id': note.mentionedUser.id}) }}" style="text-decoration: none;">
-                                                <b style="background-color: #2A3038">@{{ note.mentionedUser.nametag }}</b>
-                                            </a>
-                                        {% elseif note.nametag %}
-                                            <b style="background-color: #2A3038">@{{ note.nametag }}</b>
-                                        {% endif %}
-                                    </p>
-                                </div>
+                                    <div class="ms-2 me-2 pt-1 d-none d-md-block">
+                                        <p class="text-white" style="margin-top: 7px">•</p>
+                                    </div>
+
+                                    {# NOTE MENTIONED – SHOWN ONLY ON DESKTOP #}
+                                    <div class="d-none d-md-block ps-1 pe-1" style="margin-top: 10px">
+                                        <p class="mb-0 mt-0 text-white" style="font-size: 16px">
+                                            mentioned
+                                            {% if note.mentionedUser %}
+                                                <a class="m-0 p-0 text-white" href="{{ path('app_profile', {'id': note.mentionedUser.id}) }}" style="text-decoration: none;">
+                                                    <b style="background-color: #2A3038">@{{ note.mentionedUser.nametag }}</b>
+                                                </a>
+                                            {% elseif note.nametag %}
+                                                <b style="background-color: #2A3038">@{{ note.nametag }}</b>
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                {% endif %}
                             </div>
 
                             {# NOTE MENTIONED – SHOWN ONLY ON MOBILE, BELOW BUTTONS #}
-                            <div class="d-block d-md-none w-100 mt-2 ps-3 pe-1 mb-2">
-                                <p class="text-white" style="margin-bottom: -2px; font-size: 16px">
-                                    mentioned
-                                    {% if note.mentionedUser %}
-                                    <a class="m-0 p-0 text-white" href="{{ path('app_profile', {'id': note.mentionedUser.id}) }}" style="text-decoration: none;">
-                                        <b style="background-color: #2A3038">@{{ note.mentionedUser.nametag }}</b>
-                                    </a>
-                                    {% endif %}
-                                </p>
-                            </div>
+                            {% if note.user.nametag != 'mentionable' %}
+                                <div class="d-block d-md-none w-100 mt-2 ps-3 pe-1 mb-2">
+                                    <p class="text-white" style="margin-bottom: -2px; font-size: 16px">
+                                        mentioned
+                                        {% if note.mentionedUser %}
+                                        <a class="m-0 p-0 text-white" href="{{ path('app_profile', {'id': note.mentionedUser.id}) }}" style="text-decoration: none;">
+                                            <b style="background-color: #2A3038">@{{ note.mentionedUser.nametag }}</b>
+                                        </a>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            {% endif %}
                         </div>
 
                         {# NOTE COMMENT #}

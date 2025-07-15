@@ -55,14 +55,13 @@ class ProfileController extends AbstractController
         // Build array for notes + mentionedUser
         $notesWithMentionedUser = [];
         foreach ($notes as $note) {
-            $mentionedUser = $note->getMentionedUser(); // Fetch the User object
+            $mentionedUser = $note->getMentionedUser();
             $notesWithMentionedUser[] = [
                 'note' => $note,
-                'mentionedUser' => $mentionedUser, // Pass the User object, not an ID
+                'mentionedUser' => $mentionedUser,
             ];
         }
 
-        // Build votes map
         $votesMap = [];
         foreach ($noteVotes as $vote) {
             if ($vote->getUser() === $currentUser) {
@@ -91,17 +90,73 @@ class ProfileController extends AbstractController
             }
         }
 
-        return $this->render('profile/index.html.twig', [
-            'user' => $user,
+        if ($user->getId() === 24) {
+            return $this->redirectToRoute('app_profile_mentionable');
+        } else {
+            return $this->render('profile/index.html.twig', [
+                'user' => $user,
+                'notesWithMentionedUser' => $notesWithMentionedUser,
+                'friendRequests' => $friendRequests,
+                'notifications' => $notifications,
+                'interests' => $interests,
+                'noteVotes' => $noteVotes,
+                'votesMap' => $votesMap,
+                'rings' => $rings,
+                'ringsMobileDisplay' => $ringsMobileDisplay,
+                'roles' => $rolesMap,
+            ]);
+        }
+    }
+
+    #[Route('/profile/mentionable/', name: 'app_profile_mentionable')]
+    public function newsPage(
+        FriendRequestRepository $friendRequestRepository,
+        NoteVoteRepository $noteVoteRepository,
+        UserRepository $userRepository,
+        NotificationRepository $notificationRepository,
+        EntityManagerInterface $em,
+    ): Response
+    {
+        $page = $userRepository->findOneBy(['id' => 24]);
+        $currentUser = $this->getUser();
+
+        if (!$page) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $noteVotes = $noteVoteRepository->findBy([]);
+        $notifications = $notificationRepository->findBy(['receiver' => $page]);
+        $notes = $em->getRepository(Note::class)->findBy(['user' => $page], ['publicationDate' => 'DESC']);
+        $interests = $page->getInterests();
+
+        // Build array for notes + mentionedUser
+        $notesWithMentionedUser = [];
+        foreach ($notes as $note) {
+            $mentionedUser = $note->getMentionedUser();
+            $notesWithMentionedUser[] = [
+                'note' => $note,
+                'mentionedUser' => $mentionedUser,
+            ];
+        }
+
+        $votesMap = [];
+        foreach ($noteVotes as $vote) {
+            if ($vote->getUser() === $currentUser) {
+                if ($vote->isUpvoted()) {
+                    $votesMap[$vote->getNote()->getId()] = 'upvote';
+                } elseif ($vote->isDownvoted()) {
+                    $votesMap[$vote->getNote()->getId()] = 'downvote';
+                }
+            }
+        }
+
+        return $this->render('profile/mentionable.html.twig', [
+            'user' => $page,
             'notesWithMentionedUser' => $notesWithMentionedUser,
-            'friendRequests' => $friendRequests,
             'notifications' => $notifications,
             'interests' => $interests,
             'noteVotes' => $noteVotes,
             'votesMap' => $votesMap,
-            'rings' => $rings,
-            'ringsMobileDisplay' => $ringsMobileDisplay,
-            'roles' => $rolesMap,
         ]);
     }
 

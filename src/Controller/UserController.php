@@ -143,6 +143,7 @@ final class UserController extends AbstractController
     #[Route('/friends/add/user/{id}', name: 'app_profile_add_friend', methods: ['POST'])]
     public function addFriend(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager,NotificationService $notificationService): Response
     {
+        $user = $this->getUser();
         $friend = null;
 
         if ($request->request->has('friend_id')) {
@@ -156,7 +157,6 @@ final class UserController extends AbstractController
             return $this->redirectToRoute('app_profile', ['id' => $friend->getId()]);
         }
 
-        $user = $this->getUser();
         if ($user->getId() === $friend->getId()) {
             $this->addFlash('error', 'You cannot add yourself as a friend.');
             return $this->redirectToRoute('app_profile', ['id' => $user->getId()]);
@@ -172,43 +172,59 @@ final class UserController extends AbstractController
             'receiver' => $friend,
         ]);
 
-        if ($existingRequest) {
-            $this->addFlash('error', 'Friend request already sent to this user.');
+        // Check if it is for 'mentionable' page or not
+        if ($friend->getId() != 24) {
+            if ($existingRequest) {
+                $this->addFlash('error', 'Friend request already sent to this user.');
+                return $this->redirectToRoute('app_profile', ['id' => $friend->getId()]);
+            }
+
+            $friendRequest = new FriendRequest();
+            $friendRequest->setSender($user);
+            $friendRequest->setReceiver($friend);
+
+            $message = sprintf('%s sent you a friend request from', $user->getNametag());
+            $link = '/profile';
+
+            $notificationService->notifyFriendRequest(
+                $user,
+                $friend,
+                $friendRequest,
+                $message,
+                $link
+            );
+
+            $entityManager->persist($friendRequest);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Friend request sent successfully!');
+
             return $this->redirectToRoute('app_profile', ['id' => $friend->getId()]);
-        }
+        } else {
+            if ($existingRequest) {
+                $this->addFlash('error', 'Page already followed.');
+                return $this->redirectToRoute('app_profile', ['id' => $friend->getId()]);
+            }
 
-        $incomingRequest = $entityManager->getRepository(FriendRequest::class)->findOneBy([
-            'sender' => $friend,
-            'receiver' => $user,
-        ]);
+            $friendRequest = new FriendRequest();
+            $friendRequest->setSender($user);
+            $friendRequest->setReceiver($friend);
 
-        if ($incomingRequest) {
-            $this->addFlash('error', 'This user has already sent you a friend request.');
+            $entityManager->persist($friendRequest);
+
+            $sender = $friendRequest->getSender();
+            $receiver = $friendRequest->getReceiver();
+            $user->addFriend($receiver);
+            $friend->addFriend($sender);
+
+            $entityManager->persist($user);
+            $entityManager->persist($receiver);
+
+            $entityManager->flush();
+
             return $this->redirectToRoute('app_profile', ['id' => $friend->getId()]);
+
         }
-
-        $friendRequest = new FriendRequest();
-        $friendRequest->setSender($user);
-        $friendRequest->setReceiver($friend);
-
-        $message = sprintf('%s sent you a friend request from',$user->getNametag());
-        $link = '/profile';
-
-        $notificationService->notifyFriendRequest(
-            $user,
-            $friend,
-            $friendRequest,
-            $message,
-            $link
-        );
-
-
-        $entityManager->persist($friendRequest);
-        $entityManager->flush();
-
-        $this->addFlash('success', 'Friend request sent successfully!');
-
-        return $this->redirectToRoute('app_profile', ['id' => $friend->getId()]);
     }
 
     #[Route('/friends/accept/user/{id}', name: 'app_profile_accept_friend')]
@@ -275,11 +291,16 @@ final class UserController extends AbstractController
     public function removeFriend(Request $request, User $friend, EntityManagerInterface $entityManager): Response
     {
         $user = $this->getUser();
+        $friendCopy = $friend;
+
         $user->removeFriend($friend);
         $entityManager->persist($user);
         $entityManager->flush();
 
-        $this->addFlash('success', 'Friend removed successfully!');
+        // Check if it is for 'mentionable' page or not
+        if ($friendCopy->getId() != 24) {
+            $this->addFlash('success', 'Friend removed successfully!');
+        }
 
         return $this->redirect($request->headers->get('referer'));
     }
