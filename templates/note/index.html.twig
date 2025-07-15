@@ -149,38 +149,42 @@
                                         <span class="comment-count">{{ note.comments|length }}</span>
                                     </button>
 
-                                    <div class="ms-2 me-2 pt-1 d-none d-md-block">
-                                        <p class="text-white" style="margin-top: 7px">•</p>
+                                    {% if note.user.nametag != 'mentionable' %}
+                                        <div class="ms-2 me-2 pt-1 d-none d-md-block">
+                                            <p class="text-white" style="margin-top: 7px">•</p>
+                                        </div>
+
+                                        {# NOTE MENTIONED – SHOWN ONLY ON DESKTOP #}
+                                        <div class="d-none d-md-block ps-1 pe-1" style="margin-top: 10px">
+                                            <p class="mb-0 mt-0 text-white" style="font-size: 16px">
+                                                mentioned
+                                                {% if note.mentionedUser %}
+                                                    <a class="m-0 p-0 text-white" href="{{ path('app_profile', {'id': note.mentionedUser.id}) }}" style="text-decoration: none;">
+                                                        <b style="background-color: #2A3038">@{{ note.mentionedUser.nametag }}</b>
+                                                    </a>
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                    {% endif %}
                                     </div>
 
-                                    {# NOTE MENTIONED – SHOWN ONLY ON DESKTOP #}
-                                    <div class="d-none d-md-block ps-1 pe-1" style="margin-top: 10px">
-                                        <p class="mb-0 mt-0 text-white" style="font-size: 16px">
-                                            mentioned
-                                            {% if note.mentionedUser %}
-                                                <a class="m-0 p-0 text-white" href="{{ path('app_profile', {'id': note.mentionedUser.id}) }}" style="text-decoration: none;">
-                                                    <b style="background-color: #2A3038">@{{ note.mentionedUser.nametag }}</b>
-                                                </a>
-                                            {% endif %}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                {# NOTE MENTIONED – SHOWN ONLY ON MOBILE, BELOW BUTTONS #}
-                                <div class="d-block d-md-none w-100 mt-2 ps-3 pe-1 mb-2">
-                                    <p class="text-white" style="margin-bottom: -2px; font-size: 16px">
-                                        mentioned
-                                        {% if note.mentionedUser %}
-                                            <a class="m-0 p-0 text-white" href="{{ path('app_profile', {'id': note.mentionedUser.id}) }}" style="text-decoration: none;">
-                                                <b style="background-color: #2A3038">@{{ note.mentionedUser.nametag }}</b>
-                                            </a>
-                                        {% endif %}
-                                    </p>
-                                </div>
+                                    {# NOTE MENTIONED – SHOWN ONLY ON MOBILE, BELOW BUTTONS #}
+                                    {% if note.user.nametag != 'mentionable' %}
+                                        <div class="d-block d-md-none w-100 mt-2 ps-3 pe-1 mb-2">
+                                            <p class="text-white" style="margin-bottom: -2px; font-size: 16px">
+                                                mentioned
+                                                {% if note.mentionedUser %}
+                                                    <a class="m-0 p-0 text-white" href="{{ path('app_profile', {'id': note.mentionedUser.id}) }}" style="text-decoration: none;">
+                                                        <b style="background-color: #2A3038">@{{ note.mentionedUser.nametag }}</b>
+                                                    </a>
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                    {% endif %}
                             </div>
 
                             {# NOTE COMMENT #}
-                            <div class="note-comments" id="comments-{{ note.id }}" style="display: none;">
+                            <div class="note-comments pt-3" id="comments-{{ note.id }}" style="display: none;">
                                 {# WRITING COMMENT FORM #}
                                 <form method="POST" action="{{ path('note_comment', {id: note.id}) }}" class="ajax-comment-form" data-note-id="{{ note.id }}">
                                     <div class="d-flex flex-row mb-3">

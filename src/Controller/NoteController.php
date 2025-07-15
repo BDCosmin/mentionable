@@ -75,54 +75,8 @@ class NoteController extends AbstractController
 
         if ($request->isMethod('POST')) {
             $content = $request->request->get('content');
-            $mentionedNametag = $request->request->get('nametag');
-            $receiver = $em->getRepository(User::class)->findOneBy(['nametag' => $mentionedNametag]);
 
-            $member = null;
-            if ($ringId && $receiver) {
-                $member = $ringMemberRepository->findOneBy(['ring' => $ring, 'user' => $receiver]);
-            }
-
-            if (empty(trim($content)) || empty(trim($mentionedNametag)) || $mentionedNametag === $user->getNametag()) {
-                $error = 'Error: Invalid input or you can’t post a note to yourself.';
-            } elseif ($ringId && !$member) {
-                $error = 'Error: The person you try to mention is not part of this ring.';
-            } elseif (!$receiver) {
-                $error = 'Error: The nametag you entered does not exist.';
-            }
-
-            if ($error !== '') {
-                if ($request->isXmlHttpRequest()) {
-                    return new JsonResponse(['status' => 'error', 'message' => $error], 400);
-                }
-
-                $template = $ringId ? 'ring/page.html.twig' : 'default/index.html.twig';
-                return $this->render($template, [
-                    'error' => $error,
-                    'divVisibility' => 'block',
-                    'notes' => $notes,
-                    'noteVotes' => $noteVotes,
-                    'votesMap' => $votesMap,
-                    'ring' => $ring,
-                    'members' => $members,
-                    'ringNotes' => $ringNotes,
-                ]);
-            }
-
-            $note = new Note();
-            $note->setUser($user);
-            $note->setContent($content);
-            $note->setNametag($mentionedNametag);
-            $note->setIsEdited(false);
-            $note->setPublicationDate(new \DateTime());
-
-            if ($ringId) {
-                $note->setRing($ring);
-                $note->setIsFromRing(true);
-            }
-
-            $note->setMentionedUser($receiver);
-
+            $fileName = '';
             $noteImageFile = $request->files->get('image');
             if ($noteImageFile) {
                 $originalFilename = pathinfo($noteImageFile->getClientOriginalName(), PATHINFO_FILENAME);
@@ -130,13 +84,81 @@ class NoteController extends AbstractController
                 $newFilename = $safeFilename . '-' . uniqid() . '.' . $noteImageFile->guessExtension();
 
                 $noteImageFile->move($this->getParameter('notes_directory'), $newFilename);
-                $note->setImage($newFilename);
+                $fileName = $newFilename;
             }
 
-            $em->persist($note);
-            $em->flush();
+            // Verify if posted from the 'mentionable' account
+            if ($user->getId() != 24)
+            {
+                $mentionedNametag = $request->request->get('nametag');
+                $receiver = $em->getRepository(User::class)->findOneBy(['nametag' => $mentionedNametag]);
 
-            $notificationService->notifyNote($user, $receiver, $note);
+                $member = null;
+                if ($ringId && $receiver) {
+                    $member = $ringMemberRepository->findOneBy(['ring' => $ring, 'user' => $receiver]);
+                }
+
+                if (empty(trim($content)) || empty(trim($mentionedNametag)) || $mentionedNametag === $user->getNametag()) {
+                    $error = 'Error: Invalid input or you can’t post a note to yourself.';
+                } elseif ($ringId && !$member) {
+                    $error = 'Error: The person you try to mention is not part of this ring.';
+                } elseif (!$receiver) {
+                    $error = 'Error: The nametag you entered does not exist.';
+                }
+
+                if ($error !== '') {
+                    if ($request->isXmlHttpRequest()) {
+                        return new JsonResponse(['status' => 'error', 'message' => $error], 400);
+                    }
+
+                    $template = $ringId ? 'ring/page.html.twig' : 'default/index.html.twig';
+                    return $this->render($template, [
+                        'error' => $error,
+                        'divVisibility' => 'block',
+                        'notes' => $notes,
+                        'noteVotes' => $noteVotes,
+                        'votesMap' => $votesMap,
+                        'ring' => $ring,
+                        'members' => $members,
+                        'ringNotes' => $ringNotes,
+                    ]);
+                }
+
+                $note = new Note();
+                $note->setUser($user);
+                $note->setContent($content);
+                $note->setNametag($mentionedNametag);
+                $note->setIsEdited(false);
+                $note->setPublicationDate(new \DateTime());
+                $note->setImage($fileName);
+
+                if ($ringId) {
+                    $note->setRing($ring);
+                    $note->setIsFromRing(true);
+                }
+
+                $note->setMentionedUser($receiver);
+
+                $em->persist($note);
+                $em->flush();
+
+                $notificationService->notifyNote($user, $receiver, $note);
+
+            } else {
+                $mentionedNametag = 'null';
+
+                $note = new Note();
+                $note->setUser($user);
+                $note->setContent($content);
+                $note->setNametag($mentionedNametag);
+                $note->setIsEdited(false);
+                $note->setPublicationDate(new \DateTime());
+                $note->setImage($fileName);
+
+                $em->persist($note);
+                $em->flush();
+
+            }
 
             if ($request->isXmlHttpRequest()) {
                 $html = $this->renderView('note/_note_partial.html.twig', ['note' => $note]);
