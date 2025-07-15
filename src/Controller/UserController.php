@@ -210,15 +210,11 @@ final class UserController extends AbstractController
             $friendRequest->setSender($user);
             $friendRequest->setReceiver($friend);
 
+            $user->addFriend($friend);
+            $friend->addFriend($user);
+
             $entityManager->persist($friendRequest);
-
-            $sender = $friendRequest->getSender();
-            $receiver = $friendRequest->getReceiver();
-            $user->addFriend($receiver);
-            $friend->addFriend($sender);
-
-            $entityManager->persist($user);
-            $entityManager->persist($receiver);
+            $entityManager->remove($friendRequest);
 
             $entityManager->flush();
 
