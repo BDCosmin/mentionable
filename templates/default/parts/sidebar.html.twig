@@ -43,6 +43,16 @@
                 <span class="menu-title">My profile</span>
             </a>
         </li>
+        {% if is_granted('ROLE_ADMIN') %}
+            <li class="nav-item menu-items">
+                <a class="nav-link" href="{{ path('admin_dashboard') }}">
+                    <span class="menu-icon">
+                        <i class='fa fa-dashboard'></i>
+                    </span>
+                    <span class="menu-title">Admin</span>
+                </a>
+            </li>
+        {% endif %}
         <li class="nav-item menu-items {% if app.request.attributes.get('_route') == 'app_user_notes' %}active{% endif %}">
             <a class="nav-link" href="{{ path('app_user_notes') }}">
                 <span class="menu-icon">
@@ -73,6 +83,14 @@
                     <li class="nav-item"> <a class="nav-link" href="{{ path('app_my_rings', {'id': app.user.id}) }}">My communities</a></li>
                 </ul>
             </div>
+        </li>
+        <li class="nav-item menu-items">
+            <a class="nav-link" href="{{ path('app_profile_mentionable') }}">
+                <span class="menu-icon">
+                    <i class='bx bx-newspaper'></i>
+                </span>
+                <span class="menu-title">News</span>
+            </a>
         </li>
         <li class="nav-item menu-items">
             <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#donationsModal">
