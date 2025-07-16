@@ -439,14 +439,18 @@
                                                                 </div>
                                                                 <div class="d-flex flex-row align-items-center mt-1">
                                                                     <small style="font-size: 14px; color: white; background-color: #757575; border-radius: 8px; opacity: 0.5; padding: 4px;">{{ comment.message }}</small>
-                                                                    <button
-                                                                            class="btn btn-sm btn-outline-light d-flex align-items-center border-0 ms-2 comment-upvote-btn"
+                                                                    <button class="btn btn-sm d-flex align-items-center border-0 ms-2 comment-upvote-btn
+                                                                            {% if commentVotesMap is defined and commentVotesMap[comment.id] is defined and commentVotesMap[comment.id] == 'upvote' %}
+                                                                                    btn-light
+                                                                            {% else %}
+                                                                                btn-outline-light
+                                                                            {% endif %}"
+                                                                            type="button"
                                                                             data-note-id="{{ item.note.id }}"
                                                                             data-comment-id="{{ comment.id }}"
-                                                                            data-csrf="{{ csrf_token('vote') }}"
-                                                                            type="button">
-                                                                        <i class='bx bx-arrow-up' style="font-size: 16px;"></i>
-                                                                        <span id="comment-upvotes-{{ comment.id }}" class="ms-1" style="font-size: 12px;">{{ comment.upVote ?? 0 }}</span>
+                                                                            data-csrf="{{ csrf_token('vote') }}">
+                                                                        <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
+                                                                        <span id="comment-upvotes-{{ comment.id }}" class="ms-1">{{ comment.upVote ?? 0 }}</span>
                                                                     </button>
                                                                 </div>
                                                             </div>

@@ -234,12 +234,16 @@
                                                 <div class="d-inline-flex">
                                                     <small style="font-size: 16px; color: white; background-color: #757575; border-radius: 8px; opacity: 0.5; padding: 5px;">{{ comment.message }}</small>
                                                     {# UPVOTE FORM #}
-                                                    <button
-                                                            class="btn btn-sm btn-outline-light d-flex align-items-center border-0 comment-upvote-btn"
+                                                    <button class="btn btn-sm d-flex align-items-center border-0 comment-upvote-btn
+                                                            {% if commentVotesMap is defined and commentVotesMap[comment.id] is defined and commentVotesMap[comment.id] == 'upvote' %}
+                                                                    btn-light
+                                                            {% else %}
+                                                                btn-outline-light
+                                                            {% endif %}"
+                                                            type="button"
                                                             data-note-id="{{ note.id }}"
                                                             data-comment-id="{{ comment.id }}"
-                                                            data-csrf="{{ csrf_token('vote') }}"
-                                                            type="button">
+                                                            data-csrf="{{ csrf_token('vote') }}">
                                                         <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
                                                         <span id="comment-upvotes-{{ comment.id }}" class="ms-1">{{ comment.upVote ?? 0 }}</span>
                                                     </button>

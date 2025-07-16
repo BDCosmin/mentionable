@@ -2,7 +2,9 @@
 
 namespace App\Repository;
 
+use App\Entity\Comment;
 use App\Entity\CommentVote;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -40,4 +42,14 @@ class CommentVoteRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+    public function findOneByUserAndComment(User $user, Comment $comment): ?CommentVote
+    {
+        return $this->createQueryBuilder('nv')
+            ->andWhere('nv.user = :user')
+            ->andWhere('nv.comment = :comment')
+            ->setParameter('user', $user)
+            ->setParameter('comment', $comment)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

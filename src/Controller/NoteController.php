@@ -44,6 +44,7 @@ class NoteController extends AbstractController
         NotificationService $notificationService,
         NoteRepository $noteRepository,
         NoteVoteRepository $noteVoteRepository,
+        CommentVoteRepository $commentVoteRepository,
         SluggerInterface $slugger,
         RingRepository $ringRepository,
         RingMemberRepository $ringMemberRepository
@@ -66,10 +67,19 @@ class NoteController extends AbstractController
 
         $noteVotes = $noteVoteRepository->findBy([]);
         $votesMap = [];
-
         foreach ($noteVotes as $vote) {
             if ($vote->getUser() === $user) {
                 $votesMap[$vote->getNote()->getId()] = $vote->isUpvoted() ? 'upvote' : 'downvote';
+            }
+        }
+
+        $commentVotes = $commentVoteRepository->findBy(['user' => $user]);
+        $commentVotesMap = [];
+
+        foreach ($commentVotes as $vote) {
+            $commentId = $vote->getComment()->getId();
+            if ($vote->isUpvoted()) {
+                $commentVotesMap[$commentId] = 'upvote';
             }
         }
 
@@ -118,6 +128,7 @@ class NoteController extends AbstractController
                         'notes' => $notes,
                         'noteVotes' => $noteVotes,
                         'votesMap' => $votesMap,
+                        'commentVotesMap' => $commentVotesMap,
                         'ring' => $ring,
                         'members' => $members,
                         'ringNotes' => $ringNotes,
@@ -145,7 +156,7 @@ class NoteController extends AbstractController
                 $notificationService->notifyNote($user, $receiver, $note);
 
             } else {
-                $mentionedNametag = 'null';
+                $mentionedNametag = 'NULL';
 
                 $note = new Note();
                 $note->setUser($user);
@@ -308,6 +319,7 @@ class NoteController extends AbstractController
         int $noteId,
         NoteRepository $noteRepository,
         NoteVoteRepository $noteVoteRepository,
+        CommentVoteRepository $commentVoteRepository,
         RingMemberRepository $ringMemberRepository,
     ): Response
     {
@@ -346,6 +358,15 @@ class NoteController extends AbstractController
             }
         }
 
+        $commentVotes = $commentVoteRepository->findBy(['user' => $user]);
+        $commentVotesMap = [];
+        foreach ($commentVotes as $vote) {
+            $commentId = $vote->getComment()->getId();
+            if ($vote->isUpvoted()) {
+                $commentVotesMap[$commentId] = 'upvote';
+            }
+        }
+
         $comments = $note->getComments();
         $mentionedUser = $note->getMentionedUser();
 
@@ -354,6 +375,7 @@ class NoteController extends AbstractController
             'note' => $note,
             'comments' => $comments,
             'votesMap' => $votesMap,
+            'commentVotesMap' => $commentVotesMap,
             'mentionedUser' => $mentionedUser,
             'role' => $role,
         ]);
@@ -506,8 +528,9 @@ class NoteController extends AbstractController
     }
 
     #[Route('/note/{id}/comment', name: 'note_comment', methods: ['POST'])]
-    public function comment(Note $note, Request $request, EntityManagerInterface $em, NotificationService $notificationService): Response
+    public function comment(Note $note, Request $request, EntityManagerInterface $em, CommentVoteRepository $commentVoteRepository, NotificationService $notificationService): Response
     {
+        $user = $this->getUser();
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
         $comment = new Comment();
@@ -521,11 +544,21 @@ class NoteController extends AbstractController
 
         $receiver = $note->getUser();
 
-        $notificationService->notifyComment($this->getUser(), $receiver, $comment);
+        $notificationService->notifyComment($user, $receiver, $comment);
 
         if ($request->isXmlHttpRequest()) {
+            $commentVotes = $commentVoteRepository->findBy(['user' => $user]);
+            $commentVotesMap = [];
+
+            foreach ($commentVotes as $vote) {
+                if ($vote->isUpvoted()) {
+                    $commentVotesMap[$vote->getComment()->getId()] = 'upvote';
+                }
+            }
+
             $html = $this->renderView('comment/partial.html.twig', [
                 'comment' => $comment,
+                'commentVotesMap' => $commentVotesMap,
             ]);
 
             return new JsonResponse([
