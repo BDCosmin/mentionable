@@ -676,8 +676,9 @@ class NoteController extends AbstractController
             return $this->redirectToRoute('homepage');
         }
 
-        return $this->render('note/report.html.twig', [
+        return $this->render('comment/report.html.twig', [
             'note' => $note,
+            'comment' => $comment,
             'formActionRoute' => 'note_comment_report',
             'routeParams' => ['id' => $id, 'noteId' => $noteId]
         ]);
