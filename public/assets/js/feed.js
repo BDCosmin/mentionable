@@ -17,7 +17,6 @@ const voteHandler = (noteId, type) => {
                 const downBtn = document.querySelector(`.downvote-btn[data-id="${noteId}"]`);
 
                 if (type === 'upvote') {
-                    // Toggle activ
                     if (upBtn.classList.contains('btn-light')) {
                         upBtn.classList.remove('btn-light');
                         upBtn.classList.add('btn-outline-light');
@@ -86,7 +85,6 @@ document.querySelectorAll('.ajax-comment-form').forEach(form => {
                         countSpan.textContent = (parseInt(countSpan.textContent) || 0) + 1;
                     }
 
-                    // NU atașa event listener separat aici!
                 }
             })
             .catch(err => console.error('Comment error:', err));
@@ -94,15 +92,12 @@ document.querySelectorAll('.ajax-comment-form').forEach(form => {
 });
 
 function handleDeleteComment(deleteBtn, event) {
-    // deleteBtn e <a> cu clasa delete-comment-btn
     const commentElement = deleteBtn.closest('.d-flex.flex-row.mb-3');
     if (!commentElement) return;
 
-    // Ia url din atributul href al linkului
     const url = deleteBtn.getAttribute('href');
     if (!url) return;
 
-    // Ia noteId dintr-un container părinte cu data-note-id
     const noteContainer = commentElement.closest('[data-note-id]');
     if (!noteContainer) return;
 
@@ -120,17 +115,16 @@ function handleDeleteComment(deleteBtn, event) {
             if (data.success) {
                 commentElement.remove();
 
-                // Actualizează contorul
                 const countSpan = document.querySelector(`.toggle-comments[data-note-id="${noteId}"] .comment-count`);
                 if (countSpan) {
                     const current = parseInt(countSpan.textContent || '0');
                     countSpan.textContent = Math.max(0, current - 1).toString();
                 }
             } else {
-                alert('A apărut o eroare la ștergerea comentariului.');
+                alert('An error has occurred while deleting the comment.');
             }
         })
-        .catch(err => console.error('Eroare ștergere:', err));
+        .catch(err => console.error('Deleting error:', err));
 }
 
 document.addEventListener('click', function (e) {
@@ -141,13 +135,49 @@ document.addEventListener('click', function (e) {
     handleDeleteComment(deleteBtn, e);
 });
 
+// document.querySelectorAll('.comment-upvote-btn').forEach(btn => {
+//     btn.addEventListener('click', function (e) {
+//         e.preventDefault();
+//         const noteId = this.dataset.noteId;
+//         const commentId = this.dataset.commentId;
+//         const csrfToken = this.dataset.csrf;
+//
+//         fetch(`/note/comment/${noteId}-${commentId}/upvote`, {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json',
+//                 'X-Requested-With': 'XMLHttpRequest',
+//                 'X-CSRF-TOKEN': csrfToken
+//             }
+//         })
+//             .then(res => res.json())
+//             .then(data => {
+//                 if (data.success) {
+//                     document.querySelector(`#comment-upvotes-${commentId}`).textContent = data.upvotes;
+//
+//                     if (btn.classList.contains('btn-light')) {
+//                         btn.classList.remove('btn-light');
+//                         btn.classList.add('btn-outline-light');
+//                     } else {
+//                         btn.classList.add('btn-light');
+//                         btn.classList.remove('btn-outline-light');
+//                     }
+//                 } else {
+//                     console.error(data.message || 'Unknown error');
+//                 }
+//             })
+//             .catch(err => console.error('Fetch error:', err));
+//     });
+// });
 
-document.querySelectorAll('.comment-upvote-btn').forEach(btn => {
-    btn.addEventListener('click', function (e) {
+document.addEventListener('click', function (e) {
+    if (e.target.closest('.comment-upvote-btn')) {
         e.preventDefault();
-        const noteId = this.dataset.noteId;
-        const commentId = this.dataset.commentId;
-        const csrfToken = this.dataset.csrf;
+        const btn = e.target.closest('.comment-upvote-btn');
+        const noteId = btn.dataset.noteId;
+        const commentId = btn.dataset.commentId;
+        const csrfToken = btn.dataset.csrf;
+
         fetch(`/note/comment/${noteId}-${commentId}/upvote`, {
             method: 'POST',
             headers: {
@@ -160,12 +190,20 @@ document.querySelectorAll('.comment-upvote-btn').forEach(btn => {
             .then(data => {
                 if (data.success) {
                     document.querySelector(`#comment-upvotes-${commentId}`).textContent = data.upvotes;
+
+                    if (btn.classList.contains('btn-light')) {
+                        btn.classList.remove('btn-light');
+                        btn.classList.add('btn-outline-light');
+                    } else {
+                        btn.classList.add('btn-light');
+                        btn.classList.remove('btn-outline-light');
+                    }
                 } else {
-                    console.error(data.message || 'Eroare necunoscută');
+                    console.error(data.message || 'Unknown error');
                 }
             })
             .catch(err => console.error('Fetch error:', err));
-    });
+    }
 });
 
     document.addEventListener("DOMContentLoaded", function () {
@@ -212,8 +250,6 @@ document.querySelectorAll('.comment-upvote-btn').forEach(btn => {
     suggestionsBox.style.display = 'none';
     input.focus();
 });
-
-    // Optional: ascunde sugestiile dacă se dă click în afara inputului/sugestiilor
     document.addEventListener('click', function(e) {
     if (!input.contains(e.target) && !suggestionsBox.contains(e.target)) {
     suggestionsBox.style.display = 'none';
