@@ -6,6 +6,7 @@ use App\Entity\FriendRequest;
 use App\Entity\Note;
 use App\Entity\Notification;
 use App\Entity\User;
+use App\Repository\CommentVoteRepository;
 use App\Repository\FriendRequestRepository;
 use App\Repository\NoteVoteRepository;
 use App\Repository\NotificationRepository;
@@ -24,6 +25,7 @@ final class DefaultController extends AbstractController
     public function index(
         EntityManagerInterface $em,
         NoteVoteRepository $noteVoteRepository,
+        CommentVoteRepository $commentVoteRepository,
         RingMemberRepository $ringMemberRepository
     ): Response {
         $error = ' ';
@@ -65,6 +67,15 @@ final class DefaultController extends AbstractController
             }
         }
 
+        $commentVotes = $commentVoteRepository->findBy(['user' => $user]);
+        $commentVotesMap = [];
+        foreach ($commentVotes as $vote) {
+            $commentId = $vote->getComment()->getId();
+            if ($vote->isUpvoted()) {
+                $commentVotesMap[$commentId] = 'upvote';
+            }
+        }
+
         foreach ($notes as $note) {
             if ($note->getMentionedUser() === null && $note->getNametag()) {
                 $mentionedUser = $em->getRepository(User::class)->findOneBy(['nametag' => $note->getNametag()]);
@@ -81,6 +92,7 @@ final class DefaultController extends AbstractController
             'notes' => $notes,
             'currentUserNametag' => $user->getNametag(),
             'votesMap' => $votesMap,
+            'commentVotesMap' => $commentVotesMap,
             'divVisibility' => 'none',
             'error' => $error,
             'rolesMap' => $rolesMap

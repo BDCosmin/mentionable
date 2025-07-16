@@ -12,8 +12,8 @@
         </div>
         {# CENTERED CONTAINER #}
         <div class="row justify-content-center mb-4">
-            <div class="col-lg-7 m-0 p-0 mb-3" id="errorWhilePosting" style="display: {{ divVisibility }};">
-                <span class="badge bg-danger">{{ error }}</span>
+            <div class="col-lg-7 m-0 p-0 mb-3" id="errorWhilePosting" style="display: none;">
+                <span id="errorMessage" class="badge bg-danger"></span>
             </div>
             <a class="col-lg-7 note-launch-link d-flex flex-row p-3 mb-2 mt-4 text-white" style="text-decoration: none; background-color: #bc7b00; border-radius: 10px;" href="#" data-bs-toggle="modal" data-bs-target="#newNoteModal">
                 <h4 class="m-0 p-0">
@@ -289,12 +289,16 @@
                                         <div class="d-inline-flex">
                                             <small style="font-size: 16px; color: white; background-color: #757575; border-radius: 8px; opacity: 0.5; padding: 5px;">{{ comment.message }}</small>
                                             {# UPVOTE FORM #}
-                                            <button
-                                                    class="btn btn-sm btn-outline-light ms-2 d-flex align-items-center border-0 comment-upvote-btn"
-                                                    data-note-id="{{ note.id }}"
+                                            <button class="btn btn-sm ms-2 d-flex align-items-center border-0 comment-upvote-btn
+                                                    {% if commentVotesMap is defined and commentVotesMap[comment.id] is defined and commentVotesMap[comment.id] == 'upvote' %}
+                                                            btn-light
+                                                    {% else %}
+                                                        btn-outline-light
+                                                    {% endif %}"
+                                                    type="button"
+                                                    data-note-id="{{ comment.note.id }}"
                                                     data-comment-id="{{ comment.id }}"
-                                                    data-csrf="{{ csrf_token('vote') }}"
-                                                    type="button">
+                                                    data-csrf="{{ csrf_token('vote') }}">
                                                 <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
                                                 <span id="comment-upvotes-{{ comment.id }}" class="ms-1">{{ comment.upVote ?? 0 }}</span>
                                             </button>
@@ -349,7 +353,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     commentSection.style.display = "none";
                 }
             } else {
-                console.error("Nu s-a găsit elementul pentru comentarii cu id: comments-" + noteId);
+                console.error("The comment with the following id was not found: comments-" + noteId);
             }
         });
     });
@@ -359,16 +363,15 @@ document.addEventListener("DOMContentLoaded", function () {
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     $('#new-note-form').on('submit', function (e) {
-        e.preventDefault(); // prevenim redirectul paginii
+        e.preventDefault();
         let form = $('#new-note-form')[0];
         let formData = new FormData(form);
 
-        // Arată loading și notează timpul start
         $('#loading-spinner').show();
         const startTime = Date.now();
 
         $.ajax({
-            url: "{{ path('app_note_new') }}", // Symfony route
+            url: "{{ path('app_note_new') }}",
             type: 'POST',
             data: formData,
             processData: false,
@@ -389,8 +392,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
             },
             error: function (xhr) {
+                const modalEl = document.getElementById('newNoteModal');
+                modalEl.classList.remove('show');
+                modalEl.style.display = 'none';
+                document.body.classList.remove('modal-open');
+                $('.modal-backdrop').remove();
+
                 $('#loading-spinner').hide();
-                alert('Error while posting note.');
+
+                let errors = 'Unexpected error occurred.';
+
+                if (xhr.responseJSON) {
+
+                    if (xhr.responseJSON.message) {
+                        errors = xhr.responseJSON.message;
+                    }
+
+                    else if (xhr.responseJSON.errors) {
+                        errors = xhr.responseJSON.errors.join('<br>');
+                    }
+                }
+
+                $('#errorMessage').html(errors);
+                $('#errorWhilePosting').show();
             }
         });
     });

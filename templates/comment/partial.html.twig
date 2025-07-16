@@ -26,12 +26,18 @@
             </small>
 
             {# UPVOTE BUTTON (opțional) #}
-            <button class="btn btn-sm btn-outline-light d-flex align-items-center border-0 upvote-btn"
+            <button class="btn btn-sm d-flex align-items-center border-0 comment-upvote-btn
+                    {% if commentVotesMap is defined and commentVotesMap[comment.id] is defined and commentVotesMap[comment.id] == 'upvote' %}
+                            btn-light
+                    {% else %}
+                        btn-outline-light
+                    {% endif %}"
                     type="button"
-                    data-id="{{ comment.id }}"
-                    data-csrf="{{ csrf_token('upvote_comment') }}">
+                    data-note-id="{{ comment.note.id }}"
+                    data-comment-id="{{ comment.id }}"
+                    data-csrf="{{ csrf_token('vote') }}">
                 <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
-                <span class="ms-1">{{ comment.upVote ?? 0 }}</span>
+                <span id="comment-upvotes-{{ comment.id }}" class="ms-1">{{ comment.upVote ?? 0 }}</span>
             </button>
         </div>
     </div>

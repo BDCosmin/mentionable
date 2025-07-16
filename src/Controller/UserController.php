@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\FriendRequest;
 use App\Entity\Notification;
 use App\Entity\User;
+use App\Repository\CommentVoteRepository;
 use App\Repository\FriendRequestRepository;
 use App\Repository\NoteRepository;
 use App\Repository\NoteVoteRepository;
@@ -44,6 +45,7 @@ final class UserController extends AbstractController
     public function myNotes(
         NoteRepository $noteRepository,
         NoteVoteRepository $noteVoteRepository,
+        CommentVoteRepository $commentVoteRepository,
         FriendRequestRepository $friendRequestRepository,
         NotificationService $notificationService,
         EntityManagerInterface $em,
@@ -95,6 +97,15 @@ final class UserController extends AbstractController
             }
         }
 
+        $commentVotes = $commentVoteRepository->findBy(['user' => $user]);
+        $commentVotesMap = [];
+        foreach ($commentVotes as $vote) {
+            $commentId = $vote->getComment()->getId();
+            if ($vote->isUpvoted()) {
+                $commentVotesMap[$commentId] = 'upvote';
+            }
+        }
+
         return $this->render('user/index.html.twig', [
             'user' => $user,
             'notesCount' => $notesCount,
@@ -102,6 +113,7 @@ final class UserController extends AbstractController
             'notifications' => $notifications,
             'friendRequests' => $friendRequests,
             'noteVotes' => $noteVotes,
+            'commentVotesMap' => $commentVotesMap,
             'votesMap' => $votesMap,
             'notesWithMentionedUser' => $notesWithMentionedUser,
             'rolesMap' => $rolesMap

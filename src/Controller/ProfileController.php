@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Interest;
 use App\Entity\Note;
+use App\Repository\CommentVoteRepository;
 use App\Repository\InterestRepository;
 use App\Repository\NoteRepository;
 use App\Repository\NoteVoteRepository;
@@ -31,6 +32,7 @@ class ProfileController extends AbstractController
         FriendRequestRepository $friendRequestRepository,
         RingRepository $ringRepository,
         NoteVoteRepository $noteVoteRepository,
+        CommentVoteRepository $commentVoteRepository,
         UserRepository $userRepository,
         NotificationRepository $notificationRepository,
         EntityManagerInterface $em,
@@ -52,7 +54,6 @@ class ProfileController extends AbstractController
         $rings = $ringRepository->findByUserOrMember($user);
         $ringsMobileDisplay = $ringRepository->findByUserOrMemberLimit($user);
 
-        // Build array for notes + mentionedUser
         $notesWithMentionedUser = [];
         foreach ($notes as $note) {
             $mentionedUser = $note->getMentionedUser();
@@ -90,6 +91,15 @@ class ProfileController extends AbstractController
             }
         }
 
+        $commentVotes = $commentVoteRepository->findBy(['user' => $currentUser]);
+        $commentVotesMap = [];
+        foreach ($commentVotes as $vote) {
+            $commentId = $vote->getComment()->getId();
+            if ($vote->isUpvoted()) {
+                $commentVotesMap[$commentId] = 'upvote';
+            }
+        }
+
         if ($user->getId() === 24) {
             return $this->redirectToRoute('app_profile_mentionable');
         } else {
@@ -100,6 +110,7 @@ class ProfileController extends AbstractController
                 'notifications' => $notifications,
                 'interests' => $interests,
                 'noteVotes' => $noteVotes,
+                'commentVotesMap' => $commentVotesMap,
                 'votesMap' => $votesMap,
                 'rings' => $rings,
                 'ringsMobileDisplay' => $ringsMobileDisplay,
@@ -112,6 +123,7 @@ class ProfileController extends AbstractController
     public function newsPage(
         FriendRequestRepository $friendRequestRepository,
         NoteVoteRepository $noteVoteRepository,
+        CommentVoteRepository $commentVoteRepository,
         UserRepository $userRepository,
         NotificationRepository $notificationRepository,
         EntityManagerInterface $em,
@@ -150,12 +162,22 @@ class ProfileController extends AbstractController
             }
         }
 
+        $commentVotes = $commentVoteRepository->findBy(['user' => $currentUser]);
+        $commentVotesMap = [];
+        foreach ($commentVotes as $vote) {
+            $commentId = $vote->getComment()->getId();
+            if ($vote->isUpvoted()) {
+                $commentVotesMap[$commentId] = 'upvote';
+            }
+        }
+
         return $this->render('profile/mentionable.html.twig', [
             'user' => $page,
             'notesWithMentionedUser' => $notesWithMentionedUser,
             'notifications' => $notifications,
             'interests' => $interests,
             'noteVotes' => $noteVotes,
+            'commentVotesMap' => $commentVotesMap,
             'votesMap' => $votesMap,
         ]);
     }
