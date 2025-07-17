@@ -400,6 +400,7 @@ class NoteController extends AbstractController
             $noteReport->setType($reason);
             $noteReport->setStatus('pending');
             $noteReport->setCreationDate(new \DateTime());
+            $noteReport->setReporterId($this->getUser()->getId());
 
             $notification = new Notification();
             $notification->setNote($note);
@@ -662,6 +663,7 @@ class NoteController extends AbstractController
             $commentReport->setType($reason);
             $commentReport->setStatus('pending');
             $commentReport->setCreationDate(new \DateTime());
+            $commentReport->setReporterId($this->getUser()->getId());
 
             $notification = new Notification();
             $notification->setNote($note);

@@ -26,6 +26,20 @@ class CommentReport
     #[ORM\Column]
     private ?\DateTime $creationDate = null;
 
+    #[ORM\Column(type: 'integer')]
+    private ?int $reporterId = null;
+
+    public function getReporterId(): ?int
+    {
+        return $this->reporterId;
+    }
+
+    public function setReporterId(int $reporterId): static
+    {
+        $this->reporterId = $reporterId;
+        return $this;
+    }
+
     public function getHumanTimeCommentReport(): string
     {
         $creationDate = $this->getCreationDate();
