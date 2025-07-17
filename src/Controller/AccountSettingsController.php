@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Info;
 use App\Entity\User;
 use App\Form\ChangeNametagTypeForm;
 use App\Form\ChangePasswordType;
@@ -42,7 +43,6 @@ final class AccountSettingsController extends AbstractController
 
                 $user->setAvatar($newFilename);
             }
-
 
             $entityManager->persist($user);
             $entityManager->flush();
@@ -103,16 +103,13 @@ final class AccountSettingsController extends AbstractController
 
         if ($this->isCsrfTokenValid('delete_user', $request->request->get('_token'))) {
 
-            // Logout user: șterge tokenul de autentificare
             $tokenStorage->setToken(null);
 
-            // Șterge user-ul din DB
             $em->remove($user);
             $em->flush();
 
             $this->addFlash('success', 'Your account has been deleted.');
 
-            // Redirect către login (sau altă pagină publică)
             return $this->redirectToRoute('app_login');
         }
 

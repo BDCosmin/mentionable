@@ -398,6 +398,8 @@ class NoteController extends AbstractController
             $noteReport = new NoteReport();
             $noteReport->setNote($note);
             $noteReport->setType($reason);
+            $noteReport->setStatus('pending');
+            $noteReport->setCreationDate(new \DateTime());
 
             $notification = new Notification();
             $notification->setNote($note);
@@ -658,6 +660,8 @@ class NoteController extends AbstractController
             $commentReport = new CommentReport();
             $commentReport->setComment($comment);
             $commentReport->setType($reason);
+            $commentReport->setStatus('pending');
+            $commentReport->setCreationDate(new \DateTime());
 
             $notification = new Notification();
             $notification->setNote($note);

@@ -330,7 +330,7 @@
                 {# RING NOTES #}
                 <div class="row d-flex justify-content-center mb-4" style="background-color: #181b20; border-radius: 5px;">
                     <div class="col-12 p-3">
-                        <div class="ms-md-5 ms-1 mb-2 text-muted" style="font-size: 13px">
+                        <div class="ms-md-5 ms-1 text-muted" style="font-size: 13px">
                             -- NOTES --
                         </div>
                         <div id="note-error-message" class="alert alert-danger mt-2 d-none"></div>
@@ -344,7 +344,7 @@
                             {# NOTE #}
                             {% if ringNotes is defined and ringNotes|length > 0 %}
                                 {% for item in ringNotes %}
-                                    <div class="col-lg-10 pt-4 ps-4 pe-4 pb-3" style="background-color: #181b20; border-radius: 5px; margin-top: 2rem;">
+                                    <div class="col-lg-10 pt-4 ps-4 pe-4 pb-3" style="background-color: #2d343a; border-radius: 5px; margin-top: 1rem;">
                                         {# NOTE PROFILE #}
                                         <div class="navbar-profile d-flex flex-row text-light mb-3" style="width: 100%;">
                                             <a class="nav-link me-3 mt-2" id="avatarNote" href="{{ path('app_profile', {'id': item.note.user.id}) }}">
@@ -492,7 +492,7 @@
                                                 </div>
                                             </div>
                                             {# NOTE MENTIONED – SHOWN ONLY ON MOBILE #}
-                                            <div class="d-block d-md-none w-100 mt-2 ps-3 pe-1 mb-2">
+                                            <div class="d-block d-md-none w-100 mt-3 ps-3 pe-1 mb-2">
                                                 <p class="text-white" style="margin-bottom: -2px; font-size: 16px">
                                                     mentioned
                                                     {% if item.mentionedUser %}
@@ -504,7 +504,7 @@
                                             </div>
                                         </div>
                                         {# NOTE COMMENT #}
-                                        <div class="note-comments" id="comments-{{ item.note.id }}" style="display: none;">
+                                        <div class="note-comments pt-3" id="comments-{{ item.note.id }}" style="display: none;">
                                             {% if isMember %}
                                                 {# WRITING COMMENT FORM #}
                                                 <form method="POST" action="{{ path('note_comment', {id: item.note.id}) }}" class="ajax-comment-form" data-note-id="{{ item.note.id }}">
@@ -513,7 +513,7 @@
                                                             <img class="img-xs rounded-circle" src="{{ asset('Uploads/avatars/' ~ app.user.avatar)}}" alt="writeCommentAvatar" onerror="showDefaultIcon(this)">
                                                         </a>
                                                         <div class="d-flex flex-row w-100">
-                                                            <input type="text" name="message" class="form-control comment-input mb-1" placeholder="Write a comment..." required>
+                                                            <input type="text" style="background-color: #272b33" name="message" class="form-control comment-input mb-1" placeholder="Write a comment..." required>
                                                             <div class="d-flex justify-content-end">
                                                                 <button type="submit" class="btn btn-light btn-sm px-3" style="height: 40px;">Post</button>
                                                             </div>
