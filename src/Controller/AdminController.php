@@ -90,36 +90,45 @@ final class AdminController extends AbstractController
         NoteReportRepository $noteReportRepository,
         CommentReportRepository $commentReportRepository,
         EntityManagerInterface $em,
+        UserRepository $userRepository, // trebuie să injectezi repo-ul user
     ): Response
     {
         $report = $noteReportRepository->find($id);
-        $type = 'note';
         $note = null;
         $comment = null;
 
         if ($report) {
             $note = $report->getNote();
+            $reporterId = $report->getReporterId() ?? 0; // presupunem că ai getter pentru reporterId (integer)
         } else {
             $report = $commentReportRepository->find($id);
             if (!$report) {
                 throw $this->createNotFoundException('Report not found.');
             }
-            $type = 'comment';
             $comment = $report->getComment();
             $note = $comment?->getNote();
+            $reporterId = $report->getReporterId() ?? 0;
+        }
+
+        // fallback: dacă nu există reporterId valid, trimite notificarea la admin sau la tine însuți
+        $receiver = null;
+        if ($reporterId > 0) {
+            $receiver = $userRepository->find($reporterId);
+        }
+        if (!$receiver) {
+            $receiver = $this->getUser(); // ca fallback să nu dea eroare
         }
 
         $notification = new Notification();
         $notification->setType('closed_report');
         $notification->setSender($this->getUser());
-        $notification->setReceiver($report->getUser());
+        $notification->setReceiver($receiver);
         $notification->setNotifiedDate(new \DateTime());
         $notification->setIsRead(false);
 
         if ($note) {
             $notification->setNote($note);
         }
-
         if ($comment) {
             $notification->setComment($comment);
         }
@@ -130,8 +139,6 @@ final class AdminController extends AbstractController
 
         $this->addFlash('success', "Report marked as done.");
 
-        return $this->render('admin/reports.html.twig', [
-            'report' => $report,
-        ]);
+        return $this->redirectToRoute('admin_show_reports');
     }
 }
