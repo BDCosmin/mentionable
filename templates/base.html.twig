@@ -79,6 +79,13 @@
                     }
                 </script>
 
+                 <script>
+                    function showDefaultUser(img) {
+                        const wrapper = img.parentNode;
+                       wrapper.innerHTML = `<img src="{{ asset("assets/images/media/default.jpg") }}" class="img-fluid mt-1 mb-1" style="width: 40px; height: auto; alt="default-avatar-image"/>`;
+                    }
+                </script>
+
                 <script>
                     document.addEventListener('DOMContentLoaded', function () {
                         var deleteNoteModal = document.getElementById('deleteNoteModal');

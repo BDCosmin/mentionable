@@ -754,6 +754,10 @@ class NoteController extends AbstractController
             $notificationService->markOneAsRead($user, $notification);
         }
 
+        if (in_array($notification->getType(), ['reported', 'closed_report'])) {
+            return $this->redirectToRoute('app_user_notifications');
+        }
+
         if ($notification->getNote()) {
             return $this->redirectToRoute('app_note_show', ['noteId' => $notification->getNote()->getId()]);
         }
