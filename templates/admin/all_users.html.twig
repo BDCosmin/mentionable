@@ -89,11 +89,11 @@
                                 </table>
                                 {% for user in users %}
                                     <!-- Modal kick user management -->
-                                    <div class="modal fade" id="userKickManagement{{ user.id }}" tabindex="-1" aria-labelledby="userKickManagementLabel{{ user.id }}" aria-hidden="true" style="overflow-y: hidden;">
+                                    <div class="modal fade" id="userKickManagement{{ user.id }}" tabindex="-1" aria-labelledby="userKickManagementLabel{{ user.id }}">
                                         <div class="modal-dialog" style="max-width: 850px;">
                                             <div class="modal-content" style="background-color: #181b20; border-radius: 5px;">
                                                 <div class="modal-header bg-warning text-white">
-                                                    <h5 class="modal-title" id="deleteNoteModalLabel">Confirm kicking the user {{ user.nametag }}</h5>
+                                                    <h5 class="modal-title" id="userKickManagementLabel{{ user.id }}">Confirm kicking the user {{ user.nametag }}</h5>
                                                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
                                                 <div class="modal-body">
@@ -110,11 +110,11 @@
                                         </div>
                                     </div>
                                     <!-- Modal ban user management -->
-                                    <div class="modal fade" id="userBanManagement{{ user.id }}" tabindex="-1" aria-labelledby="userBanManagementLabel{{ user.id }}" aria-hidden="true" style="overflow-y: hidden;">
+                                    <div class="modal fade" id="userBanManagement{{ user.id }}" tabindex="-1" aria-labelledby="userBanManagementLabel{{ user.id }}">
                                         <div class="modal-dialog" style="max-width: 850px;">
                                             <div class="modal-content" style="background-color: #181b20; border-radius: 5px;">
                                                 <div class="modal-header bg-danger text-white">
-                                                    <h5 class="modal-title" id="deleteNoteModalLabel">Confirm banning the user {{ user.nametag }}</h5>
+                                                    <h5 class="modal-title" id="userBanManagementLabel{{ user.id }}">Confirm banning the user {{ user.nametag }}</h5>
                                                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
                                                 <div class="modal-body">
@@ -131,7 +131,7 @@
                                         </div>
                                     </div>
                                     <!-- Modal unban user management -->
-                                    <div class="modal fade" id="userUnbanManagement{{ user.id }}" tabindex="-1" aria-labelledby="userUnbanManagementLabel{{ user.id }}" aria-hidden="true" style="overflow-y: hidden;">
+                                    <div class="modal fade" id="userUnbanManagement{{ user.id }}" tabindex="-1" aria-labelledby="userUnbanManagementLabel{{ user.id }}">
                                         <div class="modal-dialog" style="max-width: 850px;">
                                             <div class="modal-content" style="background-color: #181b20; border-radius: 5px;">
                                                 <div class="modal-header bg-success text-white">
@@ -159,4 +159,18 @@
             </div>
         </div>
     </div>
+{% endblock %}
+{% block javascript %}
+{{ parent() }}
+<script>
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('hide.bs.modal', () => {
+            const focused = document.activeElement;
+            if (modal.contains(focused)) {
+                focused.blur();
+                document.body.focus();
+            }
+        });
+    });
+</script>
 {% endblock %}
