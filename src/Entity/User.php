@@ -118,6 +118,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: RingMembers::class, mappedBy: 'user')]
     private Collection $ringMembers;
 
+    #[ORM\Column(type: 'boolean')]
+    private bool $isBanned = false;
+
     public function __construct()
     {
         $this->notes = new ArrayCollection();
@@ -148,6 +151,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->email = $email;
 
+        return $this;
+    }
+
+    public function isBanned(): bool
+    {
+        return $this->isBanned;
+    }
+
+    public function setIsBanned(bool $isBanned): self
+    {
+        $this->isBanned = $isBanned;
         return $this;
     }
 
