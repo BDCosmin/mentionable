@@ -15383,6 +15383,10 @@ textarea.is-invalid.tt-hint, .select2-container--default .select2-selection--sin
   box-shadow: var(--bs-focus-ring-x, 0) var(--bs-focus-ring-y, 0) var(--bs-focus-ring-blur, 0) var(--bs-focus-ring-width) var(--bs-focus-ring-color);
 }
 
+.bannedUser {
+  color: rgba(255, 255, 255, 0.46);
+}
+
 .icon-link {
   display: inline-flex;
   gap: 0.375rem;
