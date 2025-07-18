@@ -43,7 +43,13 @@ final class AdminController extends AbstractController
         }, $commentReports);
 
         $reports = array_merge($typedNoteReports, $typedCommentReports);
+
+        usort($reports, function ($a, $b) {
+            return $b['data']->getCreationDate() <=> $a['data']->getCreationDate();
+        });
+
         $reports = array_slice($reports, 0, 5);
+
 
         return $this->render('admin/index.html.twig', [
             'users' => $users,
@@ -78,6 +84,10 @@ final class AdminController extends AbstractController
 
         $reports = array_merge($typedNoteReports, $typedCommentReports);
 
+        usort($reports, function ($a, $b) {
+            return $b['data']->getCreationDate() <=> $a['data']->getCreationDate();
+        });
+
         return $this->render('admin/reports.html.twig', [
             'reportsNumber' => $reportsNumber,
             'reports' => $reports,
@@ -85,12 +95,12 @@ final class AdminController extends AbstractController
     }
 
     #[Route('/admin/report/{id}/done', name: 'admin_action_done_reports', methods: ['GET', 'POST'])]
-    public function actionReports(
+    public function actionDoneReports(
         int $id,
         NoteReportRepository $noteReportRepository,
         CommentReportRepository $commentReportRepository,
         EntityManagerInterface $em,
-        UserRepository $userRepository, // trebuie să injectezi repo-ul user
+        UserRepository $userRepository,
     ): Response
     {
         $report = $noteReportRepository->find($id);
@@ -99,7 +109,7 @@ final class AdminController extends AbstractController
 
         if ($report) {
             $note = $report->getNote();
-            $reporterId = $report->getReporterId() ?? 0; // presupunem că ai getter pentru reporterId (integer)
+            $reporterId = $report->getReporterId() ?? 0;
         } else {
             $report = $commentReportRepository->find($id);
             if (!$report) {
@@ -110,13 +120,12 @@ final class AdminController extends AbstractController
             $reporterId = $report->getReporterId() ?? 0;
         }
 
-        // fallback: dacă nu există reporterId valid, trimite notificarea la admin sau la tine însuți
         $receiver = null;
         if ($reporterId > 0) {
             $receiver = $userRepository->find($reporterId);
         }
         if (!$receiver) {
-            $receiver = $this->getUser(); // ca fallback să nu dea eroare
+            $receiver = $this->getUser();
         }
 
         $notification = new Notification();
@@ -140,5 +149,39 @@ final class AdminController extends AbstractController
         $this->addFlash('success', "Report marked as done.");
 
         return $this->redirectToRoute('admin_show_reports');
+    }
+
+    #[Route('/admin/report/{id}/none', name: 'admin_action_none_reports', methods: ['GET', 'POST'])]
+    public function actionNoneReports(
+        int $id,
+        NoteReportRepository $noteReportRepository,
+        EntityManagerInterface $em,
+    ): Response
+    {
+        $report = $noteReportRepository->find($id);
+
+        $report->setStatus('done');
+        $em->persist($report);
+        $em->flush();
+
+        $this->addFlash('success', "Report marked as done.");
+
+        return $this->redirectToRoute('admin_show_reports');
+    }
+
+    #[Route('/admin/all-users', name: 'admin_show_users', methods: ['GET', 'POST'])]
+    public function showUsers(
+        UserRepository $userRepository,
+        NoteRepository $noteRepository,
+        RingRepository $ringRepository,
+        NoteReportRepository $noteReportRepository,
+        CommentReportRepository $commentReportRepository,
+    ): Response
+    {
+        $users = $userRepository->findBy([], ['creationDate' => 'DESC']);
+
+        return $this->render('admin/all_users.html.twig', [
+            'users' => $users,
+        ]);
     }
 }

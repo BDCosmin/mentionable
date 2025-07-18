@@ -314,9 +314,14 @@
                         let link = `/notification/${notification.id}/redirect`;
                         let extraAttributes = '';
                         let ringTitle = notification.ring ? notification.ring.title : '';
-                        const imgSrc = notification.ring?.banner
-                            ? `/uploads/rings/${notification.ring.banner}`
-                            : `/uploads/avatars/${notification.avatar ?? 'default.jpg'}`;
+                        const isClosedReport = notification.type === 'closed_report' || notification.type === 'reported';
+
+                        const imgSrc = isClosedReport
+                            ? null
+                            : (notification.ring?.banner
+                                ? `/uploads/rings/${notification.ring.banner}`
+                                : `/uploads/avatars/${notification.avatar ?? 'default.jpg'}`);
+
 
                         switch (notification.type) {
                             case 'mentioned':
@@ -345,6 +350,10 @@
                                 title = `Your anonymous report has been sent!`;
                                 subtitle = "We will review it shortly.";
                                 break;
+                            case 'closed_report':
+                                title = `Update regarding your anonymous report!`;
+                                subtitle = "We took action against the content reported.";
+                                break;
                             case 'ring_kick':
                                 title = `You've been removed from this ring`;
                                 subtitle = `${ringTitle}`;
@@ -368,7 +377,12 @@
                         notificationList.innerHTML += `
                         <a class="dropdown-item preview-item" ${extraAttributes}>
                             <div class="preview-thumbnail">
-                                <img class="preview-icon bg-dark rounded-circle" src="${imgSrc}" alt="avatarNotif" onerror="showDefaultIcon(this)">
+                                ${isClosedReport
+                            ? `<div class="preview-icon bg-dark rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                 <i class='bx bx-mail-open' style='color: lightgrey; font-size: 20px'></i>
+                               </div>`
+                            : `<img class="preview-icon bg-dark rounded-circle" src="${imgSrc}" alt="avatarNotif" onerror="showDefaultIcon(this)">`
+                        }
                             </div>
                             <div class="preview-item-content">
                                 <p class="preview-subject mb-1">${title}</p>
