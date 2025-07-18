@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Notification;
+use App\Entity\User;
 use App\Repository\CommentReportRepository;
 use App\Repository\NoteReportRepository;
 use App\Repository\NoteRepository;
@@ -10,6 +11,7 @@ use App\Repository\RingRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -183,5 +185,50 @@ final class AdminController extends AbstractController
         return $this->render('admin/all_users.html.twig', [
             'users' => $users,
         ]);
+    }
+
+    #[Route('/admin/user/{id}/kick', name: 'admin_user_kick', methods: ['POST'])]
+    public function kickUser(EntityManagerInterface $em, Request $request, User $user): Response
+    {
+        if (!$this->isCsrfTokenValid('kick-user-' . $user->getId(), $request->request->get('_token'))) {
+            $this->addFlash('error', 'Token invalid.');
+            return $this->redirectToRoute('admin_show_users');
+        }
+
+        $em->remove($user);
+        $em->flush();
+
+        $this->addFlash('success', 'The user has been kicked.');
+        return $this->redirectToRoute('admin_show_users');
+    }
+
+    #[Route('/admin/user/{id}/ban', name: 'admin_user_ban', methods: ['POST'])]
+    public function banUser(EntityManagerInterface $em, Request $request, User $user): Response
+    {
+        if (!$this->isCsrfTokenValid('ban-user-' . $user->getId(), $request->request->get('_token'))) {
+            $this->addFlash('error', 'Token invalid.');
+            return $this->redirectToRoute('admin_show_users');
+        }
+
+        $user->setIsBanned(true);
+        $em->flush();
+
+        $this->addFlash('success', 'The user has been banned.');
+        return $this->redirectToRoute('admin_show_users');
+    }
+
+    #[Route('/admin/user/{id}/unban', name: 'admin_user_unban', methods: ['POST'])]
+    public function unbanUser(EntityManagerInterface $em, Request $request, User $user): Response
+    {
+        if (!$this->isCsrfTokenValid('unban-user-' . $user->getId(), $request->request->get('_token'))) {
+            $this->addFlash('error', 'Token invalid.');
+            return $this->redirectToRoute('admin_show_users');
+        }
+
+        $user->setIsBanned(false);
+        $em->flush();
+
+        $this->addFlash('success', 'The user has been unbanned.');
+        return $this->redirectToRoute('admin_show_users');
     }
 }
