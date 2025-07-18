@@ -83,212 +83,79 @@
                                                     {% endif %}
                                                 </td>
                                             </tr>
-                                            <!-- Modal kick user management -->
-                                            <div class="modal fade" id="userKickManagement{{ user.id }}" tabindex="-1" aria-labelledby="userKickManagementLabel{{ user.id }}" aria-hidden="true" style="overflow-y: hidden;">
-                                                <div class="modal-dialog" style="max-width: 850px;">
-                                                    <div class="modal-content" style="background-color: #181b20; border-radius: 5px;">
-                                                        <div class="modal-header bg-warning text-white">
-                                                            <h5 class="modal-title" id="deleteNoteModalLabel">Confirm kicking the user {{ user.nametag }}</h5>
-                                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            Are you sure you want to kick this user? This action would result in deleting the user's account and they will be able to register back under the same credentials.
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <form method="post" id="deleteUserForm" action="{{ path('admin_user_kick', {'id': user.id}) }}">
-                                                                <input type="hidden" name="_token" value="{{ csrf_token('kick-user-' ~ user.id) }}">
-                                                                <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
-                                                                <button type="submit" class="btn btn-warning">Kick</button>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- Modal ban user management -->
-                                            <div class="modal fade" id="userBanManagement{{ user.id }}" tabindex="-1" aria-labelledby="userBanManagementLabel{{ user.id }}" aria-hidden="true" style="overflow-y: hidden;">
-                                                <div class="modal-dialog" style="max-width: 850px;">
-                                                    <div class="modal-content" style="background-color: #181b20; border-radius: 5px;">
-                                                        <div class="modal-header bg-danger text-white">
-                                                            <h5 class="modal-title" id="deleteNoteModalLabel">Confirm banning the user {{ user.nametag }}</h5>
-                                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            Are you sure you want to ban this user? This action would not delete the user's account but instead, it would result in suspending all the website's features for the user until further review from admins.
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <form method="post" id="banUserForm" action="{{ path('admin_user_ban', {'id': user.id}) }}">
-                                                                <input type="hidden" name="_token" value="{{ csrf_token('ban-user-' ~ user.id) }}">
-                                                                <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
-                                                                <button type="submit" class="btn btn-danger">Ban</button>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- Modal unban user management -->
-                                            <div class="modal fade" id="userUnbanManagement{{ user.id }}" tabindex="-1" aria-labelledby="userUnbanManagementLabel{{ user.id }}" aria-hidden="true" style="overflow-y: hidden;">
-                                                <div class="modal-dialog" style="max-width: 850px;">
-                                                    <div class="modal-content" style="background-color: #181b20; border-radius: 5px;">
-                                                        <div class="modal-header bg-success text-white">
-                                                            <h5 class="modal-title" id="userUnbanManagementLabel{{ user.id }}">Confirm unbanning the user {{ user.nametag }}</h5>
-                                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            Are you sure you want to unban this user? This will restore the user's access to the website.
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <form method="post" action="{{ path('admin_user_unban', {'id': user.id}) }}">
-                                                                <input type="hidden" name="_token" value="{{ csrf_token('unban-user-' ~ user.id) }}">
-                                                                <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
-                                                                <button type="submit" class="btn btn-success">Unban</button>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
                                         {% endfor %}
                                     {% endif %}
                                     </tbody>
                                 </table>
+                                {% for user in users %}
+                                    <!-- Modal kick user management -->
+                                    <div class="modal fade" id="userKickManagement{{ user.id }}" tabindex="-1" aria-labelledby="userKickManagementLabel{{ user.id }}" aria-hidden="true" style="overflow-y: hidden;">
+                                        <div class="modal-dialog" style="max-width: 850px;">
+                                            <div class="modal-content" style="background-color: #181b20; border-radius: 5px;">
+                                                <div class="modal-header bg-warning text-white">
+                                                    <h5 class="modal-title" id="deleteNoteModalLabel">Confirm kicking the user {{ user.nametag }}</h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Are you sure you want to kick this user? This action would result in deleting the user's account and they will be able to register back under the same credentials.
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <form method="post" id="deleteUserForm" action="{{ path('admin_user_kick', {'id': user.id}) }}">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('kick-user-' ~ user.id) }}">
+                                                        <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="submit" class="btn btn-warning">Kick</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Modal ban user management -->
+                                    <div class="modal fade" id="userBanManagement{{ user.id }}" tabindex="-1" aria-labelledby="userBanManagementLabel{{ user.id }}" aria-hidden="true" style="overflow-y: hidden;">
+                                        <div class="modal-dialog" style="max-width: 850px;">
+                                            <div class="modal-content" style="background-color: #181b20; border-radius: 5px;">
+                                                <div class="modal-header bg-danger text-white">
+                                                    <h5 class="modal-title" id="deleteNoteModalLabel">Confirm banning the user {{ user.nametag }}</h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Are you sure you want to ban this user? This action would not delete the user's account but instead, it would result in suspending all the website's features for the user until further review from admins.
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <form method="post" id="banUserForm" action="{{ path('admin_user_ban', {'id': user.id}) }}">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('ban-user-' ~ user.id) }}">
+                                                        <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="submit" class="btn btn-danger">Ban</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Modal unban user management -->
+                                    <div class="modal fade" id="userUnbanManagement{{ user.id }}" tabindex="-1" aria-labelledby="userUnbanManagementLabel{{ user.id }}" aria-hidden="true" style="overflow-y: hidden;">
+                                        <div class="modal-dialog" style="max-width: 850px;">
+                                            <div class="modal-content" style="background-color: #181b20; border-radius: 5px;">
+                                                <div class="modal-header bg-success text-white">
+                                                    <h5 class="modal-title" id="userUnbanManagementLabel{{ user.id }}">Confirm unbanning the user {{ user.nametag }}</h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Are you sure you want to unban this user? This will restore the user's access to the website.
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <form method="post" action="{{ path('admin_user_unban', {'id': user.id}) }}">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('unban-user-' ~ user.id) }}">
+                                                        <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="submit" class="btn btn-success">Unban</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
                             </div>
                         </div>
                     </div>
                 </div>
-                {# USERS LIST #}
-{#                <div class="row justify-content-center mb-4">#}
-{#                    #}{# USERS #}
-{#                    {% if users is defined and users is not empty %}#}
-{#                        {% for user in users %}#}
-{#                            <div class="preview-item border-bottom d-flex flex-row mt-3">#}
-{#                                {% if report.type == 'note' %}#}
-{#                                    <a href="{{ path('app_note_show', {'noteId': report.data.note.id}) }}" style="text-decoration: none">#}
-{#                                        <div class="preview-thumbnail" style="width: 30px">#}
-{#                                            <div class="preview-icon">#}
-{#                                                <i class="mdi mdi-file-document"></i>#}
-{#                                            </div>#}
-{#                                        </div>#}
-{#                                    </a>#}
-{#                                {% else %}#}
-{#                                    <a href="{{ path('app_note_show', {'noteId': report.data.comment.note.id}) }}" style="text-decoration: none">#}
-{#                                        <div class="preview-thumbnail" style="width: 30px">#}
-{#                                            <div class="preview-icon">#}
-{#                                                <i class="mdi mdi-file-document"></i>#}
-{#                                            </div>#}
-{#                                        </div>#}
-{#                                    </a>#}
-{#                                {% endif %}#}
-{#                                <div class="preview-item-content d-sm-flex flex-grow">#}
-{#                                    <div class="flex-grow">#}
-{#                                        {% if report.type == 'note' %}#}
-{#                                            <a href="{{ path('app_note_show', {'noteId': report.data.note.id}) }}" style="text-decoration: none">#}
-{#                                                <h5 class="text-white mb-0">Note Report</h5>#}
-{#                                            </a>#}
-{#                                            {% if report.data.type == 'spam' %}#}
-{#                                                <p class="text-danger mb-0">Reason: Spam</p>#}
-{#                                            {% elseif report.data.type == 'harassment' %}#}
-{#                                                <p class="text-danger mb-0">Reason: Harassment</p>#}
-{#                                            {% elseif report.data.type == 'false_info' %}#}
-{#                                                <p class="text-danger mb-0">Reason: False information</p>#}
-{#                                            {% elseif report.data.type == 'other' %}#}
-{#                                                <p class="text-danger mb-0">Reason: Others</p>#}
-{#                                            {% elseif report.data.type == 'bad_language' %}#}
-{#                                                <p class="text-danger mb-0">Reason: Bad Language</p>#}
-{#                                            {% else %}#}
-{#                                                <p class="text-success mb-0">Error showing reason</p>#}
-{#                                            {% endif %}#}
-{#                                            <p>#}
-{#                                                Content preview:#}
-{#                                                <span class="text-muted">{{ report.data.note.content|slice(0, 80) }}...</span>#}
-{#                                            </p>#}
-{#                                            <div class="text-sm-right pt-2 pt-sm-0">#}
-{#                                                <p class="text-muted">{{ report.data.humanTimePostReport }}</p>#}
-{#                                            </div>#}
-{#                                        {% else %}#}
-{#                                            <a href="{{ path('app_note_show', {'noteId': report.data.comment.note.id}) }}" style="text-decoration: none">#}
-{#                                                <h5 class="text-white mb-0">Comment Report</h5>#}
-{#                                            </a>#}
-{#                                            {% if report.data.type == 'spam' %}#}
-{#                                                <p class="text-danger mb-0">Reason: Spam</p>#}
-{#                                            {% elseif report.data.type == 'harassment' %}#}
-{#                                                <p class="text-danger mb-0">Reason: Harassment</p>#}
-{#                                            {% elseif report.data.type == 'false_info' %}#}
-{#                                                <p class="text-danger mb-0">Reason: False information</p>#}
-{#                                            {% elseif report.data.type == 'other' %}#}
-{#                                                <p class="text-danger mb-0">Reason: Others</p>#}
-{#                                            {% elseif report.data.type == 'bad_language' %}#}
-{#                                                <p class="text-danger mb-0">Reason: Bad Language</p>#}
-{#                                            {% else %}#}
-{#                                                <p class="text-success mb-0">Error showing reason</p>#}
-{#                                            {% endif %}#}
-{#                                            <p>#}
-{#                                                Content preview:#}
-{#                                                <span class="text-muted">{{ report.data.comment.message|slice(0, 80) }}...</span>#}
-{#                                            </p>#}
-{#                                            <div class="text-sm-right pt-2 pt-sm-0">#}
-{#                                                <p class="text-muted">{{ report.data.humanTimeCommentReport }}</p>#}
-{#                                            </div>#}
-{#                                        {% endif %}#}
-{#                                    </div>#}
-{#                                </div>#}
-{#                                <div class="mr-auto text-sm-right pt-2 pe-2 pt-sm-0">#}
-{#                                    {% if report.data.status == 'pending' %}#}
-{#                                        <p class="text-warning">#}
-{#                                            {{ report.data.status }}#}
-{#                                        </p>#}
-{#                                    {% else %}#}
-{#                                        <p class="text-success">#}
-{#                                            {{ report.data.status }}#}
-{#                                        </p>#}
-{#                                    {% endif %}#}
-{#                                </div>#}
-{#                                {% if report.data.status == 'pending' %}#}
-{#                                    <a href="#" data-bs-toggle="modal" data-bs-target="#reportManagement{{ report.data.id }}">#}
-{#                                        <div class="mr-auto pt-2 pe-2 pt-sm-0">#}
-{#                                            <i class='bx bx-folder-check' style="color: #00d25b; font-size: 24px"></i>#}
-{#                                        </div>#}
-{#                                    </a>#}
-{#                                {% else %}#}
-{#                                    <div class="mr-auto pt-2 pe-2 pt-sm-0">#}
-{#                                        <i class='bx bx-check' style='color:#00d25b; font-size: 24px'></i>#}
-{#                                    </div>#}
-{#                                {% endif %}#}
-{#                            </div>#}
-{#                            <!-- Modal report management -->#}
-{#                            <div class="modal fade" id="reportManagement{{ report.data.id }}" tabindex="-1" aria-labelledby="reportManagementLabel{{ report.data.id }}" aria-hidden="true" style="overflow-y: hidden;">#}
-{#                                <div class="modal-dialog" style="max-width: 850px;">#}
-{#                                    <div class="modal-content" style="background-color: #181b20; border-radius: 5px;">#}
-{#                                        <div class="modal-body">#}
-{#                                            <h5>#}
-{#                                                Choose the action management for this report#}
-{#                                            </h5>#}
-{#                                            #}{# OPTIONS #}
-{#                                            <a class="d-flex flex-row p-3 mb-2 mt-4 bg-success text-white" style="text-decoration: none; border-radius: 10px;" href="{{ path('admin_action_done_reports', {'id': report.data.id}) }}">#}
-{#                                                <h4 class="m-0 p-0">#}
-{#                                                    Reason of reporting is justified and the report is solved#}
-{#                                                </h4>#}
-{#                                                <div class="ms-auto">#}
-{#                                                    <i class='bx bx-check' style='color:#ffffff; font-size: 24px'></i>#}
-{#                                                </div>#}
-{#                                            </a>#}
-{#                                            <a class="d-flex flex-row p-3 mb-2 mt-4 bg-danger text-white" style="text-decoration: none; border-radius: 10px;" href="{{ path('admin_action_none_reports', {'id': report.data.id}) }}">#}
-{#                                                <h4 class="m-0 p-0">#}
-{#                                                    Reason of reporting is not justified - do nothing#}
-{#                                                </h4>#}
-{#                                                <div class="ms-auto">#}
-{#                                                    <i class='bx bx-hail' style='color:#ffffff; font-size: 24px'></i>#}
-{#                                                </div>#}
-{#                                            </a>#}
-{#                                        </div>#}
-{#                                    </div>#}
-{#                                </div>#}
-{#                            </div>#}
-{#                        {% endfor %}#}
-{#                    {% else %}#}
-{#                        <div class="col-lg-7 pt-4 ps-4 pe-4" style="background-color: #181b20; border-radius: 5px; margin-top: 2rem;">#}
-{#                            <p class="text-light">Oops. No reports yet.</p>#}
-{#                        </div>#}
-{#                    {% endif %}#}
-{#                </div>#}
             </div>
         </div>
     </div>
