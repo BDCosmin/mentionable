@@ -60,14 +60,14 @@
                                             </a>
                                         {% elseif notification.type == 'commented' %}
                                             <a href="{{ path('app_note_redirect', {'notificationId': notification.id}) }}" style="text-decoration: none !important; color: white !important;">
-                                                <p class="preview-subject mb-1" style="font-size: 20px">{{ notification.sender.nametag }} commented on your note!</p>
+                                                <p class="preview-subject mb-1" style="font-size: 20px">{{ notification.sender.nametag }} commented to your note!</p>
                                                 <p class="text-muted ellipsis mb-0">Tap to see what's the comment about.</p>
                                             </a>
-                                        {% elseif notification.type == 'upvoted' %}
-                                            <a href="{{ path('app_note_redirect', {'notificationId': notification.id}) }}" style="text-decoration: none !important; color: white !important;">
-                                                <p class="preview-subject mb-1" style="font-size: 20px">{{ notification.sender.nametag }} agrees with you!</p>
-                                                <p class="text-muted ellipsis mb-0">Tap to see what's the comment about.</p>
-                                            </a>
+{#                                        {% elseif notification.type == 'upvoted' %}#}
+{#                                            <a href="{{ path('app_note_redirect', {'notificationId': notification.id}) }}" style="text-decoration: none !important; color: white !important;">#}
+{#                                                <p class="preview-subject mb-1" style="font-size: 20px">{{ notification.sender.nametag }} agrees with you!</p>#}
+{#                                                <p class="text-muted ellipsis mb-0">Tap to see what's the comment about.</p>#}
+{#                                            </a>#}
                                         {% elseif notification.type == 'downvoted' %}
                                             <a href="{{ path('app_note_redirect', {'notificationId': notification.id}) }}" style="text-decoration: none !important; color: white !important;">
                                                 <p class="preview-subject mb-1" style="font-size: 20px">{{ notification.sender.nametag }} disagrees with you!</p>

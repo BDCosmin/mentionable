@@ -39,28 +39,30 @@
                             <div class="d-flex flex-column">
                                 <div class="d-flex flex-row">
                                     <h1 class="mb-0" style="margin-top: 4px">{{ ring.title }}</h1>
-                                    <div class="col-1 d-md-none d-flex ms-auto">
-                                        <div class="dropdown top-0 end-0 m-2">
-                                            <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
-                                               class="text-white"
-                                               style="right: 10px; text-decoration: none; z-index: 10;">
-                                                <i class="fa fa-ellipsis-h" style="font-size: 25px;"></i>
-                                            </a>
-                                            <ul class="dropdown-menu dropdown-menu-end">
-                                                {% if app.user == ring.user %}
-                                                    <li><a class="dropdown-item" href="{{ path('app_ring_update',{'id': ring.id}) }}">Edit...</a></li>
-                                                    <li>
-                                                        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#deleteRingModal-{{ ring.id }}"
-                                                           data-note-id="{{ ring.id }}" data-note-token="{{ csrf_token('delete' ~ ring.id) }}">
-                                                            Delete ring
-                                                        </a>
-                                                    </li>
-                                                {% else %}
-                                                    <li><a class="dropdown-item" href="#">Report</a></li>
-                                                {% endif %}
-                                            </ul>
+                                    {% if ring.isSuspended == 0 %}
+                                        <div class="col-1 d-md-none d-flex ms-auto">
+                                            <div class="dropdown top-0 end-0 m-2">
+                                                <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                                                   class="text-white"
+                                                   style="right: 10px; text-decoration: none; z-index: 10;">
+                                                    <i class="fa fa-ellipsis-h" style="font-size: 25px;"></i>
+                                                </a>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    {% if app.user == ring.user %}
+                                                        <li><a class="dropdown-item" href="{{ path('app_ring_update',{'id': ring.id}) }}">Edit...</a></li>
+                                                        <li>
+                                                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#deleteRingModal-{{ ring.id }}"
+                                                               data-note-id="{{ ring.id }}" data-note-token="{{ csrf_token('delete' ~ ring.id) }}">
+                                                                Delete ring
+                                                            </a>
+                                                        </li>
+                                                    {% else %}
+                                                        <li><a class="dropdown-item" href="#">Report</a></li>
+                                                    {% endif %}
+                                                </ul>
+                                            </div>
                                         </div>
-                                    </div>
+                                    {% endif %}
                                     <a href="{{ path('app_interest_show', {'id': ring.interest.id}) }}"
                                        class="ms-2 align-self-start text-decoration-none d-md-flex d-none"
                                        style="line-height: 1; padding: 0;">
@@ -128,27 +130,29 @@
                                                                     {% endif %}
 
                                                                     {% if currentUserIsOwner and member.user.id != app.user.id %}
-                                                                        <div class="col-1 d-flex">
-                                                                            <div class="dropdown top-0 end-0 m-2">
-                                                                                <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
-                                                                                   class="text-white"
-                                                                                   style="right: 10px; text-decoration: none; z-index: 10;">
-                                                                                    <i class="fa fa-ellipsis-h" style="font-size: 25px;"></i>
-                                                                                </a>
-                                                                                <ul class="dropdown-menu dropdown-menu-end">
-                                                                                    <li>
-                                                                                        <a class="dropdown-item" href="{{ path('app_ring_remove_member', {'id': member.user.id, 'ringId': member.ring.id}) }}">
-                                                                                            Remove
-                                                                                        </a>
-                                                                                    </li>
-                                                                                    <li>
-                                                                                        <a class="dropdown-item" href="{{ path('app_ring_change_member_role', {'id': member.user.id, 'ringId': member.ring.id}) }}">
-                                                                                            Make owner
-                                                                                        </a>
-                                                                                    </li>
-                                                                                </ul>
+                                                                        {% if ring.isSuspended == 0 %}
+                                                                            <div class="col-1 d-flex">
+                                                                                <div class="dropdown top-0 end-0 m-2">
+                                                                                    <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                                                                                       class="text-white"
+                                                                                       style="right: 10px; text-decoration: none; z-index: 10;">
+                                                                                        <i class="fa fa-ellipsis-h" style="font-size: 25px;"></i>
+                                                                                    </a>
+                                                                                    <ul class="dropdown-menu dropdown-menu-end">
+                                                                                        <li>
+                                                                                            <a class="dropdown-item" href="{{ path('app_ring_remove_member', {'id': member.user.id, 'ringId': member.ring.id}) }}">
+                                                                                                Remove
+                                                                                            </a>
+                                                                                        </li>
+                                                                                        <li>
+                                                                                            <a class="dropdown-item" href="{{ path('app_ring_change_member_role', {'id': member.user.id, 'ringId': member.ring.id}) }}">
+                                                                                                Make owner
+                                                                                            </a>
+                                                                                        </li>
+                                                                                    </ul>
+                                                                                </div>
                                                                             </div>
-                                                                        </div>
+                                                                        {% endif %}
                                                                     {% endif %}
                                                                 </div>
                                                             </div>
@@ -244,14 +248,16 @@
                                     {% endif %}
 
                                     {% if isMember %}
-                                        <a href="#" data-bs-toggle="modal" data-bs-target="#newRingNoteModal"
-                                           class="text-decoration-none mt-3"
-                                           style="line-height: 1; padding: 0; margin-top: 4px;">
-                                            <span class="btn btn-light px-2 py-1 text-dark d-inline-block"
-                                                  style="font-size: 24px; line-height: 1; border-radius: 10px;">
-                                                +
-                                            </span>
-                                        </a>
+                                        {% if ring.isSuspended == 0 %}
+                                            <a href="#" data-bs-toggle="modal" data-bs-target="#newRingNoteModal"
+                                               class="text-decoration-none mt-3"
+                                               style="line-height: 1; padding: 0; margin-top: 4px;">
+                                                <span class="btn btn-light px-2 py-1 text-dark d-inline-block"
+                                                      style="font-size: 24px; line-height: 1; border-radius: 10px;">
+                                                    +
+                                                </span>
+                                            </a>
+                                        {% endif %}
                                     {% endif %}
                                 </div>
                             </div>
@@ -292,44 +298,56 @@
                                 {% endif %}
                                 {# ADD NOTE TO COMMUNITY #}
                                 {% if isMember %}
-                                    <a href="#" data-bs-toggle="modal" data-bs-target="#newRingNoteModal"
-                                       class="ms-auto align-self-start text-decoration-none mt-3 ps-1 pe-1"
-                                       style="line-height: 1; padding: 0; margin-top: 4px;">
-                                    <span class="btn btn-light px-2 py-1 text-dark d-inline-block"
-                                          style="font-size: 24px; line-height: 1;border-radius: 10px">
-                                        +
-                                    </span>
-                                    </a>
+                                    {% if ring.isSuspended == 0 %}
+                                        <a href="#" data-bs-toggle="modal" data-bs-target="#newRingNoteModal"
+                                           class="ms-auto align-self-start text-decoration-none mt-3 ps-1 pe-1"
+                                           style="line-height: 1; padding: 0; margin-top: 4px;">
+                                        <span class="btn btn-light px-2 py-1 text-dark d-inline-block"
+                                              style="font-size: 24px; line-height: 1;border-radius: 10px">
+                                            +
+                                        </span>
+                                        </a>
+                                    {% endif %}
                                 {% endif %}
                             </div>
                         </div>
+                        {% for label, messages in app.flashes %}
+                            {% for message in messages %}
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        {% endfor %}
                     </div>
-                    <div class="col-1 d-md-flex d-none position-relative">
-                        <div class="dropdown position-absolute top-0 end-0 m-2">
-                            <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
-                               class="position-absolute mt-5 text-white"
-                               style="right: 10px; text-decoration: none; z-index: 10;">
-                                <i class="fa fa-ellipsis-h" style="font-size: 25px;"></i>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                {% if app.user == ring.user %}
-                                    <li><a class="dropdown-item" href="{{ path('app_ring_update',{'id': ring.id}) }}">Edit...</a></li>
-                                    <li>
-                                        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#deleteRingModal-{{ ring.id }}"
-                                           data-note-id="{{ ring.id }}" data-note-token="{{ csrf_token('delete' ~ ring.id) }}">
-                                            Delete ring
-                                        </a>
-                                    </li>
-                                {% else %}
-                                    <li><a class="dropdown-item" href="#">Report</a></li>
-                                {% endif %}
-                            </ul>
+                        <div class="col-1 d-md-flex d-none position-relative">
+                            {% if ring.isSuspended == 0 %}
+                            <div class="dropdown position-absolute top-0 end-0 m-2">
+                                <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                                   class="position-absolute mt-5 text-white"
+                                   style="right: 10px; text-decoration: none; z-index: 10;">
+                                    <i class="fa fa-ellipsis-h" style="font-size: 25px;"></i>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    {% if app.user == ring.user %}
+                                        <li><a class="dropdown-item" href="{{ path('app_ring_update',{'id': ring.id}) }}">Edit...</a></li>
+                                        <li>
+                                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#deleteRingModal-{{ ring.id }}"
+                                               data-note-id="{{ ring.id }}" data-note-token="{{ csrf_token('delete' ~ ring.id) }}">
+                                                Delete ring
+                                            </a>
+                                        </li>
+                                    {% else %}
+                                        <li><a class="dropdown-item" href="#">Report</a></li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                            {% endif %}
                         </div>
-                    </div>
                 </div>
                 {# RING NOTES #}
                 <div class="row d-flex justify-content-center mb-4" style="background-color: #181b20; border-radius: 5px;">
-                    <div class="col-12 p-3">
+                    {% if ring.isSuspended == 0 %}
+                        <div class="col-12 p-3">
                         <div class="ms-md-5 ms-1 text-muted" style="font-size: 13px">
                             -- NOTES --
                         </div>
@@ -583,6 +601,7 @@
                             {% endif %}
                         </div>
                     </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
