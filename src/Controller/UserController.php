@@ -135,7 +135,7 @@ final class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/friends/view/{id}', name: 'app_profile_view_friends')]
+    #[Route('/friends/{id}/view/', name: 'app_profile_view_friends')]
     public function viewFriends(int $id, Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager,NotificationService $notificationService): Response
     {
         $user = $userRepository->find($id);

@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Notification;
+use App\Entity\Ring;
 use App\Entity\User;
 use App\Repository\CommentReportRepository;
 use App\Repository\NoteReportRepository;
@@ -174,10 +175,6 @@ final class AdminController extends AbstractController
     #[Route('/admin/all-users', name: 'admin_show_users', methods: ['GET', 'POST'])]
     public function showUsers(
         UserRepository $userRepository,
-        NoteRepository $noteRepository,
-        RingRepository $ringRepository,
-        NoteReportRepository $noteReportRepository,
-        CommentReportRepository $commentReportRepository,
     ): Response
     {
         $users = $userRepository->findBy([], ['creationDate' => 'DESC']);
@@ -191,7 +188,7 @@ final class AdminController extends AbstractController
     public function kickUser(EntityManagerInterface $em, Request $request, User $user): Response
     {
         if (!$this->isCsrfTokenValid('kick-user-' . $user->getId(), $request->request->get('_token'))) {
-            $this->addFlash('error', 'Token invalid.');
+            $this->addFlash('error', 'Invalid token.');
             return $this->redirectToRoute('admin_show_users');
         }
 
@@ -206,7 +203,7 @@ final class AdminController extends AbstractController
     public function banUser(EntityManagerInterface $em, Request $request, User $user): Response
     {
         if (!$this->isCsrfTokenValid('ban-user-' . $user->getId(), $request->request->get('_token'))) {
-            $this->addFlash('error', 'Token invalid.');
+            $this->addFlash('error', 'Invalid token.');
             return $this->redirectToRoute('admin_show_users');
         }
 
@@ -221,7 +218,7 @@ final class AdminController extends AbstractController
     public function unbanUser(EntityManagerInterface $em, Request $request, User $user): Response
     {
         if (!$this->isCsrfTokenValid('unban-user-' . $user->getId(), $request->request->get('_token'))) {
-            $this->addFlash('error', 'Token invalid.');
+            $this->addFlash('error', 'Invalid token.');
             return $this->redirectToRoute('admin_show_users');
         }
 
@@ -230,5 +227,47 @@ final class AdminController extends AbstractController
 
         $this->addFlash('success', 'The user has been unbanned.');
         return $this->redirectToRoute('admin_show_users');
+    }
+
+    #[Route('/admin/all-rings', name: 'admin_show_rings', methods: ['GET', 'POST'])]
+    public function showRings(
+        RingRepository $ringRepository,
+    ): Response
+    {
+        $rings = $ringRepository->findBy([], ['createdAt' => 'DESC']);
+
+        return $this->render('admin/all_rings.html.twig', [
+            'rings' => $rings,
+        ]);
+    }
+
+    #[Route('/admin/ring/{id}/delete', name: 'admin_ring_delete', methods: ['POST'])]
+    public function deleteRingByAdmin(EntityManagerInterface $em, Request $request, Ring $ring): Response
+    {
+        if (!$this->isCsrfTokenValid('delete-ring-' . $ring->getId(), $request->request->get('_token'))) {
+            $this->addFlash('error', 'Invalid token.');
+            return $this->redirectToRoute('admin_show_rings');
+        }
+
+        $em->remove($ring);
+        $em->flush();
+
+        $this->addFlash('success', 'The ring has been deleted.');
+        return $this->redirectToRoute('admin_show_rings');
+    }
+
+    #[Route('/admin/ring/{id}/suspend', name: 'admin_suspend_ring', methods: ['POST'])]
+    public function suspendRing(EntityManagerInterface $em, Request $request, Ring $ring): Response
+    {
+        if (!$this->isCsrfTokenValid('suspend-ring-' . $ring->getId(), $request->request->get('_token'))) {
+            $this->addFlash('error', 'Invalid token.');
+            return $this->redirectToRoute('admin_show_rings');
+        }
+
+        $ring->setIsSuspended(true);
+        $em->flush();
+
+        $this->addFlash('success', 'The ring has been suspended.');
+        return $this->redirectToRoute('admin_show_rings');
     }
 }

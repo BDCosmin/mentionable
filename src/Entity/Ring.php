@@ -44,7 +44,7 @@ class Ring
     /**
      * @var Collection<int, Note>
      */
-    #[ORM\OneToMany(targetEntity: Note::class, mappedBy: 'ring')]
+    #[ORM\OneToMany(targetEntity: Note::class, mappedBy: 'ring', orphanRemoval: true)]
     private Collection $notes;
 
     /**
@@ -52,6 +52,9 @@ class Ring
      */
     #[ORM\OneToMany(targetEntity: Notification::class, mappedBy: 'ring')]
     private Collection $notifications;
+
+    #[ORM\Column(type: 'integer')]
+    private ?int $isSuspended;
 
     public function __construct()
     {
@@ -223,6 +226,18 @@ class Ring
                 $notification->setRing(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getIsSuspended(): ?int
+    {
+        return $this->isSuspended;
+    }
+
+    public function setIsSuspended(int $isSuspended): static
+    {
+        $this->isSuspended = $isSuspended;
 
         return $this;
     }

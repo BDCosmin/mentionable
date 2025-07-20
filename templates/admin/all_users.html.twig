@@ -65,7 +65,11 @@
                                                     {% if user.isBanned %}
                                                         style="color: rgba(255, 255, 255, 0.46);"
                                                     {% endif %}
-                                                > {{ user.nametag }} </td>
+                                                >
+                                                    <a href="{{ path('app_profile', {'id': user.id}) }}" class="text-white">
+                                                        {{ user.nametag }}
+                                                    </a>
+                                                </td>
                                                 <td
                                                     {% if user.isBanned %}
                                                         style="color: rgba(255, 255, 255, 0.46);"

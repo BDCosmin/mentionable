@@ -104,6 +104,7 @@ final class RingController extends AbstractController
 
                     $banner->move($this->getParameter('rings_directory'), $newFilename);
                     $ring->setBanner($newFilename);
+                    $ring->setIsSuspended(false);
 
                     $entityManager->persist($ring);
                     $entityManager->persist($newMember);
@@ -221,14 +222,15 @@ final class RingController extends AbstractController
         ]);
     }
 
-    #[Route('/ring/{id}', name: 'app_ring_show', methods: ['GET', 'POST'])]
+    #[Route('/ring/{id}/view/', name: 'app_ring_show', methods: ['GET', 'POST'])]
     public function show(
         int $id,
         RingRepository $ringRepository,
         NoteRepository $noteRepository,
         RingMemberRepository $ringMemberRepository,
         NoteVoteRepository $noteVoteRepository,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        Request $request
     ): Response
     {
         $error = '';
@@ -272,6 +274,10 @@ final class RingController extends AbstractController
                     $votesMap[$vote->getNote()->getId()] = 'downvote';
                 }
             }
+        }
+
+        if ($ring->getIsSuspended() == 1) {
+            $this->addFlash('error', 'This ring has been suspended. Please try again later.');
         }
 
         return $this->render('ring/page.html.twig', [
