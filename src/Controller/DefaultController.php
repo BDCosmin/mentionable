@@ -35,7 +35,7 @@ final class DefaultController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        $memberships = $ringMemberRepository->findBy(['user' => $user]);
+        $memberships = $ringMemberRepository->findActiveMembershipsForUser($user);
         $ringIds = array_map(fn($m) => $m->getRing()->getId(), $memberships);
 
         $notes = $em->getRepository(Note::class)->findFeedNotesForUser($ringIds);

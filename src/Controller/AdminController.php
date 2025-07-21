@@ -2,10 +2,12 @@
 
 namespace App\Controller;
 
+use App\Entity\Interest;
 use App\Entity\Notification;
 use App\Entity\Ring;
 use App\Entity\User;
 use App\Repository\CommentReportRepository;
+use App\Repository\InterestRepository;
 use App\Repository\NoteReportRepository;
 use App\Repository\NoteRepository;
 use App\Repository\RingRepository;
@@ -27,6 +29,7 @@ final class AdminController extends AbstractController
         RingRepository $ringRepository,
         NoteReportRepository $noteReportRepository,
         CommentReportRepository $commentReportRepository,
+        InterestRepository $interestRepository,
     ): Response
     {
         $users = $userRepository->findAll();
@@ -34,6 +37,7 @@ final class AdminController extends AbstractController
         $rings = $ringRepository->findAll();
         $noteReports = $noteReportRepository->findAll();
         $commentReports = $commentReportRepository->findAll();
+        $interests = $interestRepository->findAll();
 
         $reportsNumber = count($noteReports) + count($commentReports);
 
@@ -60,6 +64,7 @@ final class AdminController extends AbstractController
             'rings' => $rings,
             'reportsNumber' => $reportsNumber,
             'reports' => $reports,
+            'interests' => $interests,
         ]);
     }
 
@@ -269,5 +274,76 @@ final class AdminController extends AbstractController
 
         $this->addFlash('success', 'The ring has been suspended.');
         return $this->redirectToRoute('admin_show_rings');
+    }
+
+    #[Route('/admin/ring/{id}/reactivate', name: 'admin_reactivate_ring', methods: ['POST'])]
+    public function reactivateRing(EntityManagerInterface $em, Request $request, Ring $ring): Response
+    {
+        if (!$this->isCsrfTokenValid('reactivate-ring-' . $ring->getId(), $request->request->get('_token'))) {
+            $this->addFlash('error', 'Invalid token.');
+            return $this->redirectToRoute('admin_show_rings');
+        }
+
+        $ring->setIsSuspended(false);
+        $em->flush();
+
+        $this->addFlash('success', 'The ring has been reactivated.');
+        return $this->redirectToRoute('admin_show_rings');
+    }
+
+    #[Route('/admin/all-interests', name: 'admin_show_interests', methods: ['GET', 'POST'])]
+    public function showInterests(
+        InterestRepository $interestRepository,
+    ): Response
+    {
+        $interests = $interestRepository->findAll();
+
+        return $this->render('admin/all_interests.html.twig', [
+            'interests' => $interests,
+        ]);
+    }
+
+    #[Route('/admin/interest/{id}/delete', name: 'admin_interest_delete', methods: ['POST'])]
+    public function deleteInterestByAdmin(EntityManagerInterface $em, Request $request, Interest $interest): Response
+    {
+        if (!$this->isCsrfTokenValid('delete-interest-' . $interest->getId(), $request->request->get('_token'))) {
+            $this->addFlash('error', 'Token invalid.');
+            return $this->redirectToRoute('admin_show_interests');
+        }
+
+        $rings = $interest->getRings();
+        $defaultInterestByUser = [];
+
+        foreach ($rings as $ring) {
+            $ring->setIsSuspended(true);
+
+            $user = $ring->getUser();
+
+            if (!isset($defaultInterestByUser[$user->getId()])) {
+                $existingDefault = $em->getRepository(Interest::class)->findOneBy([
+                    'user' => $user,
+                    'title' => 'default'
+                ]);
+
+                if ($existingDefault) {
+                    $defaultInterestByUser[$user->getId()] = $existingDefault;
+                } else {
+                    $defaultInterest = new Interest();
+                    $defaultInterest->setUser($user);
+                    $defaultInterest->setTitle('default');
+                    $em->persist($defaultInterest);
+                    $defaultInterestByUser[$user->getId()] = $defaultInterest;
+                }
+            }
+
+            $ring->setInterest($defaultInterestByUser[$user->getId()]);
+            $em->persist($ring);
+        }
+
+        $em->remove($interest);
+        $em->flush();
+
+        $this->addFlash('success', 'The interest has been deleted.');
+        return $this->redirectToRoute('admin_show_interests');
     }
 }

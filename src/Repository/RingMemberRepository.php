@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\RingMembers;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -57,6 +58,17 @@ class RingMemberRepository extends ServiceEntityRepository
             ->setParameter('user', $user)
             ->orderBy('rm.joinedAt', 'DESC')
             ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findActiveMembershipsForUser(UserInterface $user): array
+    {
+        return $this->createQueryBuilder('rm')
+            ->join('rm.ring', 'r')
+            ->where('rm.user = :user')
+            ->andWhere('r.isSuspended = 0')
+            ->setParameter('user', $user)
             ->getQuery()
             ->getResult();
     }

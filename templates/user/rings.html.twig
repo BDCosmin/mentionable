@@ -30,6 +30,7 @@
                                              alt="banner"
                                              class="rounded-circle"
                                              style="width: 60px; height: 60px; object-fit: cover;"
+                                             onerror="showDefaultBannerRing(this)"
                                         >
                                     </a>
 
@@ -37,7 +38,10 @@
                                         <a href="{{ path('app_ring_show',{'id' : ring.id}) }}" class="text-decoration-none">
                                             <h5 class="mb-1 text-white">{{ ring.title }}</h5>
                                         </a>
-                                        <p style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#membersModal-{{ ring.id }}">
+                                        {% if ring.isSuspended == 1 %}
+                                            <p class="text-danger mb-0">Suspended</p>
+                                        {% endif %}
+                                        <p style="cursor:pointer;" class="mb-0" data-bs-toggle="modal" data-bs-target="#membersModal-{{ ring.id }}">
                                             {{ membersCountByRing[ring.id]|default(0) }}
                                             {{ membersCountByRing[ring.id]|default(0) == 1 ? 'member' : 'members' }}
                                         </p>
