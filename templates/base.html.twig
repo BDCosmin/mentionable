@@ -70,16 +70,17 @@
                         const wrapper = img.parentNode;
                        wrapper.innerHTML = '<img src="{{ asset("assets/images/media/default-image.jpg") }}" class="img-fluid" alt="default-image"/>';
                     }
-                </script>
 
-                <script>
                     function showDefaultAvatar(img) {
                         const wrapper = img.parentNode;
                        wrapper.innerHTML = `<img src="{{ asset("assets/images/media/default.jpg") }}" class="img-thumbnail img-fluid rounded-circle mt-3" style="width: 400px; height: auto; alt="default-avatar-image"/>`;
                     }
-                </script>
 
-                 <script>
+                    function showDefaultBannerRing(img) {
+                        const wrapper = img.parentNode;
+                       wrapper.innerHTML = `<img src="{{ asset("assets/images/media/default-image.jpg") }}" class="img-thumbnail img-fluid rounded-circle" style="width: 60px; height: 60px; alt="default-avatar-image"/>`;
+                    }
+
                     function showDefaultUser(img) {
                         const wrapper = img.parentNode;
                        wrapper.innerHTML = `<img src="{{ asset("assets/images/media/default.jpg") }}" class="img-fluid mt-1 mb-1" style="width: 40px; height: auto; alt="default-avatar-image"/>`;

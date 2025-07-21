@@ -111,7 +111,7 @@
                                                     <a href="{{ path('app_ring_show',{'id' : ring.id}) }}" class="mx-auto mt-3">
                                                         <img src="{{ asset('uploads/rings/' ~ ring.banner) }}"
                                                              class="card-img-top rounded-circle img-fluid ring-image"
-                                                             style="width: 200px; height: 200px; object-fit: cover;" alt="banner">
+                                                             style="width: 200px; height: 200px; object-fit: cover;" onerror="showDefaultBannerRing(this)" alt="banner" >
                                                     </a>
                                                     <div class="card-body px-3 py-4">
                                                         <a href="{{ path('app_ring_show',{'id' : ring.id}) }}" style="text-decoration: none">
@@ -212,7 +212,7 @@
                                                 <a href="{{ path('app_ring_show',{'id' : ring.id}) }}" class="mx-auto mt-3">
                                                     <img src="{{ asset('uploads/rings/' ~ ring.banner) }}"
                                                          class="card-img-top rounded-circle img-fluid ring-image"
-                                                         style="width: 200px; height: 200px; object-fit: cover;" alt="banner">
+                                                         style="width: 200px; height: 200px; object-fit: cover;" alt="banner" onerror="showDefaultBannerRing(this)">
                                                 </a>
                                                 <div class="card-body px-3 py-4">
                                                     <a href="{{ path('app_ring_show', {'id': ring.id}) }}" style="text-decoration: none">
@@ -228,6 +228,9 @@
                                                             </a>
                                                         {% endif %}
                                                     </small>
+                                                    {% if ring.isSuspended == 1 %}
+                                                        <p class="text-danger mb-0">Suspended</p>
+                                                    {% endif %}
                                                     <p class="mb-1 text-muted">
                                                         {{ memberCounts[ring.id] ?? 0 }} {{ (memberCounts[ring.id] ?? 0) == 1 ? 'member' : 'members' }}
                                                     </p>
@@ -313,7 +316,7 @@
                                                     <a href="{{ path('app_ring_show',{'id' : ring.id}) }}" class="mx-auto mt-3">
                                                         <img src="{{ asset('uploads/rings/' ~ ring.banner) }}"
                                                              class="card-img-top rounded-circle img-fluid ring-image"
-                                                             style="width: 200px; height: 200px; object-fit: cover;" alt="banner">
+                                                             style="width: 200px; height: 200px; object-fit: cover;" alt="banner" onerror="showDefaultBannerRing(this)">
                                                     </a>
                                                     <div class="card-body px-3 py-4">
                                                         <a href="{{ path('app_ring_show', {'id': ring.id}) }}" style="text-decoration: none">
