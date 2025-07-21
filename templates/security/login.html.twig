@@ -39,7 +39,10 @@
             <div class="content-wrapper container-fluid page-body-wrapper full-page-wrapper d-flex align-items-center auth login-bg">
                 <div class="card col-lg-4 mx-auto">
                     <div class="card-body px-5 py-5">
-                        <h3 class="d-flex justify-content-center card-title text-start mb-3">Login</h3>
+                        <div class="d-flex flex-row justify-content-center">
+                            <img src="{{ asset('assets/images/logo-mini.png')}}" style="height: 30px; width: 30px" draggable="false" alt="logo" />
+                            <h3 class="d-flex justify-content-center card-title text-start mb-3" style="user-select: none">Login</h3>
+                        </div>
                         <form class="forms-sample" method="post">
                             {% if error %}
                                 <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
@@ -75,6 +78,7 @@
                         <br/>
                         <p class="d-flex justify-content-center text-white mb-0">Not a member?</p>
                         <a href="{{ path('app_register') }}" class="d-flex justify-content-center text-white" style="font-size: 12px">Register now</a>
+                        <p class="d-flex justify-content-center text-muted mt-3 mb-0">beta version 7.25</p>
                     </div>
                 </div>
             </div>

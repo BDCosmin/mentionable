@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}Welcome!{% endblock %}</title>
+    <title>{% block title %}Register to Mentionable{% endblock %}</title>
 
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/vendors/mdi/css/materialdesignicons.min.css') }}">
@@ -39,7 +39,10 @@
             <div class="content-wrapper container-fluid page-body-wrapper full-page-wrapper d-flex align-items-center auth login-bg">
                 <div class="card col-lg-4 mx-auto">
                     <div class="card-body px-5 py-5">
-                        <h3 class="d-flex justify-content-center card-title text-start mb-3">Register</h3>
+                        <div class="d-flex flex-row justify-content-center">
+                            <img src="{{ asset('assets/images/logo-mini.png')}}" style="height: 30px; width: 30px" draggable="false" alt="logo" />
+                            <h3 class="d-flex justify-content-center card-title text-start mb-3" style="user-select: none">Register</h3>
+                        </div>
                         {{ form_start(registrationForm, {'attr': {'class': 'forms-sample'}}) }}
                         {{ form_errors(registrationForm) }}
                         <div class="form-group">
