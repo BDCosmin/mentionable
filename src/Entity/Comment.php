@@ -149,16 +149,14 @@ class Comment
 
     public function getHumanTimeComment(): string
     {
-        $publishedDate = $this->getPublicationDate();
-        $now = new \DateTime();
-        $interval = $publishedDate->diff($now);
+        $interval = $this->getPublicationDate()->diff(new \DateTime());
 
         if ($interval->d === 0 && $interval->h === 0 && $interval->i < 60) {
             return $interval->i === 0 ? 'now' : $interval->i . 'min' . ($interval->i > 1 ? 's' : '') . ' ago';
         } elseif ($interval->d === 0 && $interval->h < 24) {
             return $interval->h . 'h' . ' ago';
         } else {
-            return $publishedDate->format('M j');
+            return $this->getPublicationDate()->format('M j');
         }
     }
 

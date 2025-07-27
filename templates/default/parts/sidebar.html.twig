@@ -101,14 +101,14 @@
             </a>
         </li>
         <li class="nav-item menu-items">
-            <a class="nav-link" data-bs-toggle="collapse" href="#ui-basic" aria-expanded="false" aria-controls="ui-basic">
+            <a class="nav-link" data-bs-toggle="collapse" href="#account-settings-collapse" aria-expanded="false" aria-controls="account-settings-collapse">
           <span class="menu-icon">
             <i class="fa fa-cogs"></i>
           </span>
                 <span class="menu-title">Account settings</span>
                 <i class="menu-arrow"></i>
             </a>
-            <div class="collapse" id="ui-basic">
+            <div class="collapse" id="account-settings-collapse">
                 <ul class="nav flex-column sub-menu">
                     <li class="nav-item"> <a class="nav-link" href="{{ path('app_change_nametag') }}">Change nametag</a></li>
                     <li class="nav-item"> <a class="nav-link" href="{{ path('app_avatar_edit') }}">Edit avatar</a></li>
@@ -121,12 +121,19 @@
             </div>
         </li>
         <li class="nav-item menu-items">
-            <a class="nav-link" href="{{ path('app_support') }}">
-                <span class="menu-icon">
-                    <i class='bx bx-help-circle'></i>
-                </span>
-                <span class="menu-title">Support</span>
+            <a class="nav-link" data-bs-toggle="collapse" href="#support-center-collapse" aria-expanded="false" aria-controls="support-center-collapse">
+          <span class="menu-icon">
+            <i class='bx bx-help-circle'></i>
+          </span>
+                <span class="menu-title">Support Center</span>
+                <i class="menu-arrow"></i>
             </a>
+            <div class="collapse" id="support-center-collapse">
+                <ul class="nav flex-column sub-menu">
+                    <li class="nav-item"> <a class="nav-link" href="{{ path('app_new_ticket') }}">Add a new ticket...</a></li>
+                    <li class="nav-item"> <a class="nav-link" href="{{ path('app_my_tickets') }}">My tickets</a></li>
+                </ul>
+            </div>
         </li>
         <li class="nav-item menu-items d-md-none d-flex">
             <a class="nav-link" href="{{ path('app_logout') }}">
