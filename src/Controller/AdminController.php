@@ -11,6 +11,7 @@ use App\Repository\InterestRepository;
 use App\Repository\NoteReportRepository;
 use App\Repository\NoteRepository;
 use App\Repository\RingRepository;
+use App\Repository\TicketRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -30,6 +31,7 @@ final class AdminController extends AbstractController
         NoteReportRepository $noteReportRepository,
         CommentReportRepository $commentReportRepository,
         InterestRepository $interestRepository,
+        TicketRepository $ticketRepository,
     ): Response
     {
         $users = $userRepository->findAll();
@@ -38,6 +40,7 @@ final class AdminController extends AbstractController
         $noteReports = $noteReportRepository->findAll();
         $commentReports = $commentReportRepository->findAll();
         $interests = $interestRepository->findAll();
+        $tickets = $ticketRepository->findAll();
 
         $reportsNumber = count($noteReports) + count($commentReports);
 
@@ -65,6 +68,7 @@ final class AdminController extends AbstractController
             'reportsNumber' => $reportsNumber,
             'reports' => $reports,
             'interests' => $interests,
+            'tickets' => $tickets,
         ]);
     }
 

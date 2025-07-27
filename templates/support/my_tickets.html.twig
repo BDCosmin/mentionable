@@ -1,0 +1,68 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My tickets - Mentionable{% endblock %}
+
+{% block body %}
+    <div class="main-panel">
+        <div class="content-wrapper p-0">
+            <div class="row justify-content-center mb-4 pt-4">
+                <div class="col-lg-8 p-3 justify-content-center">
+                    <div class="d-flex flex-row justify-content-center">
+                        <h1 class="text-center d-none d-md-flex">
+                            My tickets
+                        </h1>
+                        <h1 class="text-center d-flex d-md-none mt-1" style="font-size: 24px">
+                            My tickets
+                        </h1>
+                        <span class="badge badge-light text-dark mt-2 ms-2" style="height: 25px">{{ tickets|length }}</span>
+                    </div>
+                </div>
+
+                <div class="col-lg-7 m-0 p-0 mb-3" id="errorWhilePosting" style="display: {{ divVisibility|default('none') }};">
+                    <span class="badge bg-danger">{{ error|default('') }}</span>
+                </div>
+
+                <div class="row justify-content-center mb-4">
+                    {% if tickets is defined and tickets|length > 0 %}
+                        {% for ticket in tickets %}
+                            <div class="col-lg-7 pt-4 ps-4 pe-4 pb-3 mb-4" style="background-color: #181b20; border-radius: 5px;">
+                                <div class="d-flex text-light align-items-start mb-3">
+
+                                    <i class='bx bx-ticket me-2' style='color:#ffffff; font-size: 24px'></i>
+
+                                    <div class="d-flex flex-column text-muted">
+                                        <a href="{{ path('app_ticket_preview',{'id' : ticket.ticket.id }) }}" class="text-decoration-none">
+                                            <h5 class="mb-1 text-white">Ticket no. #{{ ticket.number }}</h5>
+                                        </a>
+                                        <p class="text-white mb-0">
+                                            {{ ticket.ticket.type|capitalize }}
+                                        </p>
+                                    </div>
+
+                                    {% if ticket.ticket.status == 'In progress...' %}
+                                        <i class='bx bx-hourglass ms-2 text-warning' title="{{ ticket.ticket.status }}"></i>
+                                    {% endif %}
+                                    {% if ticket.ticket.status == 'Resolved' %}
+                                        <i class='fa fa-check-circle ms-2 text-success' title="{{ ticket.ticket.status }}"></i>
+                                    {% endif %}
+
+                                    <div class="ms-auto">
+                                        <p class="me-4 mt-1 text-muted">{{ ticket.ticket.humanTimeTicket }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="col-lg-7 pt-4 ps-4 pe-4 pb-3" style="background-color: #181b20; border-radius: 5px;">
+                            <p class="text-light text-center mb-0">You don't have any tickets.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block javascript %}
+{{ parent() }}
+<script src="{{ asset('../assets/js/feed.js') }}"></script>
+{% endblock %}
