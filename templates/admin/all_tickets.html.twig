@@ -1,0 +1,167 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}All tickets - Admin - Mentionable{% endblock %}
+
+{% block body %}
+    <div class="main-panel">
+        <div class="content-wrapper p-0">
+            <div class="row justify-content-center mb-4 mt-2">
+                <div class="col-lg-8 p-3 justify-content-center">
+                    {% for message in app.flashes('success') %}
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                    {% for message in app.flashes('error') %}
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="col-lg-8 p-3 justify-content-center">
+                    <div class="d-flex flex-row justify-content-center">
+                        <h1 class="text-center d-none d-md-flex">
+                            Tickets
+                        </h1>
+                        <h1 class="text-center d-flex d-md-none mt-1" style="font-size: 24px">
+                            Tickets
+                        </h1>
+                        <span class="badge badge-light text-dark mt-2 ms-2" style="height: 25px">{{ tickets|length }}</span>
+                    </div>
+                </div>
+                <div class="col-lg-12 grid-margin stretch-card">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                    <tr>
+                                        <th> No. </th>
+                                        <th> Preview </th>
+                                        <th> Type </th>
+                                        <th> Status </th>
+                                        <th> Date </th>
+                                        <th class="d-flex justify-content-end"> Action </th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% if tickets is defined and tickets is not empty %}
+                                        {% for ticket in tickets %}
+                                            <tr>
+                                                <td>
+                                                    <a href="{{ path('app_interest_show', {'id': ticket.id}) }}" class="text-white">
+                                                        #{{ ticket.id }}
+                                                    </a>
+                                                </td>
+                                                <td>
+                                                    <a href="{{ path('app_interest_show', {'id': ticket.id}) }}" class="text-white">
+                                                        <p>
+                                                            {{ ticket.content|slice(0, 80) }}
+                                                        </p>
+                                                    </a>
+                                                </td>
+                                                <td>
+                                                    <p>
+                                                        {{ ticket.type|capitalize }}
+                                                    </p>
+                                                </td>
+                                                <td>
+                                                    <p
+                                                        {% if ticket.status == 'In progress...' %}
+                                                            class="text-warning"
+                                                        {% else %}
+                                                            class="text-success"
+                                                        {% endif %}
+                                                    >
+                                                        {{ ticket.status }}
+                                                    </p>
+                                                </td>
+                                                <td>
+                                                    <p>{{ ticket.creationDate|date('d-m-Y') }}</p>
+                                                </td>
+                                                {% if ticket.status != 'Resolved' %}
+                                                    <td>
+                                                        <div class="d-flex justify-content-end">
+                                                            <a href="#" data-bs-toggle="modal" data-bs-target="#ticketReply{{ ticket.id }}">
+                                                                <i class='bx bx-reply-big' style="color: white; font-size: 20px"></i>
+                                                            </a>
+                                                        </div>
+                                                    </td>
+                                                {% else %}
+                                                    <td>
+                                                        <div class="d-flex justify-content-end">
+                                                            <p class="text-muted">No more actions needed.</p>
+                                                        </div>
+                                                    </td>
+                                                {% endif %}
+                                            </tr>
+                                        {% endfor %}
+                                    {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% for ticket in tickets %}
+                    <!-- Reply to ticket modal -->
+                    <div class="modal fade" id="ticketReply{{ ticket.id }}" tabindex="-1" aria-labelledby="ticketReplyLabel{{ ticket.id }}">
+                        <div class="modal-dialog" style="max-width: 850px;">
+                            <div class="modal-content" style="background-color: #181b20; border-radius: 5px;">
+                                <div class="modal-header bg-warning text-white">
+                                    <h5 class="modal-title" id="ticketReplyLabel{{ ticket.id }}">Ticket no. #{{ ticket.id }}</h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="m-2 p-0">
+                                        <h5>
+                                            Current status:
+                                            <span
+                                                    {% if ticket.status == 'In progress...' %}
+                                                        class="text-warning"
+                                                    {% endif %}
+                                                    {% if ticket.status == 'Resolved' %}
+                                                        class="text-success"
+                                                    {% endif %}
+                                            >{{ ticket.status }}</span>
+                                        </h5>
+                                        <h5>Type: {{ ticket.type|capitalize }}</h5>
+                                        <br/>
+                                        <div class="d-flex flex-row">
+                                            <a class="nav-link" id="userAvatarTicket" href="{{ path('app_profile', {'id': ticket.user.id}) }}">
+                                                <img class="img-sm rounded-circle" src="{{ asset('uploads/avatars/' ~ ticket.user.avatar) }}" alt="avatar" onerror="showDefaultIcon(this)">
+                                            </a>
+                                            <h5 class="ms-1" style="margin-top: 5px">@{{ ticket.user.nametag }}</h5>
+                                            <p class="ms-1" style="margin-top: 3px"> wrote:</p>
+                                        </div>
+                                        <div class="pt-4 ps-4 pe-4 pb-3" style="background-color: #282b33; border-radius: 5px 5px 0 0;">
+                                            <p>{{ ticket.content }}</p>
+                                        </div>
+                                        <div class="d-flex flex-row">
+                                            <form method="POST" {#action="{{ path('ticket_reply', {id: ticket.id}) }}" #} class="ajax-ticket-reply-form w-100" data-ticket-id="{{ ticket.id }}">
+                                                <div class="d-flex flex-row">
+                                                    <input type="text" name="message" class="form-control ticket-reply-input w-100" style="border-top-left-radius: 0; border-top-right-radius: 0" placeholder="Reply to the user..." required>
+                                                    <div class="d-flex justify-content-end">
+                                                        <button type="submit" class="btn btn-light btn-sm px-3" style="height: 2.55rem; border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-left-radius: 0">Send</button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class="d-flex flex-row justify-content-end mt-4">
+                                            <p class="text-white me-2">Actions: </p>
+                                            <a href="#" class="me-1">
+                                                <i class="fa fa-check bg-success" style="color: white; font-size: 24px; border-radius: 50%" title="Mark as solved"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
