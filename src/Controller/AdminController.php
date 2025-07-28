@@ -350,4 +350,17 @@ final class AdminController extends AbstractController
         $this->addFlash('success', 'The interest has been deleted.');
         return $this->redirectToRoute('admin_show_interests');
     }
+
+    #[Route('/admin/manage-tickets', name: 'admin_show_tickets', methods: ['GET', 'POST'])]
+    public function showTickets(
+        UserRepository $userRepository,
+        TicketRepository $ticketRepository,
+    ): Response
+    {
+        $tickets = $ticketRepository->findAll();
+
+        return $this->render('admin/all_tickets.html.twig', [
+            'tickets' => $tickets,
+        ]);
+    }
 }
