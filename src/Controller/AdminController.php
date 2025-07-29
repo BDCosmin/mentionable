@@ -390,23 +390,52 @@ final class AdminController extends AbstractController
 
         try {
             $ticket->setAdminReply($replyContent);
-            $ticket->setStatus('In progress...');
-
-            $notification = new Notification();
-            $notification->setType('admin_ticket_reply');
-            $notification->setReceiver($ticket->getUser());
-            $notification->setSender($this->getUser());
-            $notification->setTicket($ticket);
-            $notification->setIsRead(false);
-            $notification->setNotifiedDate(new \DateTime());
 
             $em->persist($ticket);
-            $em->persist($notification);
             $em->flush();
 
-            return new JsonResponse(['success' => true]);
+            return new JsonResponse([
+                'success' => true,
+                'reply' => $replyContent,
+                'status' => $ticket->getStatus(),
+                'ticketId' => $ticket->getId(),
+            ]);
         } catch (\Exception $e) {
             return new JsonResponse(['success' => false, 'message' => 'Server error occurred.'], 500);
         }
+    }
+
+    #[Route('/admin/ticket/{id}/mark-as-solved', name: 'admin_ticket_solved', methods: ['POST','GET'])]
+    public function markAsSolvedTicket(
+        int $id,
+        TicketRepository $ticketRepository,
+        EntityManagerInterface $em
+    ): Response {
+        $ticket = $ticketRepository->find($id);
+
+        if (!$ticket) {
+            return new JsonResponse(['success' => false, 'message' => 'Ticket not found.'], 404);
+        }
+
+        if (!$this->isGranted('ROLE_ADMIN')) {
+            return new JsonResponse(['success' => false, 'message' => 'Access denied.'], 403);
+        }
+
+        $ticket->setStatus('Resolved');
+
+        $notification = new Notification();
+        $notification->setType('admin_ticket_solved');
+        $notification->setReceiver($ticket->getUser());
+        $notification->setSender($this->getUser());
+        $notification->setTicket($ticket);
+        $notification->setIsRead(false);
+        $notification->setNotifiedDate(new \DateTime());
+
+        $em->persist($ticket);
+        $em->persist($notification);
+        $em->flush();
+
+        return $this->redirectToRoute('app_ticket_preview', ['id' => $ticket->getId()]);
+
     }
 }

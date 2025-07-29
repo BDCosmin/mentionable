@@ -1,49 +1,55 @@
-document.addEventListener('DOMContentLoaded', () => {
-    function showFlashMessage(message, type = 'success') {
-        const flashDiv = document.createElement('div');
-        flashDiv.className = `alert alert-${type} alert-dismissible fade show`;
-        flashDiv.role = 'alert';
-        flashDiv.innerHTML = `
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        `;
+document.addEventListener("DOMContentLoaded", function () {
+    const forms = document.querySelectorAll('.ajax-ticket-reply-form');
 
-        // Adaugă flash-ul în containerul principal (modifică selectorul după nevoie)
-        const container = document.querySelector('.content-wrapper > .row') || document.body;
-        container.prepend(flashDiv);
-
-        setTimeout(() => {
-            bootstrap.Alert.getOrCreateInstance(flashDiv).close();
-        }, 5000);
-    }
-
-    document.querySelectorAll('.ajax-ticket-reply-form').forEach(form => {
-        form.addEventListener('submit', function(e) {
+    forms.forEach(form => {
+        form.addEventListener('submit', async function (e) {
             e.preventDefault();
 
-            const formData = new FormData(this);
-            const url = this.action;
+            const ticketId = form.dataset.ticketId;
+            const input = form.querySelector('.ticket-reply-input');
+            const message = input.value.trim();
 
-            fetch(url, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        const modalEl = this.closest('.modal');
-                        const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-                        modal.hide();
+            if (!message) return;
 
-                        showFlashMessage('Reply sent successfully!', 'success');
-                    } else {
-                        showFlashMessage('Eroare: ' + (data.message || 'The message could not be sent.'), 'danger');
+            const url = form.getAttribute('action');
+            const formData = new FormData();
+            formData.append('message', message);
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
                     }
-                })
-                .catch(() => showFlashMessage('An error occurred while sending the message.', 'danger'));
+                });
+
+                const data = await response.json();
+                if (data.success) {
+
+                    form.closest('.d-flex').classList.add('d-none');
+
+                    const replyContainer = document.createElement('div');
+                    replyContainer.className = "d-flex flex-row mt-3";
+                    replyContainer.innerHTML = `
+                        <div class="m-0 p-0">
+                            <div class="d-flex flex-row" style="height: 30px;">
+                                <p class="text-white me-2" style="font-size: 18px;">Your reply:</p>
+                            </div>
+                            <div class="d-inline-flex">
+                                <small style="font-size: 16px; color: white; background-color: #282b33; border-radius: 8px; padding: 8px;">${data.reply}</small>
+                            </div>
+                        </div>
+                    `;
+
+                    form.parentElement.insertAdjacentElement('afterend', replyContainer);
+                } else {
+                    alert(data.error || "Something went wrong.");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Could not send reply. Try again.");
+            }
         });
     });
 });

@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Ticket no. #{{ ticketNumber }} - Mentionable{% endblock %}
+{% block title %}Ticket no. #{{ ticket.id }} - Mentionable{% endblock %}
 
 {% block body %}
     <div class="main-panel">
@@ -15,12 +15,12 @@
                     {% endfor %}
                     <div class="m-3 p-0">
                         <div class="d-flex flew-row">
-                            <h2 class="me-2">Ticket no. #{{ ticketNumber }}</h2>
+                            <h2 class="me-2">Ticket no. #{{ ticket.id }}</h2>
                             {% if ticket.status == 'In progress...' %}
-                                <i class='bx bx-hourglass mt-2 text-muted' title="{{ ticket.status }}"></i>
+                                <i class='bx bx-hourglass mt-2 text-warning' style="font-size: 24px" title="{{ ticket.status }}"></i>
                             {% endif %}
                             {% if ticket.status == 'Resolved' %}
-                                <i class='fa fa-check-circle mt-2 text-muted' title="{{ ticket.status }}"></i>
+                                <i class='fa fa-check-circle mt-2 text-success' style="font-size: 24px" title="{{ ticket.status }}"></i>
                             {% endif %}
                         </div>
                         <p class="mb-3">This is preview only. Tickets cannot be edited after being sent to our staff.</p>
@@ -41,6 +41,23 @@
                         <div class="pt-4 ps-4 pe-4 pb-3" style="background-color: #282b33; border-radius: 5px; margin-top: 2rem;">
                             <p>{{ ticket.content }}</p>
                         </div>
+
+                        <div
+                            {% if ticket.adminReply and ticket.status == 'Resolved' %}
+                                class="d-flex flex-row mt-3"
+                            {% else %}
+                                class="d-none"
+                        {% endif %}
+                        >
+                        <div class="m-0 p-0">
+                            <div class="d-flex flex-row" style="height: 30px;">
+                                <p class="text-white me-2" style="font-size: 18px;">Reply:</p>
+                            </div>
+                            <div class="d-inline-flex">
+                                <small style="font-size: 16px; color: white; background-color: #282b33; border-radius: 8px; padding: 8px;">{{ ticket.adminReply }}</small>
+                            </div>
+                        </div>
+                    </div>
                     </div>
                 </div>
             </div>
