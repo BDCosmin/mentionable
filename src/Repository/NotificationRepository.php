@@ -24,6 +24,8 @@ class NotificationRepository extends ServiceEntityRepository
             ->addSelect('s')
             ->leftJoin('n.ring', 'r')
             ->addSelect('r')
+            ->leftJoin('n.ticket', 't')
+            ->addSelect('t')
             ->andWhere('n.receiver = :user')
             ->andWhere('n.sender IS NOT NULL')
             ->setParameter('user', $user)
