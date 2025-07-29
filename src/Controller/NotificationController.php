@@ -29,6 +29,9 @@ final class NotificationController extends AbstractController
                     'title' => $notification->getRing()->getTitle(),
                     'banner' => $notification->getRing()->getBanner(),
                 ] : null,
+                'ticket' => $notification->getTicket() ? [
+                    'id' => $notification->getTicket()->getId(),
+                ] : null,
             ];
         }
 

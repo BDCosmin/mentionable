@@ -44,6 +44,10 @@ class Notification
     #[ORM\ManyToOne(inversedBy: 'notifications')]
     private ?Ring $ring = null;
 
+    #[ORM\ManyToOne(targetEntity: Ticket::class)]
+    #[ORM\JoinColumn(name: 'ticket_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
+    private ?Ticket $ticket = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -169,6 +173,18 @@ class Notification
     public function setIsRead(bool $isRead): static
     {
         $this->isRead = $isRead;
+
+        return $this;
+    }
+
+    public function getTicket(): ?Ticket
+    {
+        return $this->ticket;
+    }
+
+    public function setTicket(?Ticket $ticket): static
+    {
+        $this->ticket = $ticket;
 
         return $this;
     }
