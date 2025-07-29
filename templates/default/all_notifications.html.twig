@@ -63,11 +63,6 @@
                                                 <p class="preview-subject mb-1" style="font-size: 20px">{{ notification.sender.nametag }} commented to your note!</p>
                                                 <p class="text-muted ellipsis mb-0">Tap to see what's the comment about.</p>
                                             </a>
-{#                                        {% elseif notification.type == 'upvoted' %}#}
-{#                                            <a href="{{ path('app_note_redirect', {'notificationId': notification.id}) }}" style="text-decoration: none !important; color: white !important;">#}
-{#                                                <p class="preview-subject mb-1" style="font-size: 20px">{{ notification.sender.nametag }} agrees with you!</p>#}
-{#                                                <p class="text-muted ellipsis mb-0">Tap to see what's the comment about.</p>#}
-{#                                            </a>#}
                                         {% elseif notification.type == 'downvoted' %}
                                             <a href="{{ path('app_note_redirect', {'notificationId': notification.id}) }}" style="text-decoration: none !important; color: white !important;">
                                                 <p class="preview-subject mb-1" style="font-size: 20px">{{ notification.sender.nametag }} disagrees with you!</p>
@@ -95,6 +90,11 @@
                                         {% elseif notification.type == 'ring_role_upgrade' %}
                                             <a href="{{ path('app_note_redirect', {'notificationId': notification.id}) }}" style="text-decoration: none !important; color: white !important;">
                                                 <p class="preview-subject mb-1" style="font-size: 20px">You've been promoted to owner in {{ notification.ring.title }}</p>
+                                            </a>
+                                        {% elseif notification.type == 'admin_ticket_reply' %}
+                                            <a href="{{ path('app_note_redirect', {'notificationId': notification.id}) }}" style="text-decoration: none !important; color: white !important;">
+                                                <p class="preview-subject mb-1" style="font-size: 20px">The admin sent you a message on ticket no. {{ notification.ticketNumber }}</p>
+                                                <p class="text-muted ellipsis mb-0">Tap to see what's the message about.</p>
                                             </a>
                                         {% else %}
                                             <p class="text-muted ellipsis mb-0">An error has occurred. Please try again later!</p>

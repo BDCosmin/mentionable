@@ -70,13 +70,19 @@ final class SupportController extends AbstractController
     public function showPreviewTicket(Request $request, TicketRepository $ticketRepository, int $id): Response
     {
         $user = $this->getUser();
-        $ticket = $ticketRepository->findOneBy(['id' => $id, 'user' => $user]);
+
+        $ticket = $ticketRepository->find($id);
 
         if (!$ticket) {
             throw $this->createNotFoundException('Ticket not found.');
         }
 
-        $userTickets = $ticketRepository->findBy(['user' => $user]);
+        if ($ticket->getUser() !== $user && !$this->isGranted('ROLE_ADMIN')) {
+            throw $this->createAccessDeniedException('You do not have access to this ticket.');
+        }
+
+        $ticketOwner = $ticket->getUser();
+        $userTickets = $ticketRepository->findBy(['user' => $ticketOwner]);
 
         $ticketNumber = null;
         foreach ($userTickets as $i => $t) {

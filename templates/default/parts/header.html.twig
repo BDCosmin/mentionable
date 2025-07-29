@@ -332,14 +332,6 @@
                                 title = `${notification.sender} commented to your note!`;
                                 subtitle = "Tap to see what's the comment about.";
                                 break;
-                            // case 'upvoted':
-                            //     title = `${notification.sender} agrees with you!`;
-                            //     subtitle = "Tap to see what's the comment about.";
-                            //     break;
-                            // case 'downvoted':
-                            //     title = `${notification.sender} disagrees with you!`;
-                            //     subtitle = "Tap to see what's the comment about.";
-                            //     break;
                             case 'friend_request':
                                 title = `${notification.sender} sent you a friend request!`;
                                 subtitle = "Tap to see what's the friend request about.";
@@ -362,6 +354,12 @@
                             case 'ring_role_upgrade':
                                 title = `You've been promoted to owner in`;
                                 subtitle = `${ringTitle}`;
+                                break;
+                            case 'admin_ticket_reply':
+                                const ticketId = notification.ticket?.id ?? "N/A";
+                                title = `Admin sent you a message to ticket no. ${ticketId}`;
+                                subtitle = "Click to view the response.";
+                                extraAttributes = `href="/notification/${notification.id}/redirect" style="text-decoration: none !important; color: white !important;"`;
                                 break;
                             default:
                                 title = `You have a new notification!`;

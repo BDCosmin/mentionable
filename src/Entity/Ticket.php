@@ -29,6 +29,9 @@ class Ticket
     #[ORM\Column]
     private ?\DateTime $creationDate = null;
 
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $adminReply = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -91,6 +94,17 @@ class Ticket
     {
         $this->creationDate = $creationDate;
 
+        return $this;
+    }
+
+    public function getAdminReply(): ?string
+    {
+        return $this->adminReply;
+    }
+
+    public function setAdminReply(?string $adminReply): static
+    {
+        $this->adminReply = $adminReply;
         return $this;
     }
 

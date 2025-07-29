@@ -51,13 +51,11 @@
                                         {% for ticket in tickets %}
                                             <tr>
                                                 <td>
-                                                    <a href="{{ path('app_interest_show', {'id': ticket.id}) }}" class="text-white">
-                                                        #{{ ticket.id }}
-                                                    </a>
+                                                    <p class="text-white mb-0 mt-1">#{{ ticket.id }}</p>
                                                 </td>
                                                 <td>
-                                                    <a href="{{ path('app_interest_show', {'id': ticket.id}) }}" class="text-white">
-                                                        <p>
+                                                    <a href="{{ path('app_ticket_preview', {'id': ticket.id}) }}" class="text-white">
+                                                        <p class="mb-0">
                                                             {{ ticket.content|slice(0, 80) }}
                                                         </p>
                                                     </a>
@@ -140,7 +138,7 @@
                                             <p>{{ ticket.content }}</p>
                                         </div>
                                         <div class="d-flex flex-row">
-                                            <form method="POST" {#action="{{ path('ticket_reply', {id: ticket.id}) }}" #} class="ajax-ticket-reply-form w-100" data-ticket-id="{{ ticket.id }}">
+                                            <form method="POST" action="{{ path('admin_ticket_reply', {id: ticket.id}) }}" class="ajax-ticket-reply-form w-100" data-ticket-id="{{ ticket.id }}">
                                                 <div class="d-flex flex-row">
                                                     <input type="text" name="message" class="form-control ticket-reply-input w-100" style="border-top-left-radius: 0; border-top-right-radius: 0" placeholder="Reply to the user..." required>
                                                     <div class="d-flex justify-content-end">
@@ -164,4 +162,8 @@
             </div>
         </div>
     </div>
+{% endblock %}
+{% block javascript %}
+{{ parent() }}
+<script src="{{ asset('../assets/js/ticket.js') }}"></script>
 {% endblock %}

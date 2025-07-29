@@ -15,6 +15,7 @@ use App\Repository\TicketRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -362,5 +363,50 @@ final class AdminController extends AbstractController
         return $this->render('admin/all_tickets.html.twig', [
             'tickets' => $tickets,
         ]);
+    }
+
+    #[Route('/admin/ticket/{id}/reply', name: 'admin_ticket_reply', methods: ['POST','GET'])]
+    public function replyToTicket(
+        int $id,
+        Request $request,
+        TicketRepository $ticketRepository,
+        EntityManagerInterface $em
+    ): JsonResponse {
+        $ticket = $ticketRepository->find($id);
+
+        if (!$ticket) {
+            return new JsonResponse(['success' => false, 'message' => 'Ticket not found.'], 404);
+        }
+
+        if (!$this->isGranted('ROLE_ADMIN')) {
+            return new JsonResponse(['success' => false, 'message' => 'Access denied.'], 403);
+        }
+
+        $replyContent = $request->request->get('message');
+
+        if (!$replyContent) {
+            return new JsonResponse(['success' => false, 'message' => 'Message cannot be empty.'], 400);
+        }
+
+        try {
+            $ticket->setAdminReply($replyContent);
+            $ticket->setStatus('In progress...');
+
+            $notification = new Notification();
+            $notification->setType('admin_ticket_reply');
+            $notification->setReceiver($ticket->getUser());
+            $notification->setSender($this->getUser());
+            $notification->setTicket($ticket);
+            $notification->setIsRead(false);
+            $notification->setNotifiedDate(new \DateTime());
+
+            $em->persist($ticket);
+            $em->persist($notification);
+            $em->flush();
+
+            return new JsonResponse(['success' => true]);
+        } catch (\Exception $e) {
+            return new JsonResponse(['success' => false, 'message' => 'Server error occurred.'], 500);
+        }
     }
 }
