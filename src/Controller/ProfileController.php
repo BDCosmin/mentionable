@@ -141,7 +141,6 @@ class ProfileController extends AbstractController
         $notes = $em->getRepository(Note::class)->findBy(['user' => $page], ['publicationDate' => 'DESC']);
         $interests = $page->getInterests();
 
-        // Build array for notes + mentionedUser
         $notesWithMentionedUser = [];
         foreach ($notes as $note) {
             $mentionedUser = $note->getMentionedUser();

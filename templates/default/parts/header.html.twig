@@ -314,14 +314,22 @@
                         let link = `/notification/${notification.id}/redirect`;
                         let extraAttributes = '';
                         let ringTitle = notification.ring ? notification.ring.title : '';
+
                         const isClosedReport = notification.type === 'closed_report' || notification.type === 'reported';
+                        const isClosedTicket = notification.type === 'admin_ticket_solved';
 
-                        const imgSrc = isClosedReport
-                            ? null
-                            : (notification.ring?.banner
-                                ? `/uploads/rings/${notification.ring.banner}`
-                                : `/uploads/avatars/${notification.avatar ?? 'default.jpg'}`);
-
+                        const previewMediaContent = isClosedReport
+                            ? `<div class="preview-icon rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                 <i class='bx bx-mail-open text-white' style='font-size: 24px'></i>
+                               </div>`
+                            : isClosedTicket
+                            ? `<div class="preview-icon rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                 <i class='bx bx-ticket text-white' style='font-size: 24px'></i>
+                               </div>`
+                            : `<img class="preview-icon bg-dark rounded-circle"
+                            src="{{ asset('/error.png') }}"
+                            alt="avatarNotif"
+                            onerror="showDefaultIcon(this)">`;
 
                         switch (notification.type) {
                             case 'mentioned':
@@ -355,10 +363,10 @@
                                 title = `You've been promoted to owner in`;
                                 subtitle = `${ringTitle}`;
                                 break;
-                            case 'admin_ticket_reply':
+                            case 'admin_ticket_solved':
                                 const ticketId = notification.ticket?.id ?? "N/A";
-                                title = `Admin sent you a message to ticket no. ${ticketId}`;
-                                subtitle = "Click to view the response.";
+                                title = `Your ticket no. ${ticketId} was solved!`;
+                                subtitle = "Tap to view the response.";
                                 extraAttributes = `href="/notification/${notification.id}/redirect" style="text-decoration: none !important; color: white !important;"`;
                                 break;
                             default:
@@ -375,12 +383,7 @@
                         notificationList.innerHTML += `
                         <a class="dropdown-item preview-item" ${extraAttributes}>
                             <div class="preview-thumbnail">
-                                ${isClosedReport
-                            ? `<div class="preview-icon bg-dark rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                 <i class='bx bx-mail-open' style='color: lightgrey; font-size: 20px'></i>
-                               </div>`
-                            : `<img class="preview-icon bg-dark rounded-circle" src="${imgSrc}" alt="avatarNotif" onerror="showDefaultIcon(this)">`
-                        }
+                                ${previewMediaContent}
                             </div>
                             <div class="preview-item-content">
                                 <p class="preview-subject mb-1">${title}</p>
@@ -408,7 +411,6 @@
                     bell.style.display = unreadCount > 0 ? "inline-block" : "none";
                 }
 
-                // Activează click instant pe "mark as read"
                 const markBtn = document.getElementById("markAsRead");
                 if (markBtn) {
                     markBtn.addEventListener("click", function (e) {
@@ -417,14 +419,12 @@
                             method: 'POST',
                             headers: { 'X-Requested-With': 'XMLHttpRequest' }
                         }).then(() => {
-                            fetchNotifications(); // actualizare instantă
+                            fetchNotifications();
                         });
                     });
                 }
             });
     }
-
-        // Inițial și apoi la 10 secunde
         document.addEventListener("DOMContentLoaded", fetchNotifications);
         setInterval(fetchNotifications, 10000);
 </script>

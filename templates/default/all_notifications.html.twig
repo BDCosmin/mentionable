@@ -31,7 +31,7 @@
                     {% for notification in allNotifications %}
                         <div class="col-lg-7 pt-4 ps-4 pe-4 pb-3 d-flex flex-row" style="background-color: #181b20; border-radius: 5px; margin-top: 2rem;">
                             <div class="navbar-profile d-flex flex-column text-light mb-3">
-                                <a class="nav-link me-3 mt-2" id="avatarNotif" href="{{ path('app_note_redirect', {'notificationId': notification.id}) }}">
+                                <a class="nav-link me-3 mt-2" id="avatarNotif" href="{{ path('app_notification_redirect', {'notificationId': notification.id}) }}">
                                     {% if notification.type == 'reported'  %}
                                         <i class='bx bx-mail-open' style='color: lightgrey; font-size: 34px'></i>
                                     {% elseif notification.type == 'closed_report' %}
@@ -54,27 +54,27 @@
                                 <div class="d-flex flex-column m-0 p-0" style="width: 100%">
                                     {% if notification.sender %}
                                         {% if notification.type == 'mentioned' %}
-                                            <a href="{{ path('app_note_redirect', {'notificationId': notification.id}) }}" style="text-decoration: none !important; color: white !important;">
+                                            <a href="{{ path('app_notification_redirect', {'notificationId': notification.id}) }}" style="text-decoration: none !important; color: white !important;">
                                                 <p class="preview-subject mb-1" style="font-size: 20px">{{ notification.sender.nametag }} mentioned you!</p>
                                                 <p class="text-muted ellipsis mb-0">Tap to see what's the note about.</p>
                                             </a>
                                         {% elseif notification.type == 'commented' %}
-                                            <a href="{{ path('app_note_redirect', {'notificationId': notification.id}) }}" style="text-decoration: none !important; color: white !important;">
+                                            <a href="{{ path('app_notification_redirect', {'notificationId': notification.id}) }}" style="text-decoration: none !important; color: white !important;">
                                                 <p class="preview-subject mb-1" style="font-size: 20px">{{ notification.sender.nametag }} commented to your note!</p>
                                                 <p class="text-muted ellipsis mb-0">Tap to see what's the comment about.</p>
                                             </a>
                                         {% elseif notification.type == 'downvoted' %}
-                                            <a href="{{ path('app_note_redirect', {'notificationId': notification.id}) }}" style="text-decoration: none !important; color: white !important;">
+                                            <a href="{{ path('app_notification_redirect', {'notificationId': notification.id}) }}" style="text-decoration: none !important; color: white !important;">
                                                 <p class="preview-subject mb-1" style="font-size: 20px">{{ notification.sender.nametag }} disagrees with you!</p>
                                                 <p class="text-muted ellipsis mb-0">Tap to see what's the comment about.</p>
                                             </a>
                                         {% elseif notification.type == 'friend_request' %}
-                                            <a href="{{ path('app_note_redirect', {'notificationId': notification.id}) }}" style="text-decoration: none !important; color: white !important;">
+                                            <a href="{{ path('app_notification_redirect', {'notificationId': notification.id}) }}" style="text-decoration: none !important; color: white !important;">
                                                 <p class="preview-subject mb-1" style="font-size: 20px">{{ notification.sender.nametag }} send you a friend request!</p>
                                                 <p class="text-muted ellipsis mb-0">Tap to see what's the friend request about.</p>
                                             </a>
                                         {% elseif notification.type == 'reported' %}
-                                            <a href="{{ path('app_note_redirect', {'notificationId': notification.id}) }}" style="text-decoration: none !important; color: white !important;">
+                                            <a href="{{ path('app_notification_redirect', {'notificationId': notification.id}) }}" style="text-decoration: none !important; color: white !important;">
                                                 <p class="preview-subject mb-1" style="font-size: 20px">Your annonymous report has been sent!</p>
                                                 <p class="text-muted ellipsis mb-0">We will review in short time your request. Thank you!</p>
                                             </a>
@@ -88,12 +88,12 @@
                                                 <p class="preview-subject mb-1" style="font-size: 20px">You've been removed from the ring {{ notification.ring.title }}</p>
                                             </a>
                                         {% elseif notification.type == 'ring_role_upgrade' %}
-                                            <a href="{{ path('app_note_redirect', {'notificationId': notification.id}) }}" style="text-decoration: none !important; color: white !important;">
+                                            <a href="{{ path('app_notification_redirect', {'notificationId': notification.id}) }}" style="text-decoration: none !important; color: white !important;">
                                                 <p class="preview-subject mb-1" style="font-size: 20px">You've been promoted to owner in {{ notification.ring.title }}</p>
                                             </a>
-                                        {% elseif notification.type == 'admin_ticket_reply' %}
-                                            <a href="{{ path('app_note_redirect', {'notificationId': notification.id}) }}" style="text-decoration: none !important; color: white !important;">
-                                                <p class="preview-subject mb-1" style="font-size: 20px">The admin sent you a message on ticket no. {{ notification.ticketNumber }}</p>
+                                        {% elseif notification.type == 'admin_ticket_solved' %}
+                                            <a href="{{ path('app_notification_redirect', {'notificationId': notification.id}) }}" style="text-decoration: none !important; color: white !important;">
+                                                <p class="preview-subject mb-1" style="font-size: 20px">The admin sent you a message on ticket no. {{ notification.ticket.id }}</p>
                                                 <p class="text-muted ellipsis mb-0">Tap to see what's the message about.</p>
                                             </a>
                                         {% else %}

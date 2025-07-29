@@ -39,7 +39,7 @@ final class SupportController extends AbstractController
             $em->flush();
 
             $this->addFlash('success', 'Your ticket has been sent!');
-            return $this->redirectToRoute('app_new_ticket');
+            return $this->redirectToRoute('app_my_tickets');
         }
 
         return $this->render('support/new_ticket.html.twig', [
@@ -53,16 +53,8 @@ final class SupportController extends AbstractController
         $user = $this->getUser();
         $myTickets = $ticketRepository->findBy(['user' => $user], ['creationDate' => 'DESC']);
 
-        $numberedTickets = [];
-        foreach ($myTickets as $i => $ticket) {
-            $numberedTickets[] = [
-                'number' => count($myTickets) - $i,
-                'ticket' => $ticket,
-            ];
-        }
-
         return $this->render('support/my_tickets.html.twig', [
-           'tickets' => $numberedTickets
+           'tickets' => $myTickets
         ]);
     }
 
@@ -81,20 +73,9 @@ final class SupportController extends AbstractController
             throw $this->createAccessDeniedException('You do not have access to this ticket.');
         }
 
-        $ticketOwner = $ticket->getUser();
-        $userTickets = $ticketRepository->findBy(['user' => $ticketOwner]);
-
-        $ticketNumber = null;
-        foreach ($userTickets as $i => $t) {
-            if ($t->getId() === $ticket->getId()) {
-                $ticketNumber = $i + 1;
-                break;
-            }
-        }
 
         return $this->render('support/preview_ticket.html.twig', [
             'ticket' => $ticket,
-            'ticketNumber' => $ticketNumber
         ]);
     }
 }

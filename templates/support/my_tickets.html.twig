@@ -23,6 +23,12 @@
                 </div>
 
                 <div class="row justify-content-center mb-4">
+                    {% for msg in app.flashes('success') %}
+                        <div class="col-lg-7 pt-4 ps-4 pe-4 pb-3 mb-4 alert alert-success">{{ msg }}</div>
+                    {% endfor %}
+                    {% for msg in app.flashes('error') %}
+                        <div class="col-lg-7 pt-4 ps-4 pe-4 pb-3 mb-4 alert alert-danger">{{ msg }}</div>
+                    {% endfor %}
                     {% if tickets is defined and tickets|length > 0 %}
                         {% for ticket in tickets %}
                             <div class="col-lg-7 pt-4 ps-4 pe-4 pb-3 mb-4" style="background-color: #181b20; border-radius: 5px;">
@@ -31,23 +37,23 @@
                                     <i class='bx bx-ticket me-2' style='color:#ffffff; font-size: 24px'></i>
 
                                     <div class="d-flex flex-column text-muted">
-                                        <a href="{{ path('app_ticket_preview',{'id' : ticket.ticket.id }) }}" class="text-decoration-none">
-                                            <h5 class="mb-1 text-white">Ticket no. #{{ ticket.number }}</h5>
+                                        <a href="{{ path('app_ticket_preview',{'id' : ticket.id }) }}" class="text-decoration-none">
+                                            <h5 class="mb-1 text-white">Ticket no. #{{ ticket.id }}</h5>
                                         </a>
                                         <p class="text-white mb-0">
-                                            {{ ticket.ticket.type|capitalize }}
+                                            {{ ticket.type|capitalize }}
                                         </p>
                                     </div>
 
-                                    {% if ticket.ticket.status == 'In progress...' %}
-                                        <i class='bx bx-hourglass ms-2 text-warning' title="{{ ticket.ticket.status }}"></i>
+                                    {% if ticket.status == 'In progress...' %}
+                                        <i class='bx bx-hourglass ms-2 text-warning' title="{{ ticket.status }}"></i>
                                     {% endif %}
-                                    {% if ticket.ticket.status == 'Resolved' %}
-                                        <i class='fa fa-check-circle ms-2 text-success' title="{{ ticket.ticket.status }}"></i>
+                                    {% if ticket.status == 'Resolved' %}
+                                        <i class='fa fa-check-circle ms-2 text-success' title="{{ ticket.status }}"></i>
                                     {% endif %}
 
                                     <div class="ms-auto">
-                                        <p class="me-4 mt-1 text-muted">{{ ticket.ticket.humanTimeTicket }}</p>
+                                        <p class="me-4 mt-1 text-muted">{{ ticket.humanTimeTicket }}</p>
                                     </div>
                                 </div>
                             </div>

@@ -108,6 +108,6 @@ final class DefaultController extends AbstractController
             $notificationService->markAllAsRead($user);
         }
 
-        return new Response(null, 204); // 204 = No Content
+        return new Response(null, 204);
     }
 }

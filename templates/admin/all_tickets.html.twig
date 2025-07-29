@@ -137,7 +137,13 @@
                                         <div class="pt-4 ps-4 pe-4 pb-3" style="background-color: #282b33; border-radius: 5px 5px 0 0;">
                                             <p>{{ ticket.content }}</p>
                                         </div>
-                                        <div class="d-flex flex-row">
+                                        <div
+                                            {% if ticket.adminReply %}
+                                                class="d-none"
+                                            {% else %}
+                                                class="d-flex flex-row"
+                                            {% endif %}
+                                        >
                                             <form method="POST" action="{{ path('admin_ticket_reply', {id: ticket.id}) }}" class="ajax-ticket-reply-form w-100" data-ticket-id="{{ ticket.id }}">
                                                 <div class="d-flex flex-row">
                                                     <input type="text" name="message" class="form-control ticket-reply-input w-100" style="border-top-left-radius: 0; border-top-right-radius: 0" placeholder="Reply to the user..." required>
@@ -147,10 +153,26 @@
                                                 </div>
                                             </form>
                                         </div>
+                                        <div
+                                            {% if ticket.adminReply %}
+                                                class="d-flex flex-row mt-3"
+                                            {% else %}
+                                                class="d-none"
+                                            {% endif %}
+                                        >
+                                            <div class="m-0 p-0">
+                                                <div class="d-flex flex-row" style="height: 30px;">
+                                                    <p class="text-white me-2" style="font-size: 18px;">Your reply:</p>
+                                                </div>
+                                                <div class="d-inline-flex">
+                                                    <small style="font-size: 16px; color: white; background-color: #282b33; border-radius: 8px; padding: 8px;">{{ ticket.adminReply }}</small>
+                                                </div>
+                                            </div>
+                                        </div>
                                         <div class="d-flex flex-row justify-content-end mt-4">
-                                            <p class="text-white me-2">Actions: </p>
-                                            <a href="#" class="me-1">
-                                                <i class="fa fa-check bg-success" style="color: white; font-size: 24px; border-radius: 50%" title="Mark as solved"></i>
+                                            <p class="text-white mt-1 me-2">Mark as solved: </p>
+                                            <a href="{{ path('admin_ticket_solved', {'id': ticket.id}) }}" class="me-1">
+                                                <i class="fa fa-check bg-success" style="color: white; font-size: 30px; border-radius: 30%" title="Mark as solved"></i>
                                             </a>
                                         </div>
                                     </div>
