@@ -7,6 +7,7 @@ parameters:
     avatars_directory: '%kernel.project_dir%/public/uploads/avatars'
     notes_directory: '%kernel.project_dir%/public/uploads/notes'
     rings_directory: '%kernel.project_dir%/public/uploads/rings'
+    perspective_api_key: '%env(PERSPECTIVE_API_KEY)%'
 
 services:
     # default configuration for services in *this* file
@@ -25,6 +26,9 @@ services:
     App\Service\NotificationService:
         autowire: true
         autoconfigure: true
+    App\Service\TextModerationService:
+        arguments:
+            $apiKey: '%perspective_api_key%'
     App\Twig\:
         resource: '../src/Twig'
         tags: ['twig.extension']

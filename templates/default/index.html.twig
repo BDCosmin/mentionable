@@ -270,6 +270,8 @@
                             </form>
                             <div class="new-comments"></div>
 
+                            <div id="error" style="display:none; color:red; margin-bottom: 1em;"></div>
+
                             {# COMMENTS LIST #}
                             {% for comment in note.comments %}
                                 <div class="d-flex flex-row mb-3" data-note-id="{{ note.id }}">

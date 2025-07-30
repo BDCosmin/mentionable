@@ -30,6 +30,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     form.closest('.d-flex').classList.add('d-none');
 
                     const replyContainer = document.createElement('div');
+
                     replyContainer.className = "d-flex flex-row mt-3";
                     replyContainer.innerHTML = `
                         <div class="m-0 p-0">
@@ -38,11 +39,16 @@ document.addEventListener("DOMContentLoaded", function () {
                             </div>
                             <div class="d-inline-flex">
                                 <small style="font-size: 16px; color: white; background-color: #282b33; border-radius: 8px; padding: 8px;">${data.reply}</small>
-                            </div>
+                            </div>                   
                         </div>
                     `;
 
                     form.parentElement.insertAdjacentElement('afterend', replyContainer);
+
+                    const markContainer = document.getElementById(`markResolvedContainer${ticketId}`);
+                    if (markContainer) {
+                        markContainer.classList.remove('d-none');
+                    }
                 } else {
                     alert(data.error || "Something went wrong.");
                 }

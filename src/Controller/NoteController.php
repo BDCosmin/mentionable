@@ -19,6 +19,7 @@ use App\Repository\RingMemberRepository;
 use App\Repository\RingRepository;
 use App\Repository\UserRepository;
 use App\Service\NotificationService;
+use App\Service\TextModerationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -47,7 +48,8 @@ class NoteController extends AbstractController
         CommentVoteRepository $commentVoteRepository,
         SluggerInterface $slugger,
         RingRepository $ringRepository,
-        RingMemberRepository $ringMemberRepository
+        RingMemberRepository $ringMemberRepository,
+        TextModerationService $moderator
     ): Response {
         $user = $this->getUser();
         $error = '';
@@ -85,6 +87,15 @@ class NoteController extends AbstractController
 
         if ($request->isMethod('POST')) {
             $content = $request->request->get('content');
+
+            // Perspective API
+            $moderation = $moderator->analyze($content);
+            $toxicityScore = $moderation['attributeScores']['TOXICITY']['summaryScore']['value'] ?? 0;
+            $insultScore = $moderation['attributeScores']['INSULT']['summaryScore']['value'] ?? 0;
+
+            if ($toxicityScore > 0.85 || $insultScore > 0.85){
+                $error = 'Your note was rejected because it may be toxic or insulting.';
+            }
 
             $fileName = '';
             $noteImageFile = $request->files->get('image');
@@ -531,10 +542,31 @@ class NoteController extends AbstractController
     }
 
     #[Route('/note/{id}/comment', name: 'note_comment', methods: ['POST'])]
-    public function comment(Note $note, Request $request, EntityManagerInterface $em, CommentVoteRepository $commentVoteRepository, NotificationService $notificationService): Response
+    public function comment(Note $note,
+                            Request $request,
+                            EntityManagerInterface $em,
+                            CommentVoteRepository $commentVoteRepository,
+                            NotificationService $notificationService,
+                            TextModerationService $moderator
+    ): Response
     {
         $user = $this->getUser();
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        $message = $request->request->get('message');
+
+        $moderation = $moderator->analyze($message);
+        $toxicityScore = $moderation['attributeScores']['TOXICITY']['summaryScore']['value'] ?? 0;
+        $insultScore = $moderation['attributeScores']['INSULT']['summaryScore']['value'] ?? 0;
+
+        if ($toxicityScore > 0.85 || $insultScore > 0.85) {
+            if ($request->isXmlHttpRequest()) {
+                return new JsonResponse(['status' => 'error', 'message' => 'Your comment was rejected because it may be toxic or insulting.'], 400);
+            }
+
+            $this->addFlash('danger', 'Your comment was rejected because it may be toxic or insulting.');
+            return $this->redirectToRoute('homepage');
+        }
 
         $comment = new Comment();
         $comment->setUser($this->getUser());

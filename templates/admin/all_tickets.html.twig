@@ -169,7 +169,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="d-flex flex-row justify-content-end mt-4">
+                                        <div id="markResolvedContainer{{ ticket.id }}" class="d-flex flex-row justify-content-end mt-4 {{ ticket.adminReply ? '' : 'd-none' }}">
                                             <p class="text-white mt-1 me-2">Mark as solved: </p>
                                             <a href="{{ path('admin_ticket_solved', {'id': ticket.id}) }}" class="me-1">
                                                 <i class="fa fa-check bg-success" style="color: white; font-size: 30px; border-radius: 30%" title="Mark as solved"></i>
