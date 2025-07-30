@@ -274,7 +274,10 @@ final class AdminController extends AbstractController
             return $this->redirectToRoute('admin_show_rings');
         }
 
+        $suspensionReason = $request->request->get('suspensionReason');
+
         $ring->setIsSuspended(true);
+        $ring->setSuspensionReason($suspensionReason);
         $em->flush();
 
         $this->addFlash('success', 'The ring has been suspended.');
@@ -290,6 +293,7 @@ final class AdminController extends AbstractController
         }
 
         $ring->setIsSuspended(false);
+        $ring->setSuspensionReason(NULL);
         $em->flush();
 
         $this->addFlash('success', 'The ring has been reactivated.');
@@ -358,7 +362,7 @@ final class AdminController extends AbstractController
         TicketRepository $ticketRepository,
     ): Response
     {
-        $tickets = $ticketRepository->findAll();
+        $tickets = $ticketRepository->findBy([], ['creationDate' => 'DESC']);
 
         return $this->render('admin/all_tickets.html.twig', [
             'tickets' => $tickets,

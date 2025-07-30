@@ -277,7 +277,7 @@ final class RingController extends AbstractController
         }
 
         if ($ring->getIsSuspended() == 1) {
-            $this->addFlash('error', 'This ring has been suspended. Please try again later.');
+            $this->addFlash('error', 'This ring has been suspended. Reason: '.$ring->getSuspensionReason());
         }
 
         return $this->render('ring/page.html.twig', [

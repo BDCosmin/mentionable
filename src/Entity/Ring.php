@@ -56,6 +56,9 @@ class Ring
     #[ORM\Column(type: 'integer')]
     private ?int $isSuspended;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $suspensionReason = null;
+
     public function __construct()
     {
         $this->ringMembers = new ArrayCollection();
@@ -238,6 +241,18 @@ class Ring
     public function setIsSuspended(int $isSuspended): static
     {
         $this->isSuspended = $isSuspended;
+
+        return $this;
+    }
+
+    public function getSuspensionReason(): ?string
+    {
+        return $this->suspensionReason;
+    }
+
+    public function setSuspensionReason(?string $suspensionReason): static
+    {
+        $this->suspensionReason = $suspensionReason;
 
         return $this;
     }
