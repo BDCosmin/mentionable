@@ -22,6 +22,12 @@
                         </div>
                     {% endfor %}
                 {% endfor %}
+                {% if error is defined and error %}
+                    <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                        {{ error }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endif %}
                 <div class="row mt-5 mb-3">
                     <div class="col-lg-12 d-flex justify-content-end">
                         <a href="#" data-bs-toggle="modal" data-bs-target="#newRingModal" >

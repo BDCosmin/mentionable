@@ -27,6 +27,8 @@ services:
         autowire: true
         autoconfigure: true
     App\Service\TextModerationService:
+        autowire: true
+        autoconfigure: true
         arguments:
             $apiKey: '%perspective_api_key%'
     App\Twig\:

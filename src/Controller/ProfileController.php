@@ -14,6 +14,7 @@ use App\Repository\RingRepository;
 use App\Repository\UserRepository;
 use App\Repository\FriendRequestRepository;
 use App\Service\NotificationService;
+use App\Service\TextModerationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -186,10 +187,9 @@ class ProfileController extends AbstractController
                         EntityManagerInterface $em,
                         NotificationService $notificationService,
                         SluggerInterface $slugger,
+                        TextModerationService $moderator
     ): Response
     {
-        $error = '';
-
         $user = $this->getUser();
         if (count($user->getInterests()) >= 5) {
             $this->addFlash('error', 'You can only have up to 5 interests.');
@@ -198,6 +198,15 @@ class ProfileController extends AbstractController
 
         if ($request->isMethod('POST')) {
             $content = $request->request->get('interest-content');
+
+            $moderation = $moderator->analyze($content);
+            $toxicityScore = $moderation['attributeScores']['TOXICITY']['summaryScore']['value'] ?? 0;
+            $insultScore = $moderation['attributeScores']['INSULT']['summaryScore']['value'] ?? 0;
+
+            if ($toxicityScore > 0.75 || $insultScore > 0.75) {
+                $this->addFlash('error', 'The following interest was blocked because it may be toxic or insulting.');
+                return $this->redirect($request->headers->get('referer'));
+            }
 
             if (empty(trim($content)) || preg_match('/\s/', $content)) {
                 $this->addFlash('error', 'Interest cannot contain spaces.');

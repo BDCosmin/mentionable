@@ -93,8 +93,26 @@ class NoteController extends AbstractController
             $toxicityScore = $moderation['attributeScores']['TOXICITY']['summaryScore']['value'] ?? 0;
             $insultScore = $moderation['attributeScores']['INSULT']['summaryScore']['value'] ?? 0;
 
-            if ($toxicityScore > 0.85 || $insultScore > 0.85){
+            if ($toxicityScore > 0.85 || $insultScore > 0.85) {
                 $error = 'Your note was rejected because it may be toxic or insulting.';
+
+                if ($request->isXmlHttpRequest()) {
+                    return new JsonResponse(['status' => 'error', 'message' => $error], 400);
+                }
+
+                $template = $ringId ? 'ring/page.html.twig' : 'default/index.html.twig';
+
+                return $this->render($template, [
+                    'error' => $error,
+                    'divVisibility' => 'block',
+                    'notes' => $notes,
+                    'noteVotes' => $noteVotes,
+                    'votesMap' => $votesMap,
+                    'commentVotesMap' => $commentVotesMap,
+                    'ring' => $ring,
+                    'members' => $members,
+                    'ringNotes' => $ringNotes,
+                ]);
             }
 
             $fileName = '';
@@ -222,6 +240,7 @@ class NoteController extends AbstractController
         UserRepository $userRepository,
         RingRepository $ringRepository,
         NoteVoteRepository $noteVoteRepository,
+        TextModerationService $moderator,
         ?int $ringId = null
     ): Response
     {
@@ -259,6 +278,24 @@ class NoteController extends AbstractController
             $currentContent = trim((string)$note->getContent());
             $newImageFile = $request->files->get('image');
             $nametag = trim((string)$request->request->get('nametag'));
+
+            $moderation = $moderator->analyze($newContent);
+            $toxicityScore = $moderation['attributeScores']['TOXICITY']['summaryScore']['value'] ?? 0;
+            $insultScore = $moderation['attributeScores']['INSULT']['summaryScore']['value'] ?? 0;
+
+            if ($toxicityScore > 0.85 || $insultScore > 0.85) {
+                $error = 'Your note update was rejected because it may be toxic or insulting.';
+                $divVisibility = 'block';
+
+                return $this->render('note/update.html.twig', [
+                    'error' => $error,
+                    'divVisibility' => $divVisibility,
+                    'note' => $note,
+                    'mentionedUser' => $note->getMentionedUser(),
+                    'ringId' => $ringId,
+                    'votesMap' => [],
+                ]);
+            }
 
             $isContentInvalid = empty($newContent) || $newContent === $currentContent;
             $isImageInvalid = !$newImageFile instanceof UploadedFile;
@@ -628,7 +665,12 @@ class NoteController extends AbstractController
 
     #[Route('post/comment/{noteId}-{id}/update', name: 'note_comment_update', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_USER')]
-    public function updateComment(Request $request, int $id, EntityManagerInterface $em, SluggerInterface $slugger): Response
+    public function updateComment(Request $request,
+                                  int $id,
+                                  EntityManagerInterface $em,
+                                  SluggerInterface $slugger,
+                                  TextModerationService $moderator
+    ): Response
     {
         $error = '';
         $divVisibility = 'none';
@@ -647,10 +689,28 @@ class NoteController extends AbstractController
             $newMessage = trim((string) $request->request->get('message'));
             $currentMessage = trim((string) $comment->getMessage());
 
-            $isMessageInvalid = empty($newMessage) || $newMessage === $currentMessage;
+            $moderation = $moderator->analyze($newMessage);
+            $toxicityScore = $moderation['attributeScores']['TOXICITY']['summaryScore']['value'] ?? 0;
+            $insultScore = $moderation['attributeScores']['INSULT']['summaryScore']['value'] ?? 0;
+
+            if ($toxicityScore > 0.85 || $insultScore > 0.85) {
+                $error = 'Your comment update was rejected because it may be toxic or insulting.';
+                $divVisibility = 'block';
+
+                return $this->render('note/comment_update.html.twig', [
+                    'error' => $error,
+                    'divVisibility' => $divVisibility,
+                    'comment' => $comment,
+                    'note' => $note,
+                    'mentionedUser' => $mentionedUser,
+                    'noteId' => $note->getId(),
+                ]);
+            }
+
+            $isMessageInvalid = $newMessage === $currentMessage;
 
             if ($isMessageInvalid) {
-                $error = 'Error: Invalid content.';
+                $error = 'Error: Your comment cannot be the same as previously.';
                 $divVisibility = 'block';
             } else {
                 $comment->setMessage($newMessage);

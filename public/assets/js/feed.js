@@ -72,24 +72,64 @@ document.querySelectorAll('.ajax-comment-form').forEach(form => {
             },
             body: new URLSearchParams({message: message})
         })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errorData => {
+                        throw errorData;
+                    });
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
                     const commentsContainer = form.closest('.note-comments').querySelector('.new-comments');
                     commentsContainer.insertAdjacentHTML('afterbegin', data.html);
                     input.value = '';
 
-                    // update comment counter
                     const countSpan = document.querySelector(`.toggle-comments[data-note-id="${noteId}"] .comment-count`);
                     if (countSpan) {
                         countSpan.textContent = (parseInt(countSpan.textContent) || 0) + 1;
                     }
-
                 }
             })
-            .catch(err => console.error('Comment error:', err));
+            .catch(async (error) => {
+                // Încearcă să extragi mesajul de eroare din JSON-ul răspunsului
+                let errorMessage = error?.message || 'Something went wrong.';
+                try {
+                    const errorJson = await error?.response?.json();
+                    if (errorJson?.message) {
+                        errorMessage = errorJson.message;
+                    }
+                } catch (_) {
+                    // Nu facem nimic, rămâne mesajul default
+                }
+
+                // Găsește div-ul de eroare fix în formular (din Twig)
+                const errorDiv = form.querySelector('.comment-error');
+                if (!errorDiv) {
+                    return;
+                }
+
+                const span = errorDiv.querySelector('.error-message');
+                if (span) {
+                    span.textContent = errorMessage;
+                }
+
+                errorDiv.classList.remove('d-none');
+
+                errorDiv.classList.add('show');
+            });
     });
 });
+
+document.querySelectorAll('.comment-error').forEach(alertDiv => {
+    alertDiv.addEventListener('close.bs.alert', (event) => {
+        event.preventDefault();
+        alertDiv.classList.add('d-none');
+        alertDiv.classList.remove('show');
+    });
+});
+
 
 function handleDeleteComment(deleteBtn, event) {
     const commentElement = deleteBtn.closest('.d-flex.flex-row.mb-3');
