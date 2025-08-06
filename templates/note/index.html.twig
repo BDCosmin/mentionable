@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Home - Mentionable{% endblock %}
+{% block title %}Note - Mentionable{% endblock %}
 
 {% block body %}
 <div class="main-panel">
@@ -196,6 +196,10 @@
                                                 <button type="submit" class="btn btn-light btn-sm px-3" style="height: 40px;">Post</button>
                                             </div>
                                         </div>
+                                    </div>
+                                    <div class="alert alert-danger alert-dismissible fade show comment-error d-none mt-2" role="alert">
+                                        <span class="error-message"></span>
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                     </div>
                                 </form>
                                 <div class="new-comments"></div>

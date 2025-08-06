@@ -418,10 +418,14 @@
                                                                 <button type="submit" class="btn btn-light btn-sm ms-2 comment-submit" style="height: 40px;">Post</button>
                                                             </div>
                                                         </div>
+                                                        <div class="alert alert-danger alert-dismissible fade show comment-error d-none mt-2" role="alert">
+                                                            <span class="error-message"></span>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                                        </div>
                                                     </form>
                                                     <div class="new-comments"></div>
 
-                                                    <!-- Lista de comentarii -->
+                                                    <!-- NOTE COMMENTS LIST -->
                                                     {% for comment in item.note.comments %}
                                                         <div class="d-flex flex-row mb-3 comment-item" data-note-id="{{ item.note.id }}">
                                                             <a class="nav-link me-2" href="#">

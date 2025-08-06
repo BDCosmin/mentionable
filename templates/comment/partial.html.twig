@@ -25,7 +25,6 @@
                 {{ comment.message }}
             </small>
 
-            {# UPVOTE BUTTON (opțional) #}
             <button class="btn btn-sm d-flex align-items-center border-0 comment-upvote-btn
                     {% if commentVotesMap is defined and commentVotesMap[comment.id] is defined and commentVotesMap[comment.id] == 'upvote' %}
                             btn-light

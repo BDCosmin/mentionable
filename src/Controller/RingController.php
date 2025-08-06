@@ -13,6 +13,7 @@ use App\Repository\RingMemberRepository;
 use App\Repository\RingRepository;
 use App\Repository\UserRepository;
 use App\Service\NotificationService;
+use App\Service\TextModerationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Exception\ORMException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -28,9 +29,17 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 final class RingController extends AbstractController
 {
     #[Route('/rings/discover', name: 'app_rings_discover', methods: ['GET', 'POST'])]
-    public function index(Request $request, EntityManagerInterface $entityManager, RingMemberRepository $ringMemberRepository, SluggerInterface $slugger, RingRepository $ringRepository): Response
+    public function index(Request $request,
+                          EntityManagerInterface $entityManager,
+                          RingMemberRepository $ringMemberRepository,
+                          SluggerInterface $slugger,
+                          RingRepository $ringRepository,
+                          TextModerationService $moderator
+    ): Response
     {
         $user = $this->getUser();
+
+        $divVisibility = 'none';
 
         $latestRings = $ringRepository->findBy([], ['createdAt' => 'DESC'], 4);
         $mostPopularRings = $ringRepository->findTopRingsByPopularity(4);
@@ -67,6 +76,33 @@ final class RingController extends AbstractController
 
                 $interestTitle = $form->get('interest')->getData();
                 $banner = $form->get('banner')->getData();
+                $description = $form->get('description')->getData();
+                $ringTitle = $form->get('title')->getData();
+
+                $ringInfo = [$ringTitle, $description, $interestTitle];
+                foreach ($ringInfo as $info) {
+                    $moderation = $moderator->analyze($info);
+                    $toxicityScore = $moderation['attributeScores']['TOXICITY']['summaryScore']['value'] ?? 0;
+                    $insultScore = $moderation['attributeScores']['INSULT']['summaryScore']['value'] ?? 0;
+
+                    if ($toxicityScore > 0.70 || $insultScore > 0.70) {
+                        $error = 'Your ring creation was cancelled because some of information may be toxic or insulting.';
+                        $divVisibility = 'block';
+
+                        return $this->render('ring/index.html.twig', [
+                            'divVisibility' => $divVisibility,
+                            'ringForm' => $form->createView(),
+                            'latestrings' => $latestRings,
+                            'mostPopularRings' => $mostPopularRings,
+                            'members' => $members,
+                            'memberCounts' => $memberCounts,
+                            'joinedRings' => $joinedRings,
+                            'owners' => $owners,
+                            'ownersMap' => $ownersMap,
+                            'error' => $error,
+                        ]);
+                    }
+                }
 
                 if (!$banner) {
                     $this->addFlash('error', 'Please upload a banner image.');
@@ -126,7 +162,7 @@ final class RingController extends AbstractController
         }
 
         return $this->render('ring/index.html.twig', [
-            'divVisibility' => 'none',
+            'divVisibility' => $divVisibility,
             'ringForm' => $form->createView(),
             'latestrings' => $latestRings,
             'mostPopularRings' => $mostPopularRings,
@@ -148,9 +184,12 @@ final class RingController extends AbstractController
         Request $request,
         RingRepository $ringRepository,
         EntityManagerInterface $em,
-        SluggerInterface $slugger
+        SluggerInterface $slugger,
+        TextModerationService $moderator
     ): Response {
         $ring = $ringRepository->find($id);
+
+        $divVisibility = 'none';
 
         if (!$ring) {
             $this->addFlash('error', 'Ring not found.');
@@ -180,12 +219,33 @@ final class RingController extends AbstractController
             }
 
             $interestTitle = trim($form->get('interest')->getData());
-            $normalizedTitle = strtolower($interestTitle);
+            $normalizedInterestTitle = strtolower($interestTitle);
+            $description = $form->get('description')->getData();
+            $ringTitle = $form->get('title')->getData();
+
+            $ringInfo = [$ringTitle, $description, $normalizedInterestTitle];
+            foreach ($ringInfo as $info) {
+                $moderation = $moderator->analyze($info);
+                $toxicityScore = $moderation['attributeScores']['TOXICITY']['summaryScore']['value'] ?? 0;
+                $insultScore = $moderation['attributeScores']['INSULT']['summaryScore']['value'] ?? 0;
+
+                if ($toxicityScore > 0.70 || $insultScore > 0.70) {
+                    $error = 'Your ring update was cancelled because some of information may be toxic or insulting.';
+                    $divVisibility = 'block';
+
+                    return $this->render('ring/update.html.twig', [
+                        'ringForm' => $form->createView(),
+                        'ring' => $ring,
+                        'error' => $error,
+                        'divVisibility' => $divVisibility,
+                    ]);
+                }
+            }
 
             $existingInterest = $em->getRepository(Interest::class)
                 ->createQueryBuilder('i')
                 ->where('LOWER(TRIM(i.title)) = :title')
-                ->setParameter('title', $normalizedTitle)
+                ->setParameter('title', $normalizedInterestTitle)
                 ->getQuery()
                 ->getOneOrNullResult();
 
@@ -218,7 +278,8 @@ final class RingController extends AbstractController
 
         return $this->render('ring/update.html.twig', [
             'ringForm' => $form->createView(),
-            'ring' => $ring
+            'ring' => $ring,
+            'divVisibility' => $divVisibility,
         ]);
     }
 
@@ -319,16 +380,12 @@ final class RingController extends AbstractController
     ): Response {
         $user = $this->getUser();
 
-        // Toate ringurile create de user (owner)
         $ownerRings = $ringRepository->findBy(['user' => $user], ['createdAt' => 'DESC']);
 
-        // Adună toți membrii pentru ringurile astea
         $ringIds = array_map(fn($ring) => $ring->getId(), $ownerRings);
 
-        // Membrii tuturor ringurilor pe care userul le deține
         $members = $ringMemberRepository->findBy(['ring' => $ringIds]);
 
-        // Creează un map ringId => membri (array)
         $membersByRing = [];
         foreach ($members as $member) {
             $ringId = $member->getRing()->getId();

@@ -6,6 +6,13 @@
     <div class="main-panel">
         <div class="content-wrapper">
             <div class="row justify-content-center mb-4">
+                {% if error is defined and error %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ error }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endif %}
+
                 {# NOTES LIST #}
                 <div class="row justify-content-center mb-4">
                     {# NOTE #}
