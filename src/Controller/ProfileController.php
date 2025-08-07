@@ -101,6 +101,19 @@ class ProfileController extends AbstractController
             }
         }
 
+        $limitedComments = [];
+
+        foreach ($notesWithMentionedUser as $item) {
+            $note = $item['note'];
+            $comments = $note->getComments()->toArray();
+
+            usort($comments, function ($a, $b) {
+                return $b->getPublicationDate() <=> $a->getPublicationDate();
+            });
+
+            $limitedComments[$note->getId()] = array_slice($comments, 0, 5);
+        }
+
         if ($user->getId() === 24) {
             return $this->redirectToRoute('app_profile_mentionable');
         } else {
@@ -116,6 +129,7 @@ class ProfileController extends AbstractController
                 'rings' => $rings,
                 'ringsMobileDisplay' => $ringsMobileDisplay,
                 'roles' => $rolesMap,
+                'limitedComments' => $limitedComments,
             ]);
         }
     }

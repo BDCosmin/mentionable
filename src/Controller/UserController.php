@@ -106,6 +106,12 @@ final class UserController extends AbstractController
             }
         }
 
+        $limitedComments = [];
+        foreach ($notes as $note) {
+            $comments = $note->getComments()->slice(0, 5);
+            $limitedComments[$note->getId()] = $comments;
+        }
+
         return $this->render('user/index.html.twig', [
             'user' => $user,
             'notesCount' => $notesCount,
@@ -116,7 +122,8 @@ final class UserController extends AbstractController
             'commentVotesMap' => $commentVotesMap,
             'votesMap' => $votesMap,
             'notesWithMentionedUser' => $notesWithMentionedUser,
-            'rolesMap' => $rolesMap
+            'rolesMap' => $rolesMap,
+            'limitedComments' => $limitedComments,
         ]);
     }
 

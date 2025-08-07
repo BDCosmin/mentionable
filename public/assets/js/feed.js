@@ -175,41 +175,6 @@ document.addEventListener('click', function (e) {
     handleDeleteComment(deleteBtn, e);
 });
 
-// document.querySelectorAll('.comment-upvote-btn').forEach(btn => {
-//     btn.addEventListener('click', function (e) {
-//         e.preventDefault();
-//         const noteId = this.dataset.noteId;
-//         const commentId = this.dataset.commentId;
-//         const csrfToken = this.dataset.csrf;
-//
-//         fetch(`/note/comment/${noteId}-${commentId}/upvote`, {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//                 'X-Requested-With': 'XMLHttpRequest',
-//                 'X-CSRF-TOKEN': csrfToken
-//             }
-//         })
-//             .then(res => res.json())
-//             .then(data => {
-//                 if (data.success) {
-//                     document.querySelector(`#comment-upvotes-${commentId}`).textContent = data.upvotes;
-//
-//                     if (btn.classList.contains('btn-light')) {
-//                         btn.classList.remove('btn-light');
-//                         btn.classList.add('btn-outline-light');
-//                     } else {
-//                         btn.classList.add('btn-light');
-//                         btn.classList.remove('btn-outline-light');
-//                     }
-//                 } else {
-//                     console.error(data.message || 'Unknown error');
-//                 }
-//             })
-//             .catch(err => console.error('Fetch error:', err));
-//     });
-// });
-
 document.addEventListener('click', function (e) {
     if (e.target.closest('.comment-upvote-btn')) {
         e.preventDefault();
@@ -326,3 +291,54 @@ mobileInput.addEventListener('input', function () {
         mobileSuggestions.style.display = 'none';
     }
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.see-all-comments').forEach(function(link) {
+        link.addEventListener('click', function (e) {
+            e.preventDefault();
+            const noteId = this.getAttribute('data-note-id');
+            const url = '/note/' + noteId + '/comments';
+            const commentsContainer = document.getElementById('comments-list-' + noteId);
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    commentsContainer.innerHTML = '';
+
+                    data.comments.forEach(comment => {
+                        const html = `
+                <div class="d-flex flex-row mb-3" data-note-id="${noteId}">
+                    <a class="nav-link me-2" href="#">
+                        <img class="img-xs rounded-circle" src="/uploads/avatars/${comment.user.avatar}" alt="avatarComment" onerror="showDefaultIcon(this)">
+                    </a>
+                    <div class="ms-2 p-0">
+                        <div class="d-flex flex-row" style="height: 30px;">
+                            <p class="text-white me-2" style="font-size: 18px;">@${comment.user.nametag}</p>
+                            ${comment.isEdited
+                            ? `<i class="fa fa-clock-o text-gray me-1" style="margin-top: 6px"></i>`
+                            : `<p class="text-gray mt-1 me-2">•</p>`
+                        }
+                            <p class="text-gray mt-1">${comment.humanTime}</p>
+                        </div>
+                        <div class="d-inline-flex">
+                            <small style="font-size: 16px; color: white; background-color: #757575; border-radius: 8px; opacity: 0.5; padding: 5px;">${comment.message}</small>
+                        </div>
+                    </div>
+                </div>`;
+
+                        commentsContainer.insertAdjacentHTML('beforeend', html);
+                    });
+
+                    this.style.display = 'none';
+                })
+                .catch(error => console.error('Error loading comments:', error));
+        });
+    });
+
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted) {
+            window.location.reload();
+        }
+    });
+});
+

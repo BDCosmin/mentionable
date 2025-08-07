@@ -86,6 +86,17 @@ final class DefaultController extends AbstractController
             }
         }
 
+        $limitedComments = [];
+
+        foreach ($notes as $note) {
+            $allComments = $note->getComments();
+            $sorted = $allComments->toArray();
+
+            usort($sorted, fn($a, $b) => $b->getPublicationDate() <=> $a->getPublicationDate());
+
+            $limitedComments[$note->getId()] = array_slice($sorted, 0, 5);
+        }
+
         $em->flush();
 
         return $this->render('default/index.html.twig', [
@@ -95,7 +106,8 @@ final class DefaultController extends AbstractController
             'commentVotesMap' => $commentVotesMap,
             'divVisibility' => 'none',
             'error' => $error,
-            'rolesMap' => $rolesMap
+            'rolesMap' => $rolesMap,
+            'limitedComments' => $limitedComments,
         ]);
     }
 

@@ -341,6 +341,12 @@ final class RingController extends AbstractController
             $this->addFlash('error', 'This ring has been suspended. Reason: '.$ring->getSuspensionReason());
         }
 
+        $limitedComments = [];
+
+        foreach ($ringNotes as $note) {
+            $limitedComments[$note->getId()] = array_slice($note->getComments()->toArray(), 0, 5);
+        }
+
         return $this->render('ring/page.html.twig', [
             'divVisibility' => 'none',
             'ring' => $ring,
@@ -350,6 +356,7 @@ final class RingController extends AbstractController
             'error' => $error,
             'owner' => $owner,
             'rolesMap' => $rolesMap,
+            'limitedComments' => $limitedComments,
         ]);
     }
 

@@ -831,4 +831,34 @@ class NoteController extends AbstractController
 
         return $this->redirect($request->headers->get('referer'));
     }
+
+    #[Route('/note/{noteId}/comments', name: 'note_all_comments', methods: ['GET'])]
+    public function getAllComments(int $noteId, NoteRepository $noteRepository): JsonResponse
+    {
+        $note = $noteRepository->find($noteId);
+        if (!$note) {
+            return $this->json(['error' => 'Note not found'], 404);
+        }
+
+        $comments = $note->getComments()->toArray();
+
+        usort($comments, fn($a, $b) => $a->getPublicationDate() <=> $b->getPublicationDate());
+
+        $commentsData = array_map(function ($comment) {
+            return [
+                'id' => $comment->getId(),
+                'user' => [
+                    'nametag' => $comment->getUser()->getNametag(),
+                    'avatar' => $comment->getUser()->getAvatar(),
+                ],
+                'message' => $comment->getMessage(),
+                'date' => $comment->getPublicationDate()->format('Y-m-d H:i'),
+                'isEdited' => $comment->isEdited(),
+                'humanTime' => $comment->getHumanTimeComment(),
+                'upVote' => $comment->getUpVote(),
+            ];
+        }, $comments);
+
+        return new JsonResponse(['comments' => $commentsData]);
+    }
 }
