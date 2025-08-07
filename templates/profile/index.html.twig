@@ -426,53 +426,62 @@
                                                     <div class="new-comments"></div>
 
                                                     <!-- NOTE COMMENTS LIST -->
-                                                    {% for comment in item.note.comments %}
-                                                        <div class="d-flex flex-row mb-3 comment-item" data-note-id="{{ item.note.id }}">
-                                                            <a class="nav-link me-2" href="#">
-                                                                <img class="img-xs rounded-circle comment-avatar" src="{{ asset('uploads/avatars/' ~ comment.user.avatar) }}" alt="avatarComment" onerror="showDefaultIcon(this)">
-                                                            </a>
-                                                            <div class="flex-grow-1">
-                                                                <div class="d-flex flex-row align-items-center">
-                                                                    <p class="text-white me-2 mb-0" style="font-size: 16px;">@{{ comment.user.nametag }}</p>
-                                                                    {% if comment.isEdited %}
-                                                                        <i class="fa fa-clock-o text-gray me-1" style="font-size: 14px;"></i>
-                                                                    {% else %}
-                                                                        <p class="text-gray mb-0 me-1">•</p>
-                                                                    {% endif %}
-                                                                    <p class="text-gray mb-0" style="font-size: 12px;">{{ comment.humanTimeComment }}</p>
-                                                                </div>
-                                                                <div class="d-flex flex-row align-items-center mt-1">
-                                                                    <small style="font-size: 14px; color: white; background-color: #757575; border-radius: 8px; opacity: 0.5; padding: 4px;">{{ comment.message }}</small>
-                                                                    <button class="btn btn-sm d-flex align-items-center border-0 ms-2 comment-upvote-btn
-                                                                            {% if commentVotesMap is defined and commentVotesMap[comment.id] is defined and commentVotesMap[comment.id] == 'upvote' %}
-                                                                                    btn-light
-                                                                            {% else %}
-                                                                                btn-outline-light
-                                                                            {% endif %}"
-                                                                            type="button"
-                                                                            data-note-id="{{ item.note.id }}"
-                                                                            data-comment-id="{{ comment.id }}"
-                                                                            data-csrf="{{ csrf_token('vote') }}">
-                                                                        <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
-                                                                        <span id="comment-upvotes-{{ comment.id }}" class="ms-1">{{ comment.upVote ?? 0 }}</span>
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                            <div class="dropdown ms-auto me-1 d-flex align-items-start">
-                                                                <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="height: 30px;">
-                                                                    <i class='bx bx-dots-horizontal-rounded' style='color:#ffffff; font-size: 20px;'></i>
+                                                    <div id="comments-list-{{ item.note.id }}">
+                                                        {% for comment in limitedComments[item.note.id] %}
+                                                            <div class="d-flex flex-row mb-3 comment-item" data-note-id="{{ item.note.id }}">
+                                                                <a class="nav-link me-2" href="#">
+                                                                    <img class="img-xs rounded-circle comment-avatar" src="{{ asset('uploads/avatars/' ~ comment.user.avatar) }}" alt="avatarComment" onerror="showDefaultIcon(this)">
                                                                 </a>
-                                                                <ul class="dropdown-menu m-0">
-                                                                    {% if app.user.nametag == comment.user.nametag %}
-                                                                        <li><a class="dropdown-item" href="{{ path('note_comment_update', {id: comment.id, noteId: item.note.id}) }}">Edit...</a></li>
-                                                                        <li><a class="dropdown-item delete-comment-btn" href="{{ path('note_comment_delete', {id: comment.id, noteId: item.note.id}) }}">Delete comment</a></li>
-                                                                    {% else %}
-                                                                        <li><a class="dropdown-item" href="{{ path('note_comment_report', {id: comment.id, noteId: item.note.id}) }}">Report</a></li>
-                                                                    {% endif %}
-                                                                </ul>
+                                                                <div class="flex-grow-1">
+                                                                    <div class="d-flex flex-row align-items-center">
+                                                                        <p class="text-white me-2 mb-0" style="font-size: 16px;">@{{ comment.user.nametag }}</p>
+                                                                        {% if comment.isEdited %}
+                                                                            <i class="fa fa-clock-o text-gray me-1" style="font-size: 14px;"></i>
+                                                                        {% else %}
+                                                                            <p class="text-gray mb-0 me-1">•</p>
+                                                                        {% endif %}
+                                                                        <p class="text-gray mb-0" style="font-size: 12px;">{{ comment.humanTimeComment }}</p>
+                                                                    </div>
+                                                                    <div class="d-flex flex-row align-items-center mt-1">
+                                                                        <small style="font-size: 14px; color: white; background-color: #757575; border-radius: 8px; opacity: 0.5; padding: 4px;">{{ comment.message }}</small>
+                                                                        <button class="btn btn-sm d-flex align-items-center border-0 ms-2 comment-upvote-btn
+                                                                                {% if commentVotesMap is defined and commentVotesMap[comment.id] is defined and commentVotesMap[comment.id] == 'upvote' %}
+                                                                                        btn-light
+                                                                                {% else %}
+                                                                                    btn-outline-light
+                                                                                {% endif %}"
+                                                                                type="button"
+                                                                                data-note-id="{{ item.note.id }}"
+                                                                                data-comment-id="{{ comment.id }}"
+                                                                                data-csrf="{{ csrf_token('vote') }}">
+                                                                            <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
+                                                                            <span id="comment-upvotes-{{ comment.id }}" class="ms-1">{{ comment.upVote ?? 0 }}</span>
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="dropdown ms-auto me-1 d-flex align-items-start">
+                                                                    <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="height: 30px;">
+                                                                        <i class='bx bx-dots-horizontal-rounded' style='color:#ffffff; font-size: 20px;'></i>
+                                                                    </a>
+                                                                    <ul class="dropdown-menu m-0">
+                                                                        {% if app.user.nametag == comment.user.nametag %}
+                                                                            <li><a class="dropdown-item" href="{{ path('note_comment_update', {id: comment.id, noteId: item.note.id}) }}">Edit...</a></li>
+                                                                            <li><a class="dropdown-item delete-comment-btn" href="{{ path('note_comment_delete', {id: comment.id, noteId: item.note.id}) }}">Delete comment</a></li>
+                                                                        {% else %}
+                                                                            <li><a class="dropdown-item" href="{{ path('note_comment_report', {id: comment.id, noteId: item.note.id}) }}">Report</a></li>
+                                                                        {% endif %}
+                                                                    </ul>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    {% endfor %}
+                                                        {% endfor %}
+                                                        {% if item.note.comments|length > limitedComments[item.note.id]|length %}
+                                                            <div class="text-start mt-2">
+                                                                <a href="#" class="see-all-comments text-warning" data-note-id="{{ item.note.id }}">
+                                                                    <small>See all comments</small>
+                                                                </a>
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
                                                 </div>
                                             </div>
                                         {% endfor %}
