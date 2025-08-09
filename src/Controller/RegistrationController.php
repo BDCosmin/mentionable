@@ -34,6 +34,8 @@ class RegistrationController extends AbstractController
         EntityManagerInterface $entityManager,
         SluggerInterface $slugger
     ): Response {
+        $error = ' ';
+
         $user = new User();
         $form = $this->createForm(RegistrationForm::class, $user);
         $form->handleRequest($request);
@@ -45,6 +47,12 @@ class RegistrationController extends AbstractController
 
                 /** @var UploadedFile|null $avatarFile */
                 $avatarFile = $form->get('avatar')->getData();
+                $selectedDefaultAvatar = $form->get('selectedAvatar')->getData();
+
+                if ($avatarFile && $selectedDefaultAvatar) {
+                    $this->addFlash('error', 'Please select either a default avatar or upload a custom one — not both.');
+                    return $this->redirectToRoute('app_register');
+                }
 
                 if ($avatarFile) {
                     $originalFilename = pathinfo($avatarFile->getClientOriginalName(), PATHINFO_FILENAME);
@@ -57,6 +65,29 @@ class RegistrationController extends AbstractController
                     );
 
                     $user->setAvatar($newFilename);
+
+                } elseif ($selectedDefaultAvatar) {
+                    $sourcePath = $this->getParameter('assets_avatars_directory') . '/' . $selectedDefaultAvatar;
+
+                    $newFilename = pathinfo($selectedDefaultAvatar, PATHINFO_FILENAME)
+                        . '-' . uniqid() . '.' . pathinfo($selectedDefaultAvatar, PATHINFO_EXTENSION);
+
+                    $destinationPath = $this->getParameter('avatars_directory') . '/' . $newFilename;
+
+                    if (!file_exists($sourcePath)) {
+                        $this->addFlash('error', 'Default avatar file not found.');
+                        return $this->redirectToRoute('app_register');
+                    }
+
+                    if (!copy($sourcePath, $destinationPath)) {
+                        $this->addFlash('error', 'Could not copy default avatar.');
+                        return $this->redirectToRoute('app_register');
+                    }
+
+                    $user->setAvatar($newFilename);
+                } else {
+                    $this->addFlash('error', 'Please select a valid avatar or upload a custom file.');
+                    return $this->redirectToRoute('app_register');
                 }
 
                 $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
@@ -76,16 +107,14 @@ class RegistrationController extends AbstractController
                             ->htmlTemplate('registration/confirmation_email.html.twig')
                     );
                 } catch (\Exception $emailException) {
-                    // aici prinzi orice eroare de trimitere email și poți loga sau afișa mesaj
-                    $this->addFlash('error', 'Eroare la trimiterea emailului de confirmare: ' . $emailException->getMessage());
-                    // eventual decizi dacă continui cu logarea userului sau nu
+                    $this->addFlash('error', 'Error while sending the confirmation email: ' . $emailException->getMessage());
                 }
 
                 $security->login($user, 'form_login', 'main');
 
                 return $this->redirectToRoute('app_user_email_verification_sent');
             } catch (\Exception $e) {
-                $this->addFlash('error', 'A apărut o eroare în procesul de înregistrare. Încearcă din nou.');
+                $this->addFlash('error', 'An error has occurred while trying to log you in. Please try again later.');
             }
         }
 

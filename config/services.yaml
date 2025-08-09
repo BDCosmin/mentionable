@@ -7,6 +7,7 @@ parameters:
     avatars_directory: '%kernel.project_dir%/public/uploads/avatars'
     notes_directory: '%kernel.project_dir%/public/uploads/notes'
     rings_directory: '%kernel.project_dir%/public/uploads/rings'
+    assets_avatars_directory: '%kernel.project_dir%/public/assets/images/auth'
     perspective_api_key: '%env(PERSPECTIVE_API_KEY)%'
 
 services:

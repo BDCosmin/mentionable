@@ -15,7 +15,7 @@ class ProfileType extends AbstractType
     {
         $builder
             ->add('avatar', FileType::class, [
-                'label' => 'Avatar',
+                'label' => "Let's get a fresh look",
                 'mapped' => false,
                 'required' => false,
                 'attr' => [

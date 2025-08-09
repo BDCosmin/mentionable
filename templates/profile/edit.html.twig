@@ -7,7 +7,7 @@
     <div class="content-wrapper">
         <div class="row justify-content-center mb-4">
             <div class="col-lg-7 p-3" style="background-color: #181b20; border-radius: 5px;">
-                <h2 class="text-center mb-4">Edit your avatar</h2>
+                <h2 class="text-center mt-2 mb-4">Edit your avatar</h2>
                 {% for message in app.flashes('success') %}
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
                         {{ message }}
@@ -21,7 +21,6 @@
                     </div>
                 {% endfor %}
 
-                {# Formular Bootstrap #}
                 {{ form_start(form) }}
                 <div class="mb-3">
                     {{ form_label(form.avatar, null, {'label_attr': {'class': 'form-label'}}) }}
@@ -29,10 +28,23 @@
                     {{ form_errors(form.avatar) }}
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100">
-                    <i class="fas fa-save me-2"></i>Save
-                </button>
+                <div class="d-flex justify-content-center m-0 p-0">
+                    <button type="submit" class="btn btn-light w-50">
+                        Save
+                    </button>
+                </div>
                 {{ form_end(form) }}
+
+                <div class="mt-3">
+                    <div class="locked-card">
+                        <img src="{{ asset("assets/images/media/artwork-collection.png") }}" class="card-img-top" alt="Locked content">
+                        <div class="overlay-content">
+                            <i class="bi bi-lock-fill lock-icon"></i>
+                            <h5>Coming soon...</h5>
+                            <p>Unlockable packs of AI artworks for your profile and more</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
