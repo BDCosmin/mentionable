@@ -45,6 +45,7 @@
                         </div>
                         {{ form_start(registrationForm, {'attr': {'class': 'forms-sample'}}) }}
                         {{ form_errors(registrationForm) }}
+
                         <div class="form-group">
                             {{ form_label(registrationForm.email) }}
                             {{ form_widget(registrationForm.email, {'attr': {'class': 'form-control'}}) }}
@@ -60,17 +61,35 @@
                             {{ form_widget(registrationForm.nametag, {'attr': {'class': 'form-control'}}) }}
                             {{ form_errors(registrationForm.nametag) }}
                         </div>
-                        <div class="form-group mb-3 pb-0">
+                        <div class="form-group mb-4 pb-0">
                             {{ form_label(registrationForm.avatar) }}
                             {{ form_widget(registrationForm.avatar, {'attr': {'class': 'form-control'}}) }}
                             {{ form_errors(registrationForm.avatar) }}
+
+                            <p class="mt-2">...or choose from one of our default avatars:</p>
+                            <div class="d-flex flex-row">
+                                <div class="avatar-card me-2" data-avatar="male-default-character.png">
+                                    <img src="{{ asset('assets/images/auth/male-default-character.png') }}" alt="avatar-male" style="width: 70px; height: 70px;" />
+                                </div>
+                                <div class="avatar-card" data-avatar="female-default-character.png">
+                                    <img src="{{ asset('assets/images/auth/female-default-character.png') }}" alt="avatar-female" style="width: 70px; height: 70px;" />
+                                </div>
+                            </div>
+
+                            {{ form_widget(registrationForm.selectedAvatar, {'attr': {'id': 'selectedAvatarInput'}}) }}
+                            {{ form_errors(registrationForm.selectedAvatar) }}
                         </div>
-                        <div class="form-check form-group ms-2 mt-0 pt-0">
+                        <div class="form-check form-group ms-2 mb-1 mt-0 pt-0">
                             {{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'form-check-input'}}) }}
                             {{ form_label(registrationForm.agreeTerms, 'I agree to the terms', {'label_attr': {'class': 'form-check-label ps-0'}}) }}
                             {{ form_errors(registrationForm.agreeTerms) }}
                         </div>
-                        <div class="m-0 p-0 d-flex justify-content-center align-items-center">
+                        {% for message in app.flashes('error') %}
+                            <div class="m-0 p-0 mb-2" id="errorWhileRegistering">
+                                <span id="errorMessage" class="badge bg-danger">{{ message }}</span>
+                            </div>
+                        {% endfor %}
+                        <div class="mt-3 p-0 d-flex justify-content-center align-items-center">
                             <button type="submit" class="btn btn-light w-50">Create account</button>
                         </div>
                         {{ form_end(registrationForm) }}
@@ -83,4 +102,28 @@
         </div>
 </body>
 </html>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.avatar-card').forEach(card => {
+            card.addEventListener('click', function () {
+                document.querySelectorAll('.avatar-card').forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
 
+                const selectedAvatar = this.getAttribute('data-avatar');
+                const input = document.getElementById('registration_form_selectedAvatar');
+
+                if (!input) {
+                    console.error('selectedAvatarInput is still null!');
+                    return;
+                }
+
+                input.value = selectedAvatar;
+
+                console.log('Selected avatar:', selectedAvatar);
+                console.log('Hidden input value:', input.value);
+            });
+        });
+    });
+
+
+</script>
