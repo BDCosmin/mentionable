@@ -369,9 +369,16 @@
                                                 <img class="img-sm rounded-circle" src="{{ asset('Uploads/avatars/' ~ item.note.user.avatar) }}" alt="avatar" onerror="showDefaultIcon(this)">
                                             </a>
                                             <div class="d-flex flex-column">
-                                                <a class="nav-link mt-3" id="nametagNote" href="{{ path('app_profile', {'id': item.note.user.id}) }}">
-                                                    <h5 class="mb-0 navbar-profile-name">@{{ item.note.user.nametag }}</h5>
-                                                </a>
+                                                <div class="d-flex align-items-center mt-0">
+                                                    <a class="nav-link mt-3 d-flex align-items-center" id="nametagNote" href="{{ path('app_profile', {'id': item.note.user.id}) }}">
+                                                        <h5 class="mb-0 navbar-profile-name">@{{ item.note.user.nametag }}</h5>
+                                                    </a>
+                                                    {% if item.note.isPinned %}
+                                                        <span class="pinned-icon" title="Pinned" style="font-size: 1.2rem; margin-left: 7px; color: orange;">
+                                                            📌
+                                                        </span>
+                                                    {% endif %}
+                                                </div>
                                                 <div class="d-flex flex-column m-0 p-0" style="font-size: 12px; color: gray">
                                                     <div class="d-flex flex-row m-0 p-0">
                                                         {% if item.note.isEdited %}
@@ -411,6 +418,17 @@
                                                                 <a class="dropdown-item" href="{{ path('app_note_update', {'id': item.note.id, 'ringId': ring.id}) }}">Edit...</a>
                                                             </li>
                                                         {% endif %}
+                                                        <li>
+                                                            <a class="dropdown-item pin-toggle-btn" href="#"
+                                                               data-note-id="{{ item.note.id }}"
+                                                               data-csrf-token="{{ csrf_token('toggle_pin' ~ item.note.id) }}">
+                                                                {% if item.note.isPinned %}
+                                                                    Unpin Note
+                                                                {% else %}
+                                                                    Pin Note
+                                                                {% endif %}
+                                                            </a>
+                                                        </li>
                                                         <li>
                                                             <a class="dropdown-item" href="#"
                                                                data-bs-toggle="modal"
@@ -758,5 +776,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 </script>
+<script src="{{ asset('../assets/js/pin.js') }}"></script>
 <script src="{{ asset('../assets/js/feed.js') }}"></script>
 {% endblock %}
