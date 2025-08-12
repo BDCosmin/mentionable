@@ -34,6 +34,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use function Webmozart\Assert\Tests\StaticAnalysis\boolean;
 
+/**
+ * @method getDoctrine()
+ */
 class NoteController extends AbstractController
 {
     #[Route('/note/new/{ringId?}', name: 'app_note_new', methods: ['GET', 'POST'])]
@@ -860,5 +863,30 @@ class NoteController extends AbstractController
         }, $comments);
 
         return new JsonResponse(['comments' => $commentsData]);
+    }
+
+    #[Route('/note/{id}/toggle-pin', name: 'app_note_toggle_pin', methods: ['POST'])]
+    public function togglePin(Request $request, Note $note, EntityManagerInterface $em): JsonResponse
+    {
+        $submittedToken = $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('toggle_pin'.$note->getId(), $submittedToken)) {
+            return new JsonResponse(['error' => 'Invalid CSRF token'], 400);
+        }
+
+        $newPinState = !$note->isPinned();
+        $note->setIsPinned($newPinState);
+
+        if ($newPinState) {
+            $note->setPinnedAt(new \DateTime());
+        } else {
+            $note->setPinnedAt(null);
+        }
+
+        $em->flush();
+
+        return new JsonResponse([
+            'isPinned' => $note->isPinned(),
+            'pinnedAt' => $note->getPinnedAt()?->format('Y-m-d H:i:s')
+        ]);
     }
 }

@@ -34,6 +34,12 @@ class Note
     #[ORM\JoinColumn(name: "mentioned_user_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     private ?User $mentionedUser = null;
 
+    #[ORM\Column(type: 'boolean')]
+    private bool $isPinned = false;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $pinnedAt = null;
+
     /**
      * @var Collection<int, Comment>
      */
@@ -357,15 +363,27 @@ class Note
         return $this;
     }
 
-//    public function getMentionedUserId(EntityManagerInterface $em): ?int
-//    {
-//        if ($this->nametag) {
-//            $user = $em->getRepository(User::class)->findOneBy(['nametag' => $this->nametag]);
-//            return $user ? $user->getId() : null;
-//        }
-//
-//        return null;
-//    }
+    public function isPinned(): bool
+    {
+        return $this->isPinned;
+    }
+
+    public function setIsPinned(bool $isPinned): static
+    {
+        $this->isPinned = $isPinned;
+        return $this;
+    }
+
+    public function getPinnedAt(): ?\DateTimeInterface
+    {
+        return $this->pinnedAt;
+    }
+
+    public function setPinnedAt(?\DateTimeInterface $pinnedAt): static
+    {
+        $this->pinnedAt = $pinnedAt;
+        return $this;
+    }
 
     public function isFromRing(): ?bool
     {
