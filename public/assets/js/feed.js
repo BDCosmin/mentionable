@@ -211,7 +211,7 @@ document.addEventListener('click', function (e) {
     }
 });
 
-    document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () {
     const input = document.getElementById('searchNametag');
     const suggestionsBox = document.getElementById('suggestions');
     const clearBtn = document.getElementById('clearDesktopInput');
@@ -219,47 +219,47 @@ document.addEventListener('click', function (e) {
     if (!input || !suggestionsBox) return;
 
     input.addEventListener('input', function () {
-    const query = this.value.trim();
+        const query = this.value.trim();
 
-    if (query.length >= 2) {
-    fetch(`/nametag-suggestions?query=${encodeURIComponent(query)}`)
-    .then(res => res.json())
-    .then(data => {
-    suggestionsBox.innerHTML = '';
-    if (data.length === 0) {
-    suggestionsBox.style.display = 'none';
-    return;
-}
-    data.forEach(nametag => {
-    const item = document.createElement('a');
-    item.classList.add('list-group-item', 'list-group-item-action');
-    item.textContent = nametag;
-    item.href = `/search?nametag=${encodeURIComponent(nametag)}`;
-    suggestionsBox.appendChild(item);
-});
-    suggestionsBox.style.display = 'block';
-})
-    .catch(() => {
-    suggestionsBox.innerHTML = '';
-    suggestionsBox.style.display = 'none';
-});
-} else {
-    suggestionsBox.innerHTML = '';
-    suggestionsBox.style.display = 'none';
-}
-});
+        if (query.length >= 2) {
+            fetch(`/nametag-suggestions?query=${encodeURIComponent(query)}`)
+                .then(res => res.json())
+                .then(data => {
+                    suggestionsBox.innerHTML = '';
+                    if (data.length === 0) {
+                        suggestionsBox.style.display = 'none';
+                        return;
+                    }
+                    data.forEach(nametag => {
+                        const item = document.createElement('a');
+                        item.classList.add('list-group-item', 'list-group-item-action');
+                        item.textContent = nametag;
+                        item.href = `/search?nametag=${encodeURIComponent(nametag)}`;
+                        suggestionsBox.appendChild(item);
+                    });
+                    suggestionsBox.style.display = 'block';
+                })
+                .catch(() => {
+                    suggestionsBox.innerHTML = '';
+                    suggestionsBox.style.display = 'none';
+                });
+        } else {
+            suggestionsBox.innerHTML = '';
+            suggestionsBox.style.display = 'none';
+        }
+    });
 
     clearBtn.addEventListener('click', function () {
-    input.value = '';
-    suggestionsBox.innerHTML = '';
-    suggestionsBox.style.display = 'none';
-    input.focus();
-});
-    document.addEventListener('click', function(e) {
-    if (!input.contains(e.target) && !suggestionsBox.contains(e.target)) {
-    suggestionsBox.style.display = 'none';
-}
-});
+        input.value = '';
+        suggestionsBox.innerHTML = '';
+        suggestionsBox.style.display = 'none';
+        input.focus();
+    });
+    document.addEventListener('click', function (e) {
+        if (!input.contains(e.target) && !suggestionsBox.contains(e.target)) {
+            suggestionsBox.style.display = 'none';
+        }
+    });
 });
 
 const mobileInput = document.getElementById('mobileSearchNametag');
@@ -293,7 +293,7 @@ mobileInput.addEventListener('input', function () {
 });
 
 document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('.see-all-comments').forEach(function(link) {
+    document.querySelectorAll('.see-all-comments').forEach(function (link) {
         link.addEventListener('click', function (e) {
             e.preventDefault();
             const noteId = this.getAttribute('data-note-id');
@@ -335,10 +335,9 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    window.addEventListener('pageshow', function(event) {
+    window.addEventListener('pageshow', function (event) {
         if (event.persisted) {
             window.location.reload();
         }
     });
 });
-

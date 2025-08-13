@@ -16,6 +16,7 @@ use App\Service\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -26,7 +27,8 @@ final class DefaultController extends AbstractController
         EntityManagerInterface $em,
         NoteVoteRepository $noteVoteRepository,
         CommentVoteRepository $commentVoteRepository,
-        RingMemberRepository $ringMemberRepository
+        RingMemberRepository $ringMemberRepository,
+        Request $request,
     ): Response {
         $error = ' ';
         $user = $this->getUser();
@@ -38,7 +40,11 @@ final class DefaultController extends AbstractController
         $memberships = $ringMemberRepository->findActiveMembershipsForUser($user);
         $ringIds = array_map(fn($m) => $m->getRing()->getId(), $memberships);
 
-        $notes = $em->getRepository(Note::class)->findFeedNotesForUser($ringIds);
+        $page = max(1, $request->query->getInt('page', 1));
+        $limit = 10;
+        $offset = ($page - 1) * $limit;
+
+        $notes = $em->getRepository(Note::class)->findFeedNotesForUser($ringIds, $limit, $offset);
 
         $rolesMap = [];
         foreach ($notes as $note) {
@@ -99,6 +105,17 @@ final class DefaultController extends AbstractController
 
         $em->flush();
 
+        if ($request->isXmlHttpRequest()) {
+            return $this->render('default/_note.html.twig', [
+                'notes' => $notes,
+                'votesMap' => $votesMap,
+                'commentVotesMap' => $commentVotesMap,
+                'rolesMap' => $rolesMap,
+                'limitedComments' => $limitedComments,
+                'currentUserNametag' => $user->getNametag(),
+            ]);
+        }
+
         return $this->render('default/index.html.twig', [
             'notes' => $notes,
             'currentUserNametag' => $user->getNametag(),
@@ -108,6 +125,7 @@ final class DefaultController extends AbstractController
             'error' => $error,
             'rolesMap' => $rolesMap,
             'limitedComments' => $limitedComments,
+            'page' => $page,
         ]);
     }
 
