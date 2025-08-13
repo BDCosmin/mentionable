@@ -60,7 +60,7 @@ class NoteRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function findFeedNotesForUser(array $ringIds): array
+    public function findFeedNotesForUser(array $ringIds, int $limit = 10, int $offset = 0): array
     {
         return $this->createQueryBuilder('n')
             ->leftJoin('n.ring', 'r')
@@ -69,6 +69,8 @@ class NoteRepository extends ServiceEntityRepository
             ->orWhere('n.ring IN (:ringIds)')
             ->setParameter('ringIds', $ringIds)
             ->orderBy('n.publicationDate', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
             ->getQuery()
             ->getResult();
     }
