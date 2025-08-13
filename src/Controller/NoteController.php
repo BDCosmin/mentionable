@@ -9,6 +9,7 @@ use App\Entity\Note;
 use App\Entity\NoteReport;
 use App\Entity\NoteVote;
 use App\Entity\Notification;
+use App\Entity\RingMembers;
 use App\Entity\User;
 use App\Repository\CommentRepository;
 use App\Repository\CommentVoteRepository;
@@ -866,27 +867,45 @@ class NoteController extends AbstractController
     }
 
     #[Route('/note/{id}/toggle-pin', name: 'app_note_toggle_pin', methods: ['POST'])]
-    public function togglePin(Request $request, Note $note, EntityManagerInterface $em): JsonResponse
-    {
+    public function togglePin(
+        Request $request,
+        Note $note,
+        EntityManagerInterface $em
+    ): JsonResponse {
         $submittedToken = $request->request->get('_token');
-        if (!$this->isCsrfTokenValid('toggle_pin'.$note->getId(), $submittedToken)) {
+        if (!$this->isCsrfTokenValid('toggle_pin' . $note->getId(), $submittedToken)) {
             return new JsonResponse(['error' => 'Invalid CSRF token'], 400);
         }
 
-        $newPinState = !$note->isPinned();
-        $note->setIsPinned($newPinState);
+        $user = $this->getUser();
+        $ring = $note->getRing();
 
-        if ($newPinState) {
-            $note->setPinnedAt(new \DateTime());
-        } else {
+        if (!$ring) {
+            return new JsonResponse(['error' => 'This note is not part of a community'], 400);
+        }
+
+        $ringMember = $em->getRepository(RingMembers::class)->findOneBy([
+            'ring' => $ring,
+            'user' => $user,
+        ]);
+
+        if (!$ringMember || $ringMember->getRole() !== 'owner') {
+            return new JsonResponse(['error' => 'Only the community owner can pin/unpin notes'], 403);
+        }
+
+        if ($note->isPinned()) {
+            $note->setIsPinned(false);
             $note->setPinnedAt(null);
+        } else {
+            $note->setIsPinned(true);
+            $note->setPinnedAt(new \DateTime());
         }
 
         $em->flush();
 
         return new JsonResponse([
             'isPinned' => $note->isPinned(),
-            'pinnedAt' => $note->getPinnedAt()?->format('Y-m-d H:i:s')
+            'pinnedAt' => $note->getPinnedAt()?->format('Y-m-d H:i:s'),
         ]);
     }
 }

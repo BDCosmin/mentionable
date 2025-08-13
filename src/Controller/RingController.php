@@ -302,10 +302,8 @@ final class RingController extends AbstractController
             return $this->redirectToRoute('app_rings_discover');
         }
 
-        $ringNotes = $noteRepository->findBy(
-            ['ring' => $ring, 'isFromRing' => 1],
-            ['publicationDate' => 'DESC']
-        );
+        $ringNotes = $noteRepository->findNotesForRingWithPinnedFirst($ring->getId());
+
         $members = $ringMemberRepository->findBy(['ring' => $ring]);
         $owner = $ringMemberRepository->findOneBy(['ring' => $ring, 'role' => 'owner']);
 
