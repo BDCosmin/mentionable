@@ -412,14 +412,10 @@
                                                     <i class="fa fa-sort-desc" style="color: white"></i>
                                                 </a>
                                                 <ul class="dropdown-menu">
-                                                    {% if app.user.nametag == item.note.user.nametag %}
-                                                        {% if isMember %}
-                                                            <li>
-                                                                <a class="dropdown-item" href="{{ path('app_note_update', {'id': item.note.id, 'ringId': ring.id}) }}">Edit...</a>
-                                                            </li>
-                                                        {% endif %}
+                                                    {% if rolesMap[app.user.id] == 'owner' %}
                                                         <li>
-                                                            <a class="dropdown-item pin-toggle-btn" href="#"
+                                                            <a class="dropdown-item pin-toggle-btn"
+                                                               href="#"
                                                                data-note-id="{{ item.note.id }}"
                                                                data-csrf-token="{{ csrf_token('toggle_pin' ~ item.note.id) }}">
                                                                 {% if item.note.isPinned %}
@@ -429,6 +425,13 @@
                                                                 {% endif %}
                                                             </a>
                                                         </li>
+                                                    {% endif %}
+                                                    {% if app.user.nametag == item.note.user.nametag %}
+                                                        {% if isMember %}
+                                                            <li>
+                                                                <a class="dropdown-item" href="{{ path('app_note_update', {'id': item.note.id, 'ringId': ring.id}) }}">Edit...</a>
+                                                            </li>
+                                                        {% endif %}
                                                         <li>
                                                             <a class="dropdown-item" href="#"
                                                                data-bs-toggle="modal"
