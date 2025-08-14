@@ -419,6 +419,11 @@ class NoteController extends AbstractController
             }
         }
 
+        $favoritesMap = [];
+        if ($user) {
+            $favoritesMap[$note->getId()] = $user->hasFavorite($note);
+        }
+
         $comments = $note->getComments();
         $mentionedUser = $note->getMentionedUser();
 
@@ -430,6 +435,7 @@ class NoteController extends AbstractController
             'commentVotesMap' => $commentVotesMap,
             'mentionedUser' => $mentionedUser,
             'role' => $role,
+            'favoritesMap' => $favoritesMap,
         ]);
     }
 
@@ -907,5 +913,27 @@ class NoteController extends AbstractController
             'isPinned' => $note->isPinned(),
             'pinnedAt' => $note->getPinnedAt()?->format('Y-m-d H:i:s'),
         ]);
+    }
+
+    #[Route('/note/{id}/favorite', name: 'app_note_favorite', methods: ['POST'])]
+    public function toggleFavorite(Note $note, EntityManagerInterface $em): JsonResponse
+    {
+        $user = $this->getUser();
+
+        if (!$user) {
+            return $this->json(['status' => 'error', 'message' => 'User not logged in'], 403);
+        }
+
+        if ($user->hasFavorite($note)) {
+            $user->removeFavorite($note);
+            $status = 'removed';
+        } else {
+            $user->addFavorite($note);
+            $status = 'added';
+        }
+
+        $em->flush();
+
+        return $this->json(['status' => $status]);
     }
 }

@@ -345,6 +345,11 @@ final class RingController extends AbstractController
             $limitedComments[$note->getId()] = array_slice($note->getComments()->toArray(), 0, 5);
         }
 
+        $favoritesMap = [];
+        foreach ($ringNotes as $note) {
+            $favoritesMap[$note->getId()] = $user->hasFavorite($note);
+        }
+
         return $this->render('ring/page.html.twig', [
             'divVisibility' => 'none',
             'ring' => $ring,
@@ -355,6 +360,7 @@ final class RingController extends AbstractController
             'owner' => $owner,
             'rolesMap' => $rolesMap,
             'limitedComments' => $limitedComments,
+            'favoritesMap' => $favoritesMap,
         ]);
     }
 

@@ -114,6 +114,11 @@ class ProfileController extends AbstractController
             $limitedComments[$note->getId()] = array_slice($comments, 0, 5);
         }
 
+        $favoritesMap = [];
+        foreach ($notes as $note) {
+            $favoritesMap[$note->getId()] = $currentUser ? $currentUser->hasFavorite($note) : false;
+        }
+
         if ($user->getId() === 24) {
             return $this->redirectToRoute('app_profile_mentionable');
         } else {
@@ -130,6 +135,7 @@ class ProfileController extends AbstractController
                 'ringsMobileDisplay' => $ringsMobileDisplay,
                 'roles' => $rolesMap,
                 'limitedComments' => $limitedComments,
+                'favoritesMap' => $favoritesMap,
             ]);
         }
     }
