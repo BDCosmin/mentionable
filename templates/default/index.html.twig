@@ -199,35 +199,37 @@ document.addEventListener("DOMContentLoaded", function () {
     const loader = document.getElementById('loader-loading-spinner');
 
     loadMoreBtn.addEventListener('click', function () {
-    const page = this.dataset.page;
+        const page = this.dataset.page;
 
-    loader.style.display = 'block';
-    loadMoreBtn.disabled = true;
+        loader.style.display = 'block';
+        loadMoreBtn.disabled = true;
 
-    fetch(`/?page=${page}`, {
-    headers: {
-    'X-Requested-With': 'XMLHttpRequest'
-}
-})
-    .then(response => {
-    if (!response.ok) throw new Error(`Server error: ${response.status}`);
-    return response.text();
-})
-    .then(html => {
+        fetch(`/?page=${page}`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(response => {
+            if (!response.ok) throw new Error(`Server error: ${response.status}`);
+            return response.text();
+        })
+        .then(html => {
 
-    notesContainer.insertAdjacentHTML('beforeend', html);
-    loadMoreBtn.dataset.page = parseInt(page) + 1;
-})
-    .catch(error => {
-    console.error('Error when loading notes:', error);
-})
-    .finally(() => {
-    loader.style.display = 'none';
-    loadMoreBtn.disabled = false;
+            if (!html.trim()) {
+                loadMoreBtn.style.display = 'none';
+                return;
+            }
+
+            notesContainer.insertAdjacentHTML('beforeend', html);
+            loadMoreBtn.dataset.page = parseInt(page) + 1;
+        })
+        .catch(error => {
+            console.error('Error when loading notes:', error);
+        })
+        .finally(() => {
+            loader.style.display = 'none';
+            loadMoreBtn.disabled = false;
+        });
+    });
 });
-});
-});
-
 </script>
 <script src="{{ asset('../assets/js/favorite.js') }}"></script>
 {% endblock %}

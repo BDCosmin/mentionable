@@ -46,8 +46,8 @@
                 </div>
             </div>
             {% if note.user.id != 24 or (note.user.id == 24 and app.user.id == 24) %}
-                <div class="dropdown ms-auto mt-1 me-1">
-                    <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <div class="dropdown ms-auto mt-1 me-2">
+                    <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none;">
                         <i class="fa fa-sort-desc" style="color: white"></i>
                     </a>
                     <ul class="dropdown-menu">
@@ -70,6 +70,17 @@
                             </li>
                         {% endif %}
                     </ul>
+                    {# FAVORITE BUTTON #}
+                    <button class="favorite-btn btn btn-sm ms-1
+                        {% if favoritesMap[note.id] %}
+                            btn-warning
+                        {% else %}
+                            btn-outline-warning
+                        {% endif %}"
+                            data-id="{{ note.id }}"
+                            style="border-radius: 50%">
+                        <i class="bx {% if favoritesMap[note.id] %}bxs-star{% else %}bx-star{% endif %}" style="font-size: 18px; margin-top: 5px;"></i>
+                    </button>
                     <div class="modal fade" id="deleteNoteModal" tabindex="-1" aria-labelledby="deleteNoteModalLabel" aria-hidden="true" style="overflow-y: hidden;">
                         <div class="modal-dialog">
                             <div class="modal-content border-danger">
@@ -91,6 +102,20 @@
                         </div>
                     </div>
                 </div>
+            {% else %}
+            <div class="dropdown ms-auto mt-1 me-1">
+                {# FAVORITE BUTTON #}
+                <button class="favorite-btn btn btn-sm ms-1
+                        {% if favoritesMap[note.id] %}
+                            btn-warning
+                        {% else %}
+                            btn-outline-warning
+                        {% endif %}"
+                        data-id="{{ note.id }}"
+                        style="border-radius: 50%">
+                    <i class="bx {% if favoritesMap[note.id] %}bxs-star{% else %}bx-star{% endif %}" style="font-size: 18px; margin-top: 5px;"></i>
+                </button>
+            </div>
             {% endif %}
         </div>
         {# NOTE CONTENT #}
@@ -108,7 +133,7 @@
         {# NOTE NAV – DESKTOP & MOBILE HYBRID #}
         <div class="d-flex flex-wrap align-items-center text-gray mt-2 mb-1 ms-0 ps-0">
             {# VOTE & COMMENTS – ALWAYS SHOWN #}
-            <div class="d-flex flex-row flex-wrap">
+            <div class="d-flex flex-row flex-wrap" style="width: 100%">
                 {# UPVOTE #}
                 <button class="upvote-btn btn btn-sm    d-flex align-items-center border-0
                                         {% if votesMap[note.id] is defined and votesMap[note.id] == 'upvote' %}
@@ -140,18 +165,6 @@
                     <i class='bx bx-message-circle-reply pe-1'></i>
                     <span class="comment-count">{{ note.comments|length }}</span>
                 </button>
-
-                {# FAVORITE BUTTON #}
-                <button class="favorite-btn btn btn-sm border-0 ms-1
-                        {% if favoritesMap[note.id] %}
-                            btn-warning
-                        {% else %}
-                            btn-outline-warning
-                        {% endif %}"
-                        data-id="{{ note.id }}">
-                    <i class="bx {% if favoritesMap[note.id] %}bxs-star{% else %}bx-star{% endif %}" style="font-size: 18px; margin-top: 5px;"></i>
-                </button>
-
 
                 {% if note.user.nametag != 'mentionable' %}
 
