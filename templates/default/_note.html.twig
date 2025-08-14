@@ -141,6 +141,18 @@
                     <span class="comment-count">{{ note.comments|length }}</span>
                 </button>
 
+                {# FAVORITE BUTTON #}
+                <button class="favorite-btn btn btn-sm border-0 ms-1
+                        {% if favoritesMap[note.id] %}
+                            btn-warning
+                        {% else %}
+                            btn-outline-warning
+                        {% endif %}"
+                        data-id="{{ note.id }}">
+                    <i class="bx {% if favoritesMap[note.id] %}bxs-star{% else %}bx-star{% endif %}" style="font-size: 18px; margin-top: 5px;"></i>
+                </button>
+
+
                 {% if note.user.nametag != 'mentionable' %}
 
                     <div class="ms-2 me-2 pt-1 d-none d-md-block">

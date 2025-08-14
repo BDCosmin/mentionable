@@ -61,6 +61,14 @@
                 <span class="menu-title">My notes</span>
             </a>
         </li>
+        <li class="nav-item menu-items {% if app.request.attributes.get('_route') == 'app_user_favorites' %}active{% endif %}">
+            <a class="nav-link" href="{{ path('app_user_favorites') }}">
+        <span class="menu-icon">
+            <i class="fa fa-star"></i>
+        </span>
+                <span class="menu-title">My Favorites</span>
+            </a>
+        </li>
         <li class="nav-item menu-items">
             <a class="nav-link" href="{{ path('app_interests_list') }}">
                 <span class="menu-icon">

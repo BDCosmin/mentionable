@@ -515,6 +515,17 @@
                                                     <i class='bx bx-message-circle-reply pe-1'></i>
                                                     <span class="comment-count">{{ item.note.comments|length }}</span>
                                                 </button>
+                                                {# FAVORITE BUTTON #}
+                                                <button class="favorite-btn btn btn-sm border-0 ms-1
+                                                        {% if favoritesMap[item.note.id] %}
+                                                            btn-warning
+                                                        {% else %}
+                                                            btn-outline-warning
+                                                        {% endif %}"
+                                                        data-id="{{ item.note.id }}">
+                                                    <i class="bx {% if favoritesMap[item.note.id] %}bxs-star{% else %}bx-star{% endif %}" style="font-size: 18px; margin-top: 5px;"></i>
+                                                </button>
+
                                                 <div class="ms-2 me-2 pt-1 d-none d-md-block">
                                                     <p class="text-white" style="margin-top: 7px">•</p>
                                                 </div>
@@ -781,4 +792,5 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>
 <script src="{{ asset('../assets/js/pin.js') }}"></script>
 <script src="{{ asset('../assets/js/feed.js') }}"></script>
+<script src="{{ asset('../assets/js/favorite.js') }}"></script>
 {% endblock %}

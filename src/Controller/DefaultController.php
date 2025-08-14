@@ -103,6 +103,11 @@ final class DefaultController extends AbstractController
             $limitedComments[$note->getId()] = array_slice($sorted, 0, 5);
         }
 
+        $favoritesMap = [];
+        foreach ($notes as $note) {
+            $favoritesMap[$note->getId()] = $user->hasFavorite($note);
+        }
+
         $em->flush();
 
         if ($request->isXmlHttpRequest()) {
@@ -112,6 +117,7 @@ final class DefaultController extends AbstractController
                 'commentVotesMap' => $commentVotesMap,
                 'rolesMap' => $rolesMap,
                 'limitedComments' => $limitedComments,
+                'favoritesMap' => $favoritesMap,
                 'currentUserNametag' => $user->getNametag(),
             ]);
         }
@@ -121,6 +127,7 @@ final class DefaultController extends AbstractController
             'currentUserNametag' => $user->getNametag(),
             'votesMap' => $votesMap,
             'commentVotesMap' => $commentVotesMap,
+            'favoritesMap' => $favoritesMap,
             'divVisibility' => 'none',
             'error' => $error,
             'rolesMap' => $rolesMap,

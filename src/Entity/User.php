@@ -127,6 +127,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Ticket::class, mappedBy: 'user', orphanRemoval: true)]
     private Collection $tickets;
 
+    #[ORM\ManyToMany(targetEntity: Note::class)]
+    #[ORM\JoinTable(name: 'user_favorite_notes')]
+    private Collection $favoriteNotes;
+
     public function __construct()
     {
         $this->notes = new ArrayCollection();
@@ -142,6 +146,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->ringMembers = new ArrayCollection();
         $this->mentionedNotes = new ArrayCollection();
         $this->tickets = new ArrayCollection();
+        $this->favoriteNotes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -534,4 +539,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function getFavoriteNotes(): Collection
+    {
+        return $this->favoriteNotes;
+    }
+
+    public function addFavorite(Note $note): static
+    {
+        if (!$this->favoriteNotes->contains($note)) {
+            $this->favoriteNotes->add($note);
+        }
+        return $this;
+    }
+
+    public function removeFavorite(Note $note): static
+    {
+        $this->favoriteNotes->removeElement($note);
+        return $this;
+    }
+
+    public function hasFavorite(Note $note): bool
+    {
+        return $this->favoriteNotes->contains($note);
+    }
 }

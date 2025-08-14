@@ -127,6 +127,111 @@ final class UserController extends AbstractController
         ]);
     }
 
+    #[Route('/my-favorites', name: 'app_user_favorites')]
+    public function myFavorites(
+        NoteVoteRepository $noteVoteRepository,
+        CommentVoteRepository $commentVoteRepository,
+        FriendRequestRepository $friendRequestRepository,
+        NotificationService $notificationService,
+        EntityManagerInterface $em,
+        RingMemberRepository $ringMemberRepository
+    ): Response {
+        $user = $this->getUser();
+        $notes = $user->getFavoriteNotes();
+
+        $noteVotes = $noteVoteRepository->findBy([]);
+
+        $rolesMap = [];
+        foreach ($notes as $note) {
+            $ring = $note->getRing();
+            $author = $note->getUser();
+
+            if ($ring && $author) {
+                $member = $ringMemberRepository->findOneBy([
+                    'ring' => $ring,
+                    'user' => $author,
+                ]);
+                if ($member) {
+                    $rolesMap[$author->getId()] = $member->getRole();
+                }
+            }
+        }
+
+        $notesWithMentionedUser = [];
+        foreach ($notes as $note) {
+            $mentionedUser = $note->getMentionedUser();
+            $notesWithMentionedUser[] = [
+                'note' => $note,
+                'mentionedUser' => $mentionedUser,
+            ];
+        }
+
+        $notifications = $notificationService->getLatestUserNotifications();
+        $friendRequests = $friendRequestRepository->findBy(['receiver' => $user]);
+
+        $notesCount = count($notes);
+
+        $votesMap = [];
+        foreach ($noteVotes as $vote) {
+            if ($vote->getUser() === $user) {
+                if ($vote->isUpvoted()) {
+                    $votesMap[$vote->getNote()->getId()] = 'upvote';
+                } elseif ($vote->isDownvoted()) {
+                    $votesMap[$vote->getNote()->getId()] = 'downvote';
+                }
+            }
+        }
+
+        $commentVotes = $commentVoteRepository->findBy(['user' => $user]);
+        $commentVotesMap = [];
+        foreach ($commentVotes as $vote) {
+            $commentId = $vote->getComment()->getId();
+            if ($vote->isUpvoted()) {
+                $commentVotesMap[$commentId] = 'upvote';
+            }
+        }
+
+        $limitedComments = [];
+        foreach ($notes as $note) {
+            $comments = $note->getComments()->slice(0, 5);
+            $limitedComments[$note->getId()] = $comments;
+        }
+
+        $favoritesMap = [];
+        foreach ($notes as $note) {
+            $favoritesMap[$note->getId()] = $user->hasFavorite($note);
+        }
+
+        return $this->render('user/favorites.html.twig', [
+            'user' => $user,
+            'notesCount' => $notesCount,
+            'notes' => $notes,
+            'notifications' => $notifications,
+            'friendRequests' => $friendRequests,
+            'noteVotes' => $noteVotes,
+            'commentVotesMap' => $commentVotesMap,
+            'votesMap' => $votesMap,
+            'notesWithMentionedUser' => $notesWithMentionedUser,
+            'rolesMap' => $rolesMap,
+            'limitedComments' => $limitedComments,
+            'favoritesMap' => $favoritesMap,
+        ]);
+    }
+
+    #[Route('/user/{id}/clear-favorites', name: 'app_user_clear_favorites')]
+    public function clearFavorites(User $user, EntityManagerInterface $em): Response
+    {
+        $favorites = $user->getFavoriteNotes();
+        foreach ($favorites as $favorite) {
+            $user->removeFavorite($favorite);
+        }
+        $em->flush();
+
+        $this->addFlash('success', 'All favorites notes cleared!');
+
+        return $this->redirectToRoute('app_user_favorites');
+    }
+
     #[Route('/my-notifications/user', name: 'app_user_notifications')]
     public function showAllNotifications(UserInterface $user,NotificationRepository $notificationRepository, NotificationService $notificationService, EntityManagerInterface $em): Response
     {
