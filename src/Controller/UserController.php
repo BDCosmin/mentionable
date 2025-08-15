@@ -227,7 +227,7 @@ final class UserController extends AbstractController
         }
         $em->flush();
 
-        $this->addFlash('success', 'All favorites notes cleared!');
+        $this->addFlash('success', 'The list of favorite notes was cleared successfully!');
 
         return $this->redirectToRoute('app_user_favorites');
     }
