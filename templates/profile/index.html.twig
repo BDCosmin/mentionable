@@ -419,20 +419,30 @@
 
                                                 {# NOTE COMMENT #}
                                                 <div class="note-comments" id="comments-{{ item.note.id }}" style="display: none;">
-                                                    <form method="POST" action="{{ path('note_comment', {id: item.note.id}) }}" class="ajax-comment-form d-flex flex-column mb-3" data-note-id="{{ item.note.id }}">
+                                                    <form method="POST" action="{{ path('note_comment', {id: item.note.id}) }}" class="ajax-comment-form d-flex flex-column mb-3" style="position: relative" data-note-id="{{ item.note.id }}">
                                                         <div class="d-flex flex-row align-items-center">
                                                             <a class="nav-link me-2" href="#">
                                                                 <img class="img-xs rounded-circle comment-avatar" src="{{ asset('uploads/avatars/' ~ app.user.avatar)}}" alt="writeCommentAvatar" onerror="showDefaultIcon(this)">
                                                             </a>
-                                                            <div class="d-flex flex-row w-100 align-items-center">
-                                                                <input type="text" name="message" class="form-control comment-input flex-grow-1" placeholder="Write a comment..." required>
-                                                                <button type="submit" class="btn btn-light btn-sm ms-2 comment-submit" style="height: 40px;">Post</button>
+                                                            <div class="d-flex flex-row w-100">
+                                                                <input type="text" name="message" class="form-control comment-input mb-1" placeholder="Write a comment..."
+                                                                       style="border-bottom-right-radius: 0; border-top-right-radius: 0;" required>
+                                                                <div class="d-none d-sm-flex justify-content-end me-1 position-relative">
+                                                                    <button type="button" class="btn btn-light btn-sm px-3 emoji-toggle-btn"
+                                                                            style="height: 2.575rem; border-bottom-left-radius: 0; border-top-left-radius: 0; background-color: #252c35;">
+                                                                        <i class='bx bx-happy-beaming' style='color:#ffffff; font-size: 24px'></i>
+                                                                    </button>
+                                                                </div>
+                                                                <div class="d-flex justify-content-end">
+                                                                    <button type="submit" class="btn btn-light btn-sm px-3" style="height: 40px;">Post</button>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                         <div class="alert alert-danger alert-dismissible fade show comment-error d-none mt-2" role="alert">
                                                             <span class="error-message"></span>
                                                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                                         </div>
+                                                        <div class="emoji-list position-absolute bg-dark p-2 rounded" style="display:none; bottom: 100%; right: 0; max-height: 200px; overflow-y: auto; z-index: 1000;"></div>
                                                     </form>
                                                     <div class="new-comments"></div>
 
@@ -454,7 +464,7 @@
                                                                         <p class="text-gray mb-0" style="font-size: 12px;">{{ comment.humanTimeComment }}</p>
                                                                     </div>
                                                                     <div class="d-flex flex-row align-items-center mt-1">
-                                                                        <small style="font-size: 14px; color: white; background-color: #757575; border-radius: 8px; opacity: 0.5; padding: 4px;">{{ comment.message }}</small>
+                                                                        <small style="font-size: 14px; color: #404040; background-color: #ffffff; border-radius: 8px; opacity: 0.9; padding: 4px;">{{ comment.message }}</small>
                                                                         <button class="btn btn-sm d-flex align-items-center border-0 ms-2 comment-upvote-btn
                                                                                 {% if commentVotesMap is defined and commentVotesMap[comment.id] is defined and commentVotesMap[comment.id] == 'upvote' %}
                                                                                         btn-light
@@ -603,4 +613,5 @@ document.addEventListener('click', function (e) {
 });
 </script>
 <script src="{{ asset('../assets/js/favorite.js') }}"></script>
+<script src="{{ asset('../assets/js/emoji.js') }}"></script>
 {% endblock %}

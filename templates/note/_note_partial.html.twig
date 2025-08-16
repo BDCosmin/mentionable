@@ -149,17 +149,25 @@
     {# NOTE COMMENT #}
     <div class="note-comments" id="comments-{{ note.id }}" style="display: none;">
         {# WRITING COMMENT FORM #}
-        <form method="POST" action="{{ path('note_comment', {id: note.id}) }}" class="ajax-comment-form" data-note-id="{{ note.id }}">
+        <form method="POST" action="{{ path('note_comment', {id: note.id}) }}" class="ajax-comment-form" style="position: relative" data-note-id="{{ note.id }}">
             <div class="d-flex flex-row mb-3">
                 <a class="nav-link me-2" href="#">
                     <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ app.user.avatar)}}" alt="writeCommentAvatar" onerror="showDefaultIcon(this)">
                 </a>
                 <div class="d-flex flex-row w-100">
-                    <input type="text" name="message" class="form-control comment-input mb-1" placeholder="Write a comment..." required>
+                    <input type="text" name="message" class="form-control comment-input mb-1" placeholder="Write a comment..."
+                           style="border-bottom-right-radius: 0; border-top-right-radius: 0;" required>
+                    <div class="d-none d-sm-flex justify-content-end me-1 position-relative">
+                        <button type="button" class="btn btn-light btn-sm px-3 emoji-toggle-btn"
+                                style="height: 2.575rem; border-bottom-left-radius: 0; border-top-left-radius: 0; background-color: #252c35;">
+                            <i class='bx bx-happy-beaming' style='color:#ffffff; font-size: 24px'></i>
+                        </button>
+                    </div>
                     <div class="d-flex justify-content-end">
                         <button type="submit" class="btn btn-light btn-sm px-3" style="height: 40px;">Post</button>
                     </div>
                 </div>
+                <div class="emoji-list position-absolute bg-dark p-2 rounded" style="display:none; bottom: 100%; right: 0; max-height: 200px; overflow-y: auto; z-index: 1000;"></div>
             </div>
         </form>
         <div class="new-comments"></div>
@@ -181,7 +189,7 @@
                         <p class="text-gray mt-1">{{ comment.humanTimeComment }}</p>
                     </div>
                     <div class="d-inline-flex">
-                        <small style="font-size: 16px; color: white; background-color: #757575; border-radius: 8px; opacity: 0.5; padding: 5px;">{{ comment.message }}</small>
+                        <small style="font-size: 16px; color: #404040; background-color: #ffffff; border-radius: 8px; opacity: 0.9; padding: 5px;">{{ comment.message }}</small>
                         {# UPVOTE FORM #}
                         <button
                                 class="btn btn-sm btn-outline-light d-flex align-items-center border-0 comment-upvote-btn"

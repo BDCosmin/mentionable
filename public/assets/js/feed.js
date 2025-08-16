@@ -93,18 +93,14 @@ document.querySelectorAll('.ajax-comment-form').forEach(form => {
                 }
             })
             .catch(async (error) => {
-                // Încearcă să extragi mesajul de eroare din JSON-ul răspunsului
                 let errorMessage = error?.message || 'Something went wrong.';
                 try {
                     const errorJson = await error?.response?.json();
                     if (errorJson?.message) {
                         errorMessage = errorJson.message;
                     }
-                } catch (_) {
-                    // Nu facem nimic, rămâne mesajul default
-                }
+                } catch (_) {}
 
-                // Găsește div-ul de eroare fix în formular (din Twig)
                 const errorDiv = form.querySelector('.comment-error');
                 if (!errorDiv) {
                     return;
@@ -321,7 +317,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             <p class="text-gray mt-1">${comment.humanTime}</p>
                         </div>
                         <div class="d-inline-flex">
-                            <small style="font-size: 16px; color: white; background-color: #757575; border-radius: 8px; opacity: 0.5; padding: 5px;">${comment.message}</small>
+                            <small style="font-size: 16px; color: #404040; background-color: #ffffff; border-radius: 8px; opacity: 0.9; padding: 5px;">${comment.message}</small>
                         </div>
                     </div>
                 </div>`;
