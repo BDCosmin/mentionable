@@ -445,6 +445,16 @@
                                                         </li>
                                                     {% endif %}
                                                 </ul>
+                                                {# FAVORITE BUTTON #}
+                                                <button class="favorite-btn btn btn-sm border-0 ms-1
+                                                        {% if favoritesMap[item.note.id] %}
+                                                            btn-warning
+                                                        {% else %}
+                                                            btn-outline-warning
+                                                        {% endif %}"
+                                                        data-id="{{ item.note.id }}">
+                                                    <i class="bx {% if favoritesMap[item.note.id] %}bxs-star{% else %}bx-star{% endif %}" style="font-size: 18px; margin-top: 5px;"></i>
+                                                </button>
 
                                                 <div class="modal fade" id="deleteNoteModal" tabindex="-1" aria-labelledby="deleteNoteModalLabel" aria-hidden="true" style="overflow-y: hidden;">
                                                     <div class="modal-dialog">
@@ -513,16 +523,6 @@
                                                     <i class='bx bx-message-circle-reply pe-1'></i>
                                                     <span class="comment-count">{{ item.note.comments|length }}</span>
                                                 </button>
-                                                {# FAVORITE BUTTON #}
-                                                <button class="favorite-btn btn btn-sm border-0 ms-1
-                                                        {% if favoritesMap[item.note.id] %}
-                                                            btn-warning
-                                                        {% else %}
-                                                            btn-outline-warning
-                                                        {% endif %}"
-                                                        data-id="{{ item.note.id }}">
-                                                    <i class="bx {% if favoritesMap[item.note.id] %}bxs-star{% else %}bx-star{% endif %}" style="font-size: 18px; margin-top: 5px;"></i>
-                                                </button>
 
                                                 <div class="ms-2 me-2 pt-1 d-none d-md-block">
                                                     <p class="text-white" style="margin-top: 7px">•</p>
@@ -555,13 +555,20 @@
                                         <div class="note-comments pt-3" id="comments-{{ item.note.id }}" style="display: none;">
                                             {% if isMember %}
                                                 {# WRITING COMMENT FORM #}
-                                                <form method="POST" action="{{ path('note_comment', {id: item.note.id}) }}" class="ajax-comment-form" data-note-id="{{ item.note.id }}">
+                                                <form method="POST" action="{{ path('note_comment', {id: item.note.id}) }}" class="ajax-comment-form" style="position: relative" data-note-id="{{ item.note.id }}">
                                                     <div class="d-flex flex-row mb-3">
                                                         <a class="nav-link me-2" href="#">
                                                             <img class="img-xs rounded-circle" src="{{ asset('Uploads/avatars/' ~ app.user.avatar)}}" alt="writeCommentAvatar" onerror="showDefaultIcon(this)">
                                                         </a>
                                                         <div class="d-flex flex-row w-100">
-                                                            <input type="text" style="background-color: #272b33" name="message" class="form-control comment-input mb-1" placeholder="Write a comment..." required>
+                                                            <input type="text" name="message" class="form-control comment-input mb-1" placeholder="Write a comment..."
+                                                                   style="border-bottom-right-radius: 0; border-top-right-radius: 0;" required>
+                                                            <div class="d-none d-sm-flex justify-content-end me-1 position-relative">
+                                                                <button type="button" class="btn btn-light btn-sm px-3 emoji-toggle-btn"
+                                                                        style="height: 2.575rem; border-bottom-left-radius: 0; border-top-left-radius: 0; background-color: #252c35;">
+                                                                    <i class='bx bx-happy-beaming' style='color:#ffffff; font-size: 24px'></i>
+                                                                </button>
+                                                            </div>
                                                             <div class="d-flex justify-content-end">
                                                                 <button type="submit" class="btn btn-light btn-sm px-3" style="height: 40px;">Post</button>
                                                             </div>
@@ -571,6 +578,7 @@
                                                         <span class="error-message"></span>
                                                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                                     </div>
+                                                    <div class="emoji-list position-absolute bg-dark p-2 rounded" style="display:none; bottom: 100%; right: 0; max-height: 200px; overflow-y: auto; z-index: 1000;"></div>
                                                 </form>
                                             {% else %}
                                                 <div class="text-white mb-3 ps-3">
@@ -596,7 +604,7 @@
                                                                 <p class="text-gray mt-1">{{ comment.humanTimeComment }}</p>
                                                             </div>
                                                             <div class="d-inline-flex">
-                                                                <small style="font-size: 16px; color: white; background-color: #757575; border-radius: 8px; opacity: 0.5; padding: 5px;">{{ comment.message }}</small>
+                                                                <small style="font-size: 16px; color: #404040; background-color: #ffffff; border-radius: 8px; opacity: 0.9; padding: 5px;">{{ comment.message }}</small>
                                                                 {# UPVOTE FORM #}
                                                                 <button
                                                                         class="btn btn-sm btn-outline-light d-flex align-items-center border-0 comment-upvote-btn"
@@ -790,4 +798,5 @@ document.addEventListener("DOMContentLoaded", function () {
 <script src="{{ asset('../assets/js/pin.js') }}"></script>
 <script src="{{ asset('../assets/js/feed.js') }}"></script>
 <script src="{{ asset('../assets/js/favorite.js') }}"></script>
+<script src="{{ asset('../assets/js/emoji.js') }}"></script>
 {% endblock %}

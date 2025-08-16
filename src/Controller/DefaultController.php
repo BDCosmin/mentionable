@@ -136,6 +136,13 @@ final class DefaultController extends AbstractController
         ]);
     }
 
+    #[Route('/api/emojis', name: 'api_emojis')]
+    public function fetchEmojis(): JsonResponse {
+        $apiKey = $_ENV['EMOJI_API_KEY'];
+        $data = file_get_contents("https://emoji-api.com/emojis?access_key={$apiKey}");
+        return $this->json(json_decode($data, true));
+    }
+
     #[Route('/mark-as-read', name: 'mark_notifications_read', methods: ['POST', 'GET'])]
     public function markNotificationsRead(NotificationService $notificationService): Response
     {
