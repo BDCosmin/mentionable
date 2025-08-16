@@ -191,6 +191,11 @@ class ProfileController extends AbstractController
             }
         }
 
+        $favoritesMap = [];
+        foreach ($notes as $note) {
+            $favoritesMap[$note->getId()] = $currentUser ? $currentUser->hasFavorite($note) : false;
+        }
+
         return $this->render('profile/mentionable.html.twig', [
             'user' => $page,
             'notesWithMentionedUser' => $notesWithMentionedUser,
@@ -199,6 +204,7 @@ class ProfileController extends AbstractController
             'noteVotes' => $noteVotes,
             'commentVotesMap' => $commentVotesMap,
             'votesMap' => $votesMap,
+            'favoritesMap' => $favoritesMap,
         ]);
     }
 

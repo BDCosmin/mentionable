@@ -168,6 +168,17 @@
                                                             </li>
                                                         {% endif %}
                                                     </ul>
+                                                    {# FAVORITE BUTTON #}
+                                                    <button class="favorite-btn btn btn-sm ms-1
+                                                            {% if favoritesMap[item.note.id] %}
+                                                                btn-warning
+                                                            {% else %}
+                                                                btn-outline-warning
+                                                            {% endif %}"
+                                                            data-id="{{ item.note.id }}"
+                                                            style="border-radius: 50%">
+                                                        <i class="bx {% if favoritesMap[item.note.id] %}bxs-star{% else %}bx-star{% endif %}" style="font-size: 18px; margin-top: 5px;"></i>
+                                                    </button>
                                                     <div class="modal fade" id="deleteNoteModal" tabindex="-1" aria-labelledby="deleteNoteModalLabel" aria-hidden="true" style="overflow-y: hidden;">
                                                         <div class="modal-dialog">
                                                             <div class="modal-content border-danger">
@@ -188,6 +199,20 @@
                                                             </div>
                                                         </div>
                                                     </div>
+                                                </div>
+                                            {% else %}
+                                                <div class="dropdown ms-auto mt-1 me-1">
+                                                    {# FAVORITE BUTTON #}
+                                                    <button class="favorite-btn btn btn-sm ms-1
+                                                            {% if favoritesMap[item.note.id] %}
+                                                                btn-warning
+                                                            {% else %}
+                                                                btn-outline-warning
+                                                            {% endif %}"
+                                                            data-id="{{ item.note.id }}"
+                                                            style="border-radius: 50%">
+                                                        <i class="bx {% if favoritesMap[item.note.id] %}bxs-star{% else %}bx-star{% endif %}" style="font-size: 18px; margin-top: 5px;"></i>
+                                                    </button>
                                                 </div>
                                             {% endif %}
                                         </div>
@@ -372,4 +397,5 @@ document.addEventListener('click', function (e) {
     }
 });
 </script>
+<script src="{{ asset('../assets/js/favorite.js') }}"></script>
 {% endblock %}
