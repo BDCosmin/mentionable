@@ -9,41 +9,50 @@ const voteHandler = (noteId, type) => {
     })
         .then(res => res.json())
         .then(data => {
-            if (data.success) {
-                document.querySelector(`#upvotes-${noteId}`).textContent = data.upvotes;
-                document.querySelector(`#downvotes-${noteId}`).textContent = data.downvotes;
+            if (!data.success) return;
 
-                const upBtn = document.querySelector(`.upvote-btn[data-id="${noteId}"]`);
-                const downBtn = document.querySelector(`.downvote-btn[data-id="${noteId}"]`);
+            document.querySelector(`#upvotes-${noteId}`).textContent = data.upvotes;
+            document.querySelector(`#downvotes-${noteId}`).textContent = data.downvotes;
 
-                if (type === 'upvote') {
+            const upBtn = document.querySelector(`.upvote-btn[data-id="${noteId}"]`);
+            const downBtn = document.querySelector(`.downvote-btn[data-id="${noteId}"]`);
+
+            if (type === 'upvote') {
+                if (upBtn.classList.contains('btn-light')) {
+                    upBtn.classList.remove('btn-light');
+                    upBtn.classList.add('btn-outline-light');
+                } else {
                     upBtn.classList.add('btn-light');
                     upBtn.classList.remove('btn-outline-light');
-                    downBtn.classList.add('btn-outline-light');
                     downBtn.classList.remove('btn-light');
-                } else if (type === 'downvote') {
+                    downBtn.classList.add('btn-outline-light');
+                }
+            } else if (type === 'downvote') {
+                if (downBtn.classList.contains('btn-light')) {
+                    downBtn.classList.remove('btn-light');
+                    downBtn.classList.add('btn-outline-light');
+                } else {
                     downBtn.classList.add('btn-light');
                     downBtn.classList.remove('btn-outline-light');
-                    upBtn.classList.add('btn-outline-light');
                     upBtn.classList.remove('btn-light');
+                    upBtn.classList.add('btn-outline-light');
                 }
             }
-        });
+        })
+        .catch(err => console.error('Eroare la vot:', err));
 };
 
-document.addEventListener('click', function (e) {
-    if (e.target.closest('.upvote-btn')) {
-        e.preventDefault();
-        const btn = e.target.closest('.upvote-btn');
-        voteHandler(btn.dataset.id, 'upvote');
-    }
+document.addEventListener('click', (e) => {
+    const upBtn = e.target.closest('.upvote-btn');
+    const downBtn = e.target.closest('.downvote-btn');
 
-    if (e.target.closest('.downvote-btn')) {
-        e.preventDefault();
-        const btn = e.target.closest('.downvote-btn');
-        voteHandler(btn.dataset.id, 'downvote');
+    if (upBtn) {
+        voteHandler(upBtn.dataset.id, 'upvote');
+    } else if (downBtn) {
+        voteHandler(downBtn.dataset.id, 'downvote');
     }
 });
+
 
 document.addEventListener('submit', function (e) {
     if (e.target.matches('.ajax-comment-form')) {
