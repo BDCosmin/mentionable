@@ -26,9 +26,6 @@
                                 <a href="{{ path('app_ring_show', {'id': note.ring.id}) }}" style="text-decoration: none; color: white">
                                     {{ note.ring.title }}
                                 </a>
-                            </p>
-                            <div class="d-flex align-items-center" style="gap: 3px; font-size: 13px;">
-                                <p class="mb-0 text-muted" style="white-space: nowrap;">Role:</p>
                                 {% set role = rolesMap[note.user.id]|default('member') %}
                                 {% set bgColor = role == 'member' ? '#6c757d' : 'orange' %}
                                 <span style="
@@ -39,9 +36,9 @@
                                         font-weight: 600;
                                         text-transform: capitalize;
                                         white-space: nowrap;">
-                                                    {{ role|capitalize }}
-                                                </span>
-                            </div>
+                                    {{ role|capitalize }}
+                                </span>
+                            </p>
                         {% endif %}
                     {% endif %}
                 </div>
@@ -296,4 +293,5 @@
         </div>
     </div>
 {% endfor %}
-
+<script src="{{ asset('../assets/js/favorite.js') }}"></script>
+<script src="{{ asset('../assets/js/emoji.js') }}"></script>
