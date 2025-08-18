@@ -110,24 +110,21 @@
     window.votesMap = {{ votesMap|json_encode|raw }};
 </script>
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    const buttons = document.querySelectorAll(".toggle-comments");
+document.addEventListener('DOMContentLoaded', function() {
+    const notesContainer = document.getElementById('notes-container');
 
-    buttons.forEach(button => {
-        button.addEventListener("click", function () {
-            const noteId = this.getAttribute("data-note-id");
+    notesContainer.addEventListener('click', function(e) {
+        const button = e.target.closest('.toggle-comments');
+        if (button) {
+            const noteId = button.getAttribute('data-note-id');
             const commentSection = document.getElementById("comments-" + noteId);
 
             if (commentSection) {
-                if (commentSection.style.display === "none" || commentSection.style.display === "") {
-                    commentSection.style.display = "block";
-                } else {
-                    commentSection.style.display = "none";
-                }
+                commentSection.style.display = (commentSection.style.display === "none" || commentSection.style.display === "") ? "block" : "none";
             } else {
                 console.error("The comment with the following id was not found: comments-" + noteId);
             }
-        });
+        }
     });
 });
 </script>
@@ -232,5 +229,6 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 <script src="{{ asset('../assets/js/favorite.js') }}"></script>
+<script src="{{ asset('../assets/js/emoji.js') }}"></script>
 {% endblock %}
 

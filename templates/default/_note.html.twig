@@ -29,7 +29,8 @@
                             </p>
                             <div class="d-flex align-items-center" style="gap: 3px; font-size: 13px;">
                                 <p class="mb-0 text-muted" style="white-space: nowrap;">Role:</p>
-                                {% set bgColor = rolesMap[note.id] == 'member' ? '#6c757d' : 'orange' %}
+                                {% set role = rolesMap[note.user.id]|default('member') %}
+                                {% set bgColor = role == 'member' ? '#6c757d' : 'orange' %}
                                 <span style="
                                         background-color: {{ bgColor }};
                                         color: white;
@@ -38,7 +39,7 @@
                                         font-weight: 600;
                                         text-transform: capitalize;
                                         white-space: nowrap;">
-                                                    {{ rolesMap[note.id]|default('Member') }}
+                                                    {{ role|capitalize }}
                                                 </span>
                             </div>
                         {% endif %}
@@ -295,4 +296,4 @@
         </div>
     </div>
 {% endfor %}
-<script src="{{ asset('../assets/js/emoji.js') }}"></script>
+
