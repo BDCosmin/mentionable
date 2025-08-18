@@ -11,15 +11,24 @@
             </div>
         </div>
         {# CENTERED CONTAINER #}
-        <div class="row justify-content-center mb-4">
+        <div class="row justify-content-center mb-2">
+            <nav class="col-lg-7 m-0 p-0" aria-label="breadcrumb" style="border-radius: 5px;">
+                <ol class="breadcrumb m-0 p-0">
+                    <li class="breadcrumb-item active d-flex justify-content-start" style="width: 100%" aria-current="page">
+                        <p class="text-white" style="font-size: 30px; user-select: none"><b>Feed</b></p>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+        <div class="row justify-content-center">
             <div class="col-lg-7 m-0 p-0 mb-3" id="errorWhilePosting" style="display: none;">
                 <span id="errorMessage" class="badge bg-danger"></span>
             </div>
-            <a class="col-lg-7 note-launch-link d-flex flex-row p-3 mb-2 mt-4 text-white" style="text-decoration: none; background-color: #bc7b00; border-radius: 10px;" href="#" data-bs-toggle="modal" data-bs-target="#newNoteModal">
+            <a class="col-lg-7 note-launch-link d-flex flex-row p-3 mb-2 text-white" style="text-decoration: none; background-color: #bc7b00; border-radius: 10px;" href="#" data-bs-toggle="modal" data-bs-target="#newNoteModal">
                 <h4 class="m-0 p-0">
                     What's on your mind ...
                 </h4>
-                <i class='bx bx-wink-smile ms-auto' style='color:#ffffff; font-size: 24px'></i>
+                <i class='bx bx-wink-smile ms-auto me-2' style='color:#ffffff; font-size: 24px'></i>
             </a>
             <!-- Modal create note -->
             <div class="modal fade" id="newNoteModal" tabindex="-1" aria-labelledby="newNoteModalLabel" aria-hidden="true" style="overflow-y: hidden;">
@@ -58,13 +67,6 @@
         </div>
         {# NOTES LIST #}
         <div class="row justify-content-center">
-            <nav class="col-lg-7 m-0 p-0" aria-label="breadcrumb" style="border-radius: 5px;">
-                <ol class="breadcrumb m-0">
-                    <li class="breadcrumb-item active d-flex justify-content-center" style="width: 100%" aria-current="page">
-                        <p style="opacity: 50%; font-family: 'Century Gothic'; font-size: 22px; user-select: none; color: white">╼ FEED ╾</p>
-                    </li>
-                </ol>
-            </nav>
             <div id="loading-spinner" style="display:none; text-align:center;">
                 <div class="spinner-border text-light" role="status">
                     <span class="visually-hidden">Loading...</span>
@@ -228,7 +230,5 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 </script>
-<script src="{{ asset('../assets/js/favorite.js') }}"></script>
-<script src="{{ asset('../assets/js/emoji.js') }}"></script>
 {% endblock %}
 

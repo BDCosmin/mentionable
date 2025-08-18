@@ -398,6 +398,18 @@ class NoteController extends AbstractController
             }
         }
 
+        $rolesMap = [];
+        if ($ring && $author) {
+            $member = $ringMemberRepository->findOneBy([
+                'ring' => $ring,
+                'user' => $author,
+            ]);
+
+            if ($member) {
+                $rolesMap[$author->getId()] = $member->getRole();
+            }
+        }
+
         $votesMap = [];
         if ($user) {
             $noteVote = $noteVoteRepository->findOneByUserAndNote($user, $note);
@@ -436,6 +448,8 @@ class NoteController extends AbstractController
             'mentionedUser' => $mentionedUser,
             'role' => $role,
             'favoritesMap' => $favoritesMap,
+            'rolesMap' => $rolesMap,
+            'currentUserNametag' => $user->getNametag(),
         ]);
     }
 

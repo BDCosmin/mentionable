@@ -50,6 +50,7 @@ final class UserController extends AbstractController
         NotificationService $notificationService,
         EntityManagerInterface $em,
         RingMemberRepository $ringMemberRepository,
+        Request $request
     ): Response {
         $user = $this->getUser();
 
@@ -112,6 +113,11 @@ final class UserController extends AbstractController
             $limitedComments[$note->getId()] = $comments;
         }
 
+        $favoritesMap = [];
+        foreach ($notes as $note) {
+            $favoritesMap[$note->getId()] = $user->hasFavorite($note);
+        }
+
         return $this->render('user/index.html.twig', [
             'user' => $user,
             'notesCount' => $notesCount,
@@ -124,6 +130,8 @@ final class UserController extends AbstractController
             'notesWithMentionedUser' => $notesWithMentionedUser,
             'rolesMap' => $rolesMap,
             'limitedComments' => $limitedComments,
+            'favoritesMap' => $favoritesMap,
+            'currentUserNametag' => $user->getNametag(),
         ]);
     }
 

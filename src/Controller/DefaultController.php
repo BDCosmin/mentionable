@@ -58,7 +58,7 @@ final class DefaultController extends AbstractController
                 ]);
 
                 if ($member) {
-                    $rolesMap[$note->getId()] = $member->getRole();
+                    $rolesMap[$author->getId()] = $member->getRole();
                 }
             }
         }
@@ -93,7 +93,6 @@ final class DefaultController extends AbstractController
         }
 
         $limitedComments = [];
-
         foreach ($notes as $note) {
             $allComments = $note->getComments();
             $sorted = $allComments->toArray();

@@ -309,7 +309,7 @@ final class RingController extends AbstractController
 
         $rolesMap = [];
         foreach ($members as $member) {
-            $rolesMap[$member->getUser()->getId()] = $member->getRole(); // ex: 'owner', 'moderator', etc.
+            $rolesMap[$member->getUser()->getId()] = $member->getRole();
         }
 
         $noteVotes = $noteVoteRepository->findBy([]);
