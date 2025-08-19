@@ -89,6 +89,11 @@ class NoteController extends AbstractController
             }
         }
 
+        $favoritesMap = [];
+        foreach ($notes as $note) {
+            $favoritesMap[$note->getId()] = $user->hasFavorite($note);
+        }
+
         if ($request->isMethod('POST')) {
             $content = $request->request->get('content');
 
@@ -113,6 +118,7 @@ class NoteController extends AbstractController
                     'noteVotes' => $noteVotes,
                     'votesMap' => $votesMap,
                     'commentVotesMap' => $commentVotesMap,
+                    'favoritesMap' => $favoritesMap,
                     'ring' => $ring,
                     'members' => $members,
                     'ringNotes' => $ringNotes,
@@ -162,6 +168,7 @@ class NoteController extends AbstractController
                         'noteVotes' => $noteVotes,
                         'votesMap' => $votesMap,
                         'commentVotesMap' => $commentVotesMap,
+                        'favoritesMap' => $favoritesMap,
                         'ring' => $ring,
                         'members' => $members,
                         'ringNotes' => $ringNotes,
@@ -205,7 +212,9 @@ class NoteController extends AbstractController
             }
 
             if ($request->isXmlHttpRequest()) {
-                $html = $this->renderView('note/_note_partial.html.twig', ['note' => $note]);
+                $favoritesMap = [$note->getId() => $user->hasFavorite($note)];
+
+                $html = $this->renderView('note/_note_partial.html.twig', ['note' => $note, 'favoritesMap' => $favoritesMap]);
 
                 return new JsonResponse([
                     'status' => 'success',
@@ -500,7 +509,6 @@ class NoteController extends AbstractController
     #[Route('/note/{id}/upvote', name: 'note_upvote', methods: ['POST'])]
     public function upvote(Note $note,
                            EntityManagerInterface $em,
-                           Request $request,
                            NoteVoteRepository $noteVoteRepository): JsonResponse
     {
         $user = $this->getUser();
@@ -508,8 +516,6 @@ class NoteController extends AbstractController
             'user' => $user,
             'note' => $note,
         ]);
-
-        $shouldRemoveVote = false;
 
         if (!$existingVote) {
             $vote = new NoteVote();
@@ -519,23 +525,16 @@ class NoteController extends AbstractController
             $vote->setIsDownvoted(false);
             $note->incrementUpVote();
             $em->persist($vote);
-
         } else {
-            if ($existingVote->isUpvoted() && !$existingVote->isDownvoted()) {
-                $existingVote->setIsUpvoted(false);
+            if ($existingVote->isUpvoted()) {
                 $note->decrementUpVote();
-                $shouldRemoveVote = true;
-
-            } elseif ($existingVote->isDownvoted() && !$existingVote->isUpvoted()) {
+                $em->remove($existingVote);
+            } elseif ($existingVote->isDownvoted()) {
                 $existingVote->setIsDownvoted(false);
                 $existingVote->setIsUpvoted(true);
                 $note->decrementDownVote();
                 $note->incrementUpVote();
             }
-        }
-
-        if ($shouldRemoveVote && $existingVote) {
-            $em->remove($existingVote);
         }
 
         $em->flush();
@@ -550,47 +549,32 @@ class NoteController extends AbstractController
     #[Route('/note/{id}/downvote', name: 'note_downvote', methods: ['POST'])]
     public function downvote(Note $note,
                              EntityManagerInterface $em,
-                             Request $request,
                              NoteVoteRepository $noteVoteRepository): JsonResponse
     {
         $user = $this->getUser();
-
         $existingVote = $noteVoteRepository->findOneBy([
             'user' => $user,
             'note' => $note,
         ]);
 
-        $shouldRemoveVote = false;
-
         if (!$existingVote) {
-
             $vote = new NoteVote();
             $vote->setUser($user);
             $vote->setNote($note);
-            $vote->setIsUpvoted(false);
             $vote->setIsDownvoted(true);
-
+            $vote->setIsUpvoted(false);
             $note->incrementDownVote();
             $em->persist($vote);
-
         } else {
-            if ($existingVote->isDownvoted() && !($existingVote->isUpvoted())) {
-
-                $existingVote->setIsDownvoted(false);
+            if ($existingVote->isDownvoted()) {
                 $note->decrementDownVote();
-
-            } elseif ($existingVote->isUpvoted() && !($existingVote->isDownvoted())) {
-
-                $existingVote->setIsDownvoted(true);
+                $em->remove($existingVote);
+            } elseif ($existingVote->isUpvoted()) {
                 $existingVote->setIsUpvoted(false);
+                $existingVote->setIsDownvoted(true);
                 $note->decrementUpVote();
                 $note->incrementDownVote();
-
             }
-        }
-
-        if ($shouldRemoveVote && $existingVote) {
-            $em->remove($existingVote);
         }
 
         $em->flush();

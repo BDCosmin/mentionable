@@ -289,7 +289,30 @@ document.addEventListener('click', function (e) {
                         </div>
                         <div class="d-inline-flex">
                             <small style="font-size: 16px; color: #404040; background-color: #ffffff; border-radius: 8px; opacity: 0.9; padding: 5px;">${comment.message}</small>
+                            <button class="btn btn-sm ms-2 d-flex align-items-center border-0 comment-upvote-btn ${commentVotesMap[comment.id] === 'upvote' ? 'btn-light' : 'btn-outline-light'}"
+                                    type="button"
+                                    data-note-id="${comment.note.id}"
+                                    data-comment-id="${comment.id}"
+                                    data-csrf="${csrfToken}">
+                                <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
+                                <span id="comment-upvotes-${comment.id}" class="ms-1">${comment.upVote || 0}</span>
+                            </button>
                         </div>
+                    </div>
+                    <div class="dropdown ms-auto me-1 d-inline-flex justify-content-end">
+                        <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="height: 30px;">
+                            <i class='bx bx-dots-horizontal-rounded' style='color:#ffffff'></i>
+                        </a>
+                        <ul class="dropdown-menu m-0">
+                            ${currentUserNametag === comment.user.nametag
+                                ? `
+                                <li><a class="dropdown-item" href="/note/comment/update/${comment.id}?noteId=${comment.note.id}">Edit...</a></li>
+                                <li><a class="dropdown-item delete-comment-btn" href="/note/comment/delete/${comment.id}?noteId=${comment.note.id}">Delete comment</a></li>
+                                `
+                                : `
+                                <li><a class="dropdown-item" href="/note/comment/report/${comment.id}?noteId=${comment.note.id}">Report</a></li>
+                                `}
+                        </ul>
                     </div>
                 </div>`;
                 commentsContainer.insertAdjacentHTML('beforeend', html);
