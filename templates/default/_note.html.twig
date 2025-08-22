@@ -235,7 +235,7 @@
             {# COMMENTS LIST #}
             <div id="comments-list-{{ note.id }}">
                 {% for comment in limitedComments[note.id] %}
-                    <div class="d-flex flex-row mb-3" data-note-id="{{ note.id }}">
+                    <div class="d-flex flex-row mb-3" data-note-id="{{ note.id }}" data-comment-id="{{ comment.id }}">
                         <a class="nav-link me-2" href="#">
                             <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ comment.user.avatar) }}" alt="avatarComment" onerror="showDefaultIcon(this)">
                         </a>
