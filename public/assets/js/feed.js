@@ -262,62 +262,6 @@ mobileInput.addEventListener('input', function () {
     }
 });
 
-document.addEventListener('click', function (e) {
-    const link = e.target.closest('.see-all-comments');
-    if (!link) return;
-    e.preventDefault();
 
-    const noteId = link.dataset.noteId;
-    const url = `/note/${noteId}/comments`;
-    const commentsContainer = document.getElementById(`comments-list-${noteId}`);
 
-    fetch(url)
-        .then(response => response.json())
-        .then(data => {
-            commentsContainer.innerHTML = '';
-            data.comments.forEach(comment => {
-                const html = `
-                <div class="d-flex flex-row mb-3" data-note-id="${noteId}">
-                    <a class="nav-link me-2" href="#">
-                        <img class="img-xs rounded-circle" src="/uploads/avatars/${comment.user.avatar}" alt="avatarComment" onerror="showDefaultIcon(this)">
-                    </a>
-                    <div class="ms-2 p-0">
-                        <div class="d-flex flex-row" style="height: 30px;">
-                            <p class="text-white me-2" style="font-size: 18px;">@${comment.user.nametag}</p>
-                            ${comment.isEdited ? `<i class="fa fa-clock-o text-gray me-1" style="margin-top: 6px"></i>` : `<p class="text-gray mt-1 me-2">•</p>`}
-                            <p class="text-gray mt-1">${comment.humanTime}</p>
-                        </div>
-                        <div class="d-inline-flex">
-                            <small style="font-size: 16px; color: #404040; background-color: #ffffff; border-radius: 8px; opacity: 0.9; padding: 5px;">${comment.message}</small>
-                            <button class="btn btn-sm ms-2 d-flex align-items-center border-0 comment-upvote-btn ${commentVotesMap[comment.id] === 'upvote' ? 'btn-light' : 'btn-outline-light'}"
-                                    type="button"
-                                    data-note-id="${comment.note.id}"
-                                    data-comment-id="${comment.id}"
-                                    data-csrf="${csrfToken}">
-                                <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
-                                <span id="comment-upvotes-${comment.id}" class="ms-1">${comment.upVote || 0}</span>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="dropdown ms-auto me-1 d-inline-flex justify-content-end">
-                        <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="height: 30px;">
-                            <i class='bx bx-dots-horizontal-rounded' style='color:#ffffff'></i>
-                        </a>
-                        <ul class="dropdown-menu m-0">
-                            ${currentUserNametag === comment.user.nametag
-                                ? `
-                                <li><a class="dropdown-item" href="/note/comment/update/${comment.id}?noteId=${comment.note.id}">Edit...</a></li>
-                                <li><a class="dropdown-item delete-comment-btn" href="/note/comment/delete/${comment.id}?noteId=${comment.note.id}">Delete comment</a></li>
-                                `
-                                : `
-                                <li><a class="dropdown-item" href="/note/comment/report/${comment.id}?noteId=${comment.note.id}">Report</a></li>
-                                `}
-                        </ul>
-                    </div>
-                </div>`;
-                commentsContainer.insertAdjacentHTML('beforeend', html);
-            });
-            link.style.display = 'none';
-        })
-        .catch(error => console.error('Error loading comments:', error));
-});
+
