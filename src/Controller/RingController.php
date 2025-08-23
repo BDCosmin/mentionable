@@ -336,7 +336,7 @@ final class RingController extends AbstractController
         }
 
         if ($ring->getIsSuspended() == 1) {
-            $this->addFlash('error', 'This ring has been suspended. Reason: '.$ring->getSuspensionReason());
+            $this->addFlash('danger', '<b>This ring has been suspended.</b> <br/> Reason: '.$ring->getSuspensionReason());
         }
 
         $limitedComments = [];
@@ -580,26 +580,34 @@ final class RingController extends AbstractController
 
     #[Route('/ring/{ringId}-{id}/change-member-role', name: 'app_ring_change_member_role', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_USER')]
-    public function changeRoleMember(int $id, int $ringId, Request $request, RingRepository $ringRepository, NotificationService $notificationService, EntityManagerInterface $em, RingMemberRepository $ringMemberRepository): Response
+    public function changeRoleMember(int $id, int $ringId, Request $request, RingRepository $ringRepository, NotificationService $notificationService, EntityManagerInterface $em, UserRepository $userRepository,  RingMemberRepository $ringMemberRepository): Response
     {
         $user = $this->getUser();
         $ring = $ringRepository->find($ringId);
 
         $ringMember = $ringMemberRepository->findOneBy(['user' => $id, 'ring' => $ringId]);
+        $userRingMember = $ringMember->getUser();
+
         $currentRingMember = $ringMemberRepository->findOneBy(['user' => $user, 'ring' => $ringId]);
 
-        if (!$ringMember) {
+        if (!$userRingMember){
             $this->addFlash('error', 'Member not found.');
             return $this->redirectToRoute('app_rings_discover');
         }
 
         $ringMember->setRole('owner');
+        if(!($userRingMember->getInterests()->contains($ring->getInterest()))) {
+            $userRingMember->getInterests()->add($ring->getInterest());
+        }
+
+        $ring->setUser($userRingMember);
         $currentRingMember->setRole('member');
 
         $sender = $this->getUser();
         $receiver = $ringMember->getUser();
 
         $em->persist($ringMember);
+        $em->persist($ring);
         $em->persist($currentRingMember);
 
         $em->flush();

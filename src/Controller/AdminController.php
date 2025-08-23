@@ -210,7 +210,7 @@ final class AdminController extends AbstractController
     }
 
     #[Route('/admin/user/{id}/ban', name: 'admin_user_ban', methods: ['POST'])]
-    public function banUser(EntityManagerInterface $em, Request $request, User $user): Response
+    public function banUser(EntityManagerInterface $em, Request $request, User $user, RingRepository $ringRepository): Response
     {
         if (!$this->isCsrfTokenValid('ban-user-' . $user->getId(), $request->request->get('_token'))) {
             $this->addFlash('error', 'Invalid token.');
@@ -218,6 +218,11 @@ final class AdminController extends AbstractController
         }
 
         $user->setIsBanned(true);
+        foreach ($user->getRings()->toArray() as $ring) {
+            $ring->setIsSuspended(1);
+            $ring->setSuspensionReason('This ring has been suspended automatically due to actions associated with its owner.');
+            $em->persist($ring);
+        }
         $em->flush();
 
         $this->addFlash('success', 'The user has been banned.');
@@ -233,6 +238,11 @@ final class AdminController extends AbstractController
         }
 
         $user->setIsBanned(false);
+        foreach ($user->getRings()->toArray() as $ring) {
+            $ring->setIsSuspended(0);
+            $ring->setSuspensionReason(NULL);
+            $em->persist($ring);
+        }
         $em->flush();
 
         $this->addFlash('success', 'The user has been unbanned.');

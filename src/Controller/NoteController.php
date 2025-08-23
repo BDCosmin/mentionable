@@ -856,6 +856,7 @@ class NoteController extends AbstractController
             return [
                 'id' => $comment->getId(),
                 'user' => [
+                    'id' => $comment->getUser()->getId(),
                     'nametag' => $comment->getUser()->getNametag(),
                     'avatar' => $comment->getUser()->getAvatar(),
                 ],

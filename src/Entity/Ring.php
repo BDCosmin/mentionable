@@ -24,7 +24,7 @@ class Ring
     #[ORM\Column(length: 255)]
     private ?string $banner = null;
 
-    #[ORM\ManyToOne(inversedBy: 'rings')]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'rings')]
     #[ORM\JoinColumn(nullable: false)]
     private User $user;
 

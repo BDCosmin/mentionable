@@ -7,15 +7,17 @@
         <div class="content-wrapper p-0">
             <div class="row justify-content-center px-0 mb-4 mt-5">
                 <div class="col-12 w-100 p-3" style="background-color: #181b20; border-radius: 5px;">
-                    {% for label, messages in app.flashes %}
-                        {% set bootstrap_class = label == 'error' ? 'danger' : label %}
-                        {% for message in messages %}
-                            <div class="alert alert-{{ bootstrap_class }} alert-dismissible fade show mt-3" role="alert">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
+                    {% if not user.isBanned %}
+                        {% for label, messages in app.flashes %}
+                            {% set bootstrap_class = label == 'error' ? 'danger' : label %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ bootstrap_class }} alert-dismissible fade show mt-3" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
                         {% endfor %}
-                    {% endfor %}
+                    {% endif %}
 
                     <div class="row flex-column flex-md-row g-4 bg-dark rounded ps-4 pe-4 pb-4 shadow" style="margin-top: -7px">
                         <div class="col-md-4 text-center text-md-start">
@@ -194,6 +196,16 @@
                                 {% endif %}
                             </div>
                         </div>
+                        {% if user.isBanned %}
+                            {% for label, messages in app.flashes %}
+                                {% set bootstrap_class = label == 'error' ? 'danger' : label %}
+                                {% for message in messages %}
+                                    <div class="alert alert-{{ bootstrap_class }} alert-dismissible fade show mt-3" role="alert">
+                                        {{ message|raw }}
+                                    </div>
+                                {% endfor %}
+                            {% endfor %}
+                        {% endif %}
                     </div>
 
                     {% if user.id == app.user.id %}
@@ -228,7 +240,8 @@
                             {% endif %}
                         </div>
                     {% else %}
-                        <div class="row g-4 ps-1 pe-1 pb-4 shadow" style="margin-top: -7px">
+                        {% if user.isBanned == 0 %}
+                            <div class="row g-4 ps-1 pe-1 pb-4 shadow" style="margin-top: -7px">
                             <div class="col-md-8 col-12">
                                 <h4 class="mt-5 text-center text-md-center text-light">Notes</h4>
                                 {# NOTES LIST #}
@@ -421,9 +434,7 @@
                                                 <div class="note-comments" id="comments-{{ item.note.id }}" style="display: none;">
                                                     <form method="POST" action="{{ path('note_comment', {id: item.note.id}) }}" class="ajax-comment-form d-flex flex-column mb-3" style="position: relative" data-note-id="{{ item.note.id }}">
                                                         <div class="d-flex flex-row align-items-center">
-                                                            <a class="nav-link me-2" href="#">
-                                                                <img class="img-xs rounded-circle comment-avatar" src="{{ asset('uploads/avatars/' ~ app.user.avatar)}}" alt="writeCommentAvatar" onerror="showDefaultIcon(this)">
-                                                            </a>
+                                                            <img class="img-xs rounded-circle comment-avatar me-2" src="{{ asset('uploads/avatars/' ~ app.user.avatar)}}" alt="writeCommentAvatar" onerror="showDefaultIcon(this)">
                                                             <div class="d-flex flex-row w-100">
                                                                 <input type="text" name="message" class="form-control comment-input mb-1" placeholder="Write a comment..."
                                                                        style="border-bottom-right-radius: 0; border-top-right-radius: 0;" required>
@@ -450,12 +461,14 @@
                                                     <div id="comments-list-{{ item.note.id }}">
                                                         {% for comment in limitedComments[item.note.id] %}
                                                             <div class="d-flex flex-row mb-3 comment-item" data-note-id="{{ item.note.id }}">
-                                                                <a class="nav-link me-2" href="#">
+                                                                <a class="nav-link me-2" href="{{ path('app_profile', {'id': comment.user.id}) }}">
                                                                     <img class="img-xs rounded-circle comment-avatar" src="{{ asset('uploads/avatars/' ~ comment.user.avatar) }}" alt="avatarComment" onerror="showDefaultIcon(this)">
                                                                 </a>
                                                                 <div class="flex-grow-1">
                                                                     <div class="d-flex flex-row align-items-center">
-                                                                        <p class="text-white me-2 mb-0" style="font-size: 16px;">@{{ comment.user.nametag }}</p>
+                                                                        <a class="m-0 p-0 text-decoration-none text-white" href="{{ path('app_profile', {'id': comment.user.id}) }}">
+                                                                            <p class="text-white me-2 mb-0" style="font-size: 16px;">@{{ comment.user.nametag }}</p>
+                                                                        </a>
                                                                         {% if comment.isEdited %}
                                                                             <i class="fa fa-clock-o text-gray me-1" style="font-size: 14px;"></i>
                                                                         {% else %}
@@ -552,6 +565,7 @@
                                 </div>
                             </div>
                         </div>
+                        {% endif %}
                     {% endif %}
                 </div>
             </div>

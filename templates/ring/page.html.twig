@@ -95,7 +95,7 @@
                                         </p>
                                     {% endif %}
                                 </div>
-                                <!-- Modalul pentru afișarea membrilor ringului -->
+                                <!-- Modal displaying the members -->
                                 <div class="modal fade" id="membersModal-{{ ring.id }}" tabindex="-1" aria-labelledby="membersModalLabel-{{ ring.id }}" aria-hidden="true">
                                     <div class="modal-dialog w-100" style="max-width: 700px;">
                                         <div class="modal-content bg-dark text-white">
@@ -131,27 +131,29 @@
 
                                                                     {% if currentUserIsOwner and member.user.id != app.user.id %}
                                                                         {% if ring.isSuspended == 0 %}
-                                                                            <div class="col-1 d-flex">
-                                                                                <div class="dropdown top-0 end-0 m-2">
-                                                                                    <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
-                                                                                       class="text-white"
-                                                                                       style="right: 10px; text-decoration: none; z-index: 10;">
-                                                                                        <i class="fa fa-ellipsis-h" style="font-size: 25px;"></i>
-                                                                                    </a>
-                                                                                    <ul class="dropdown-menu dropdown-menu-end">
-                                                                                        <li>
-                                                                                            <a class="dropdown-item" href="{{ path('app_ring_remove_member', {'id': member.user.id, 'ringId': member.ring.id}) }}">
-                                                                                                Remove
-                                                                                            </a>
-                                                                                        </li>
-                                                                                        <li>
-                                                                                            <a class="dropdown-item" href="{{ path('app_ring_change_member_role', {'id': member.user.id, 'ringId': member.ring.id}) }}">
-                                                                                                Make owner
-                                                                                            </a>
-                                                                                        </li>
-                                                                                    </ul>
+                                                                            {% if not member.user.isBanned %}
+                                                                                <div class="col-1 d-flex">
+                                                                                    <div class="dropdown top-0 end-0 m-2">
+                                                                                        <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                                                                                           class="text-white"
+                                                                                           style="right: 10px; text-decoration: none; z-index: 10;">
+                                                                                            <i class="fa fa-ellipsis-h" style="font-size: 25px;"></i>
+                                                                                        </a>
+                                                                                        <ul class="dropdown-menu dropdown-menu-end">
+                                                                                            <li>
+                                                                                                <a class="dropdown-item" href="{{ path('app_ring_remove_member', {'id': member.user.id, 'ringId': member.ring.id}) }}">
+                                                                                                    Remove
+                                                                                                </a>
+                                                                                            </li>
+                                                                                            <li>
+                                                                                                <a class="dropdown-item" href="{{ path('app_ring_change_member_role', {'id': member.user.id, 'ringId': member.ring.id}) }}">
+                                                                                                    Make owner
+                                                                                                </a>
+                                                                                            </li>
+                                                                                        </ul>
+                                                                                    </div>
                                                                                 </div>
-                                                                            </div>
+                                                                            {% endif %}
                                                                         {% endif %}
                                                                     {% endif %}
                                                                 </div>
@@ -313,8 +315,8 @@
                         </div>
                         {% for label, messages in app.flashes %}
                             {% for message in messages %}
-                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                    {{ message }}
+                                <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                                    {{ message|raw }}
                                 </div>
                             {% endfor %}
                         {% endfor %}
@@ -590,12 +592,14 @@
                                             <div id="comments-list-{{ item.note.id }}">
                                                 {% for comment in limitedComments[item.note.id] %}
                                                     <div class="d-flex flex-row mb-3" data-note-id="{{ item.note.id }}">
-                                                        <a class="nav-link me-2" href="#">
+                                                        <a class="nav-link me-2" href="{{ path('app_profile', {'id': comment.user.id}) }}">
                                                             <img class="img-xs rounded-circle" src="{{ asset('Uploads/avatars/' ~ comment.user.avatar) }}" alt="avatarComment" onerror="showDefaultIcon(this)">
                                                         </a>
                                                         <div class="m-0 p-0">
                                                             <div class="d-flex flex-row" style="height: 30px;">
-                                                                <p class="text-white me-2" style="font-size: 18px;">@{{ comment.user.nametag }}</p>
+                                                                <a class="m-0 p-0 text-decoration-none text-white" href="{{ path('app_profile', {'id': comment.user.id}) }}">
+                                                                    <p class="text-white me-2" style="font-size: 18px;">@{{ comment.user.nametag }}</p>
+                                                                </a>
                                                                 {% if comment.isEdited %}
                                                                     <i class="fa fa-clock-o text-gray me-1" style="margin-top: 6px"></i>
                                                                 {% else %}
