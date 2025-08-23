@@ -206,9 +206,7 @@
             {# WRITING COMMENT FORM #}
             <form method="POST" action="{{ path('note_comment', {id: note.id}) }}" class="ajax-comment-form mt-4" style="position: relative" data-note-id="{{ note.id }}">
                 <div class="d-flex flex-row mb-3">
-                    <a class="nav-link me-2" href="#">
-                        <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ app.user.avatar)}}" alt="writeCommentAvatar" onerror="showDefaultIcon(this)">
-                    </a>
+                    <img class="img-xs rounded-circle me-2" src="{{ asset('uploads/avatars/' ~ app.user.avatar)}}" alt="writeCommentAvatar" onerror="showDefaultIcon(this)">
                     <div class="d-flex flex-row w-100">
                         <input type="text" name="message" class="form-control comment-input mb-1" placeholder="Write a comment..."
                                style="border-bottom-right-radius: 0; border-top-right-radius: 0;" required>
@@ -236,12 +234,14 @@
             <div id="comments-list-{{ note.id }}">
                 {% for comment in limitedComments[note.id] %}
                     <div class="d-flex flex-row mb-3" data-note-id="{{ note.id }}" data-comment-id="{{ comment.id }}">
-                        <a class="nav-link me-2" href="#">
+                        <a class="nav-link me-2" href="{{ path('app_profile', {'id': comment.user.id}) }}">
                             <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ comment.user.avatar) }}" alt="avatarComment" onerror="showDefaultIcon(this)">
                         </a>
                         <div class="ms-2 p-0">
                             <div class="d-flex flex-row" style="height: 30px;">
-                                <p class="text-white me-2" style="font-size: 18px;">@{{ comment.user.nametag }}</p>
+                                <a class="m-0 p-0 text-decoration-none text-white" href="{{ path('app_profile', {'id': comment.user.id}) }}">
+                                    <p class="text-white me-2" style="font-size: 18px;">@{{ comment.user.nametag }}</p>
+                                </a>
                                 {% if comment.isEdited %}
                                     <i class="fa fa-clock-o text-gray me-1" style="margin-top: 6px"></i>
                                 {% else %}

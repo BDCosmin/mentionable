@@ -119,6 +119,10 @@ class ProfileController extends AbstractController
             $favoritesMap[$note->getId()] = $currentUser ? $currentUser->hasFavorite($note) : false;
         }
 
+        if ($user->isBanned()) {
+            $this->addFlash('danger', '<b>This user has been banned.</b> Please check the profile later.');
+        }
+
         if ($user->getId() === 24) {
             return $this->redirectToRoute('app_profile_mentionable');
         } else {

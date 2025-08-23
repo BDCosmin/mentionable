@@ -259,12 +259,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
                             const html = `
                                 <div class="d-flex flex-row mb-3" data-note-id="${noteId}" data-comment-id="${comment.id}">
-                                    <a class="nav-link me-2" href="#">
+                                    <a class="nav-link me-2" href="/profile/${comment.user.id}/view">
                                         <img class="img-xs rounded-circle" src="/uploads/avatars/${comment.user.avatar}" alt="avatarComment" onerror="showDefaultIcon(this)">
                                     </a>
                                     <div class="ms-2 p-0">
                                         <div class="d-flex flex-row" style="height: 30px;">
-                                            <p class="text-white me-2" style="font-size: 18px;">@${comment.user.nametag}</p>
+                                            <a class="m-0 p-0 text-decoration-none text-white" href="/profile/${comment.user.id}/view">
+                                                <p class="text-white me-2" style="font-size: 18px;">@${comment.user.nametag}</p>
+                                            </a>
                                             ${comment.isEdited ? `<i class="fa fa-clock-o text-gray me-1" style="margin-top: 6px"></i>` : `<p class="text-gray mt-1 me-2">•</p>`}
                                             <p class="text-gray mt-1">${comment.humanTime}</p>
                                         </div>

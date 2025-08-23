@@ -2,7 +2,7 @@
      data-comment-id="{{ comment.id }}"
      data-note-id="{{ comment.note.id }}">
 
-    <a class="nav-link me-2" href="#">
+    <a class="nav-link me-2" href="{{ path('app_profile', {'id': comment.user.id}) }}">
         <img class="img-xs rounded-circle"
              src="{{ asset('uploads/avatars/' ~ comment.user.avatar) }}"
              alt="avatarComment"
@@ -11,7 +11,9 @@
 
     <div class="m-0 p-0">
         <div class="d-flex flex-row" style="height: 30px;">
-            <p class="text-white me-2" style="font-size: 18px;">@{{ comment.user.nametag }}</p>
+            <a class="m-0 p-0 text-decoration-none text-white" href="{{ path('app_profile', {'id': comment.user.id}) }}">
+                <p class="text-white me-2" style="font-size: 18px;">@{{ comment.user.nametag }}</p>
+            </a>
             {% if comment.isEdited %}
                 <i class="fa fa-clock-o text-gray me-1" style="margin-top: 6px"></i>
             {% else %}
