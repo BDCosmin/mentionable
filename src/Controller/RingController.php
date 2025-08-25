@@ -3,10 +3,12 @@
 namespace App\Controller;
 
 use App\Entity\Interest;
+use App\Entity\Note;
 use App\Entity\Ring;
 use App\Entity\RingMembers;
 use App\Entity\User;
 use App\Form\RingForm;
+use App\Repository\CommentVoteRepository;
 use App\Repository\NoteRepository;
 use App\Repository\NoteVoteRepository;
 use App\Repository\RingMemberRepository;
@@ -291,6 +293,7 @@ final class RingController extends AbstractController
         RingMemberRepository $ringMemberRepository,
         NoteVoteRepository $noteVoteRepository,
         EntityManagerInterface $em,
+        CommentVoteRepository $commentVoteRepository,
         Request $request
     ): Response
     {
@@ -302,7 +305,14 @@ final class RingController extends AbstractController
             return $this->redirectToRoute('app_rings_discover');
         }
 
-        $ringNotes = $noteRepository->findNotesForRingWithPinnedFirst($ring->getId());
+        $memberships = $ringMemberRepository->findActiveMembershipsForUser($user);
+        $ringIds = array_map(fn($m) => $m->getRing()->getId(), $memberships);
+
+        $page = max(1, $request->query->getInt('page', 1));
+        $limit = 10;
+        $offset = ($page - 1) * $limit;
+
+        $ringNotes = $noteRepository->findNotesForRingWithPinnedFirst($ring->getId(), $limit, $offset);
 
         $members = $ringMemberRepository->findBy(['ring' => $ring]);
         $owner = $ringMemberRepository->findOneBy(['ring' => $ring, 'role' => 'owner']);
@@ -312,9 +322,17 @@ final class RingController extends AbstractController
             $rolesMap[$member->getUser()->getId()] = $member->getRole();
         }
 
+        $commentVotes = $commentVoteRepository->findBy(['user' => $user]);
+        $commentVotesMap = [];
+        foreach ($commentVotes as $vote) {
+            $commentId = $vote->getComment()->getId();
+            if ($vote->isUpvoted()) {
+                $commentVotesMap[$commentId] = 'upvote';
+            }
+        }
+
         $noteVotes = $noteVoteRepository->findBy([]);
 
-        // Build array for notes + mentionedUser
         $notesWithMentionedUser = [];
         foreach ($ringNotes as $note) {
             $mentionedUser = $note->getMentionedUser();
@@ -350,9 +368,23 @@ final class RingController extends AbstractController
             $favoritesMap[$note->getId()] = $user->hasFavorite($note);
         }
 
+        if ($request->isXmlHttpRequest()) {
+            return $this->render('ring/_ring_note.html.twig', [
+                'ringNotes' => $notesWithMentionedUser,
+                'commentVotesMap' => $commentVotesMap,
+                'votesMap' => $votesMap,
+                'rolesMap' => $rolesMap,
+                'limitedComments' => $limitedComments,
+                'favoritesMap' => $favoritesMap,
+                'isMember' => in_array($ring->getId(), $ringIds),
+                'ring' => $ring,
+            ]);
+        }
+
         return $this->render('ring/page.html.twig', [
             'divVisibility' => 'none',
             'ring' => $ring,
+            'commentVotesMap' => $commentVotesMap,
             'members' => $members,
             'ringNotes' => $notesWithMentionedUser,
             'votesMap' => $votesMap,
@@ -361,6 +393,7 @@ final class RingController extends AbstractController
             'rolesMap' => $rolesMap,
             'limitedComments' => $limitedComments,
             'favoritesMap' => $favoritesMap,
+            'page' => $page,
         ]);
     }
 

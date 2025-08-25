@@ -75,17 +75,17 @@ class NoteRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function findNotesForRingWithPinnedFirst(int $ringId): array
+    public function findNotesForRingWithPinnedFirst(int $ringId, int $limit, int $offset)
     {
         return $this->createQueryBuilder('n')
-            ->leftJoin('n.mentionedUser', 'mu')
-            ->addSelect('mu')
             ->where('n.ring = :ringId')
-            ->andWhere('n.isFromRing = 1')
             ->setParameter('ringId', $ringId)
             ->orderBy('n.isPinned', 'DESC')
             ->addOrderBy('n.publicationDate', 'DESC')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
     }
+
 }
