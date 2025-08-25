@@ -90,10 +90,7 @@
                         <span class="visually-hidden">Loading...</span>
                     </div>
                 </div>
-                <div id="load-more-zone"
-                     class="mt-5 glow-text"
-                     data-page="{{ page + 1 }}"
-                     >
+                <div id="load-more-zone" class="mt-5 glow-text" data-page="{{ page + 1 }}">
                     Load more
                 </div>
             {% else %}
@@ -192,10 +189,17 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 <script>
- document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function () {
     const loadMoreBtn = document.getElementById('load-more-zone');
     const notesContainer = document.getElementById('notes-container');
     const loader = document.getElementById('loader-loading-spinner');
+
+    function updateLoadMoreVisibility() {
+        const postCount = notesContainer.querySelectorAll('.note-item').length;
+        loadMoreBtn.style.display = (postCount >= 10) ? 'block' : 'none';
+    }
+
+    updateLoadMoreVisibility();
 
     loadMoreBtn.addEventListener('click', function () {
         const page = this.dataset.page;
@@ -211,14 +215,16 @@ document.addEventListener("DOMContentLoaded", function () {
             return response.text();
         })
         .then(html => {
-
             if (!html.trim()) {
                 loadMoreBtn.style.display = 'none';
                 return;
             }
 
             notesContainer.insertAdjacentHTML('beforeend', html);
+
             loadMoreBtn.dataset.page = parseInt(page) + 1;
+
+            updateLoadMoreVisibility();
         })
         .catch(error => {
             console.error('Error when loading notes:', error);

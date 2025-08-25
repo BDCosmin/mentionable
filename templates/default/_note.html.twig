@@ -1,5 +1,5 @@
 {% for note in notes %}
-    <div class="col-lg-7 pt-4 ps-4 pe-4 pb-3" style="background-color: #181b20; border-radius: 5px; margin-top: 2rem;">
+    <div class="col-lg-7 pt-4 ps-4 pe-4 pb-3 note-item" style="background-color: #181b20; border-radius: 5px; margin-top: 2rem;">
         {# NOTE PROFILE #}
         <div class="navbar-profile p-2 ps-3 d-flex flex-row text-light mb-3" style="width: 100%;">
             <a class="nav-link me-3 mt-2" id="avatarNote" href="{{ path('app_profile', {'id': note.user.id}) }}">
@@ -26,7 +26,7 @@
                                 <a href="{{ path('app_ring_show', {'id': note.ring.id}) }}" style="text-decoration: none; color: white">
                                     {{ note.ring.title }}
                                 </a>
-                                {% set role = rolesMap[note.user.id]|default('member') %}
+                                {% set role = rolesMap[note.ring.id][note.user.id]|default('member') %}
                                 {% set bgColor = role == 'member' ? '#6c757d' : 'orange' %}
                                 <span style="
                                         background-color: {{ bgColor }};

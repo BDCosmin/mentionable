@@ -58,7 +58,7 @@ final class DefaultController extends AbstractController
                 ]);
 
                 if ($member) {
-                    $rolesMap[$author->getId()] = $member->getRole();
+                    $rolesMap[$ring->getId()][$author->getId()] = $member->getRole();
                 }
             }
         }
