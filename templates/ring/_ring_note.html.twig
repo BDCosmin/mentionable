@@ -195,7 +195,7 @@
                 <form method="POST" action="{{ path('note_comment', {id: item.note.id}) }}" class="ajax-comment-form" style="position: relative" data-note-id="{{ item.note.id }}">
                     <div class="d-flex flex-row mb-3">
                         <a class="nav-link me-2" href="#">
-                            <img class="img-xs rounded-circle" src="{{ asset('Uploads/avatars/' ~ app.user.avatar)}}" alt="writeCommentAvatar" onerror="showDefaultIcon(this)">
+                            <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ app.user.avatar)}}" alt="writeCommentAvatar" onerror="showDefaultIcon(this)">
                         </a>
                         <div class="d-flex flex-row w-100">
                             <input type="text" name="message" class="form-control comment-input mb-1" placeholder="Write a comment..."

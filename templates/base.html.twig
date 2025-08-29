@@ -53,9 +53,13 @@
                 {% verbatim %}
                 <script>
                     function showDefaultIcon(img) {
-                        const wrapper = img.parentNode;
-                        wrapper.innerHTML = '<i class="fa fa-user-circle" style="font-size: 32px; color: #ccc;"></i>';
-                    }
+                        const icon = document.createElement("i");
+                        icon.className = "fa fa-user-circle";
+                        icon.style.fontSize = "32px";
+                        icon.style.color = "#ccc";
+
+                        img.replaceWith(icon);
+                        }
                 </script>
                 {% endverbatim %}
 

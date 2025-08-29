@@ -71,5 +71,83 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 </script>
+<script>
+    window.commentVotesMap = {{ commentVotesMap|json_encode|raw }};
+    window.currentUserNametag = "{{ app.user ? app.user.nametag : '' }}";
+    window.csrfToken = "{{ csrf_token('comment_vote') }}";
+</script>
+<script>
+document.getElementById('notes-container').addEventListener('click', function(e) {
+    const link = e.target.closest('.see-all-comments');
+    if (!link) return;
+
+    e.preventDefault();
+    const noteId = link.dataset.noteId;
+    const commentsContainer = document.getElementById('comments-list-' + noteId);
+    const url = '/note/' + noteId + '/comments';
+
+    fetch(url)
+        .then(res => res.json())
+        .then(data => {
+            const commentsArray = Array.isArray(data) ? data : (data.comments || []);
+            const existingIds = Array.from(commentsContainer.querySelectorAll('[data-comment-id]'))
+                .map(el => el.dataset.commentId);
+
+            commentsArray.forEach(comment => {
+                if (!comment || !comment.user || !comment.id) return;
+                if (!existingIds.includes(String(comment.id))) {
+                    const isUpvoted = window.commentVotesMap && window.commentVotesMap[comment.id] === 'upvote';
+                    const html = `
+                        <div class="d-flex flex-row mb-3" data-note-id="${noteId}" data-comment-id="${comment.id}">
+                            <a class="nav-link me-2" href="/profile/${comment.user.id}/view">
+                                <img class="img-xs rounded-circle" src="/uploads/avatars/${comment.user.avatar}" alt="avatarComment" onerror="showDefaultIcon(this)">
+                            </a>
+                            <div class="ms-2 p-0">
+                                <div class="d-flex flex-row" style="height: 30px;">
+                                    <a class="m-0 p-0 text-decoration-none text-white" href="/profile/${comment.user.id}/view">
+                                        <p class="text-white me-2" style="font-size: 18px;">@${comment.user.nametag}</p>
+                                    </a>
+                                    ${comment.isEdited ? `<i class="fa fa-clock-o text-gray me-1" style="margin-top: 6px"></i>` : `<p class="text-gray mt-1 me-2">•</p>`}
+                                    <p class="text-gray mt-1">${comment.humanTime}</p>
+                                </div>
+                                <div class="d-inline-flex">
+                                    <small style="font-size: 16px; color: #404040; background-color: #ffffff; border-radius: 8px; opacity: 0.9; padding: 5px;">${comment.message}</small>
+                                    <button class="btn btn-sm ms-2 d-flex align-items-center border-0 comment-upvote-btn ${isUpvoted ? 'btn-light' : 'btn-outline-light'}"
+                                            type="button"
+                                            data-note-id="${noteId}"
+                                            data-comment-id="${comment.id}"
+                                            data-csrf="${window.csrfToken}">
+                                        <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
+                                        <span id="comment-upvotes-${comment.id}" class="ms-1">${comment.upVote || 0}</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="dropdown ms-auto me-1 d-inline-flex justify-content-end">
+                                <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="height: 30px;">
+                                    <i class='bx bx-dots-horizontal-rounded' style='color:#ffffff'></i>
+                                </a>
+                                <ul class="dropdown-menu m-0">
+                                    ${
+                                        comment.user.nametag === window.currentUserNametag
+                                        ? `<li><a class="dropdown-item" href="/post/comment/${noteId}-${comment.id}/update">Edit...</a></li>
+                                           <li><a class="dropdown-item delete-comment-btn" href="/post/comment/${noteId}-${comment.id}/delete">Delete comment</a></li>`
+                                        : `<li><a class="dropdown-item" href="/note/comment/${noteId}-${comment.id}/report">Report</a></li>`
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                    commentsContainer.insertAdjacentHTML('beforeend', html);
+                }
+            });
+
+            link.style.display = 'none';
+        })
+        .catch(err => console.error('Error loading comments:', err));
+});
+</script>
+<script src="{{ asset('../assets/js/feed.js') }}"></script>
+<script src="{{ asset('../assets/js/comments.js') }}"></script>
+<script src="{{ asset('../assets/js/favorite.js') }}"></script>
 <script src="{{ asset('../assets/js/emoji.js') }}"></script>
 {% endblock %}
