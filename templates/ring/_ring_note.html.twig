@@ -47,7 +47,7 @@
                     <i class="fa fa-sort-desc" style="color: white"></i>
                 </a>
                 <ul class="dropdown-menu">
-                    {% if rolesMap[app.user.id] == 'owner' %}
+                    {% if rolesMap[app.user.id] is defined and rolesMap[app.user.id] == 'owner' %}
                         <li>
                             <a class="dropdown-item pin-toggle-btn"
                                href="#"
