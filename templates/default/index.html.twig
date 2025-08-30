@@ -30,15 +30,22 @@
                 </h4>
                 <i class='bx bx-wink-smile ms-auto me-2' style='color:#ffffff; font-size: 24px'></i>
             </a>
-            <!-- Modal create note -->
+            {# CREATE NOTE MODAL #}
             <div class="modal fade" id="newNoteModal" tabindex="-1" aria-labelledby="newNoteModalLabel" aria-hidden="true" style="overflow-y: hidden;">
                 <div class="modal-dialog" style="max-width: 850px;">
                     <div class="modal-content" style="background-color: #181b20; border-radius: 5px;">
                         <div class="modal-body">
                             <form id="new-note-form" class="forms-sample" method="POST" enctype="multipart/form-data">
                                 <h3 class="text-white mb-4">Write a note</h3>
-                                <div class="form-group mb-3">
-                                    <textarea name="content" id="post-content" class="form-control" style="height: 85px;" required></textarea>
+                                <div class="form-group mb-0">
+                                    <textarea name="content" id="post-content" class="form-control note-input" style="height: 85px;" required></textarea>
+                                </div>
+
+                                <div class="d-none d-sm-flex justify-content-end mb-3 position-relative">
+                                    <button type="button" class="btn btn-light btn-sm px-3 emoji-toggle-btn"
+                                            style="height: 2.575rem; background-color: #252c35;">
+                                        <i class='bx bx-happy-beaming' style='color:#ffffff; font-size: 24px'></i>
+                                    </button>
                                 </div>
 
                                 {% if app.user.nametag != 'mentionable' %}
@@ -58,6 +65,9 @@
                                 <div class="d-flex justify-content-end">
                                     <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal" aria-label="Close">Close</button>
                                     <button type="submit" class="btn btn-warning" style="width: 120px;">Post</button>
+                                </div>
+                                <div class="emoji-list position-absolute p-2 rounded"
+                                     style="display:none; background-color: #2A3038; top: 100%; right: 0; max-height: 200px; overflow-y: auto; z-index: 1000;">
                                 </div>
                             </form>
                         </div>

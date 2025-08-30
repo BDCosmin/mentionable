@@ -26,9 +26,17 @@ document.addEventListener('click', (e) => {
                         eBtn.style.border = 'none';
                         eBtn.style.cursor = 'pointer';
                         eBtn.addEventListener('click', () => {
-                            const input = form.querySelector('.comment-input');
-                            if (input) input.value += emoji.character;
-                            input.focus();
+                            const commentInput = form.querySelector('.comment-input');
+                            const noteInput = form.querySelector('.note-input');
+                            if (commentInput) {
+                                commentInput.value += emoji.character;
+                                commentInput.focus();
+                            }
+                            else if (noteInput) {
+                                noteInput.value += emoji.character;
+                                noteInput.focus();
+                            }
+
                         });
                         emojiListDiv.appendChild(eBtn);
                     });

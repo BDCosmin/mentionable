@@ -27,7 +27,6 @@ final class InterestController extends AbstractController
 
         $usersWithSameInterest = $interestRepository->findUsersWithInterest($interest->getTitle());
 
-        // ✅ Rings care au același interest
         $ringsWithSameInterest = $ringRepository->findBy(['interest' => $interest]);
 
         return $this->render('interest/index.html.twig', [

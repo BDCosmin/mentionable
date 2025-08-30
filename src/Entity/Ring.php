@@ -38,7 +38,7 @@ class Ring
     private Collection $ringMembers;
 
     #[ORM\ManyToOne(inversedBy: 'rings')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Interest $interest = null;
 
     /**

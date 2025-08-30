@@ -263,20 +263,27 @@ class ProfileController extends AbstractController
                              int $id
     ): JsonResponse
     {
-        $user = $this->getUser();
-        $interest = $interestRepository->find($id);
+        try {
+            $user = $this->getUser();
+            $interest = $interestRepository->findOneBy(['id' => $id, 'user' => $user]);
 
-        if (!$interest) {
-            return new JsonResponse(['success' => false, 'message' => 'Interest not found.'], 404);
+            if (!$interest) {
+                return new JsonResponse([
+                    'success' => false,
+                    'message' => 'Interest not found.'
+                ], 404);
+            }
+
+            $em->remove($interest);
+            $em->flush();
+
+            return new JsonResponse(['success' => true]);
+
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
         }
-
-        if ($interest->getUser() !== $user) {
-            return new JsonResponse(['success' => false, 'message' => 'Unauthorized.'], 403);
-        }
-
-        $em->remove($interest);
-        $em->flush();
-
-        return new JsonResponse(['success' => true]);
     }
 }
