@@ -56,7 +56,14 @@
                                     {% endif %}
                                 {% endif %}
                             </div>
-                            <p class="mt-3" style="font-size: 15px; font-weight: bold; user-select: none">{{ user.friends|length }} subscribers</p>
+                            <p class="mt-3" style="font-size: 15px; font-weight: bold; user-select: none">
+                                {{ user.friends|length }}
+                                {% if user.friends|length == 1 %}
+                                    subscriber
+                                {% else %}
+                                    subscribers
+                                {% endif %}
+                            </p>
 
                             {# INTERESTS #}
                             {% if app.user.id is same as(user.id) %}

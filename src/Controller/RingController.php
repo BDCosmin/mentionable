@@ -67,7 +67,7 @@ final class RingController extends AbstractController
             $ownersMap[$ringId] = $ownerMember->getUser();
         }
 
-
+        // ADD RING
         $form = $this->createForm(RingForm::class);
         $form->handleRequest($request);
 
@@ -131,7 +131,6 @@ final class RingController extends AbstractController
                     } else {
                         $newInterest = new Interest();
                         $newInterest->setTitle($interestTitle);
-                        $newInterest->setUser($this->getUser());
                         $entityManager->persist($newInterest);
                         $ring->setInterest($newInterest);
                     }
@@ -258,7 +257,6 @@ final class RingController extends AbstractController
             } else {
                 $newInterest = new Interest();
                 $newInterest->setTitle($interestTitle);
-                $newInterest->setUser($this->getUser());
                 $em->persist($newInterest);
 
                 $ring->setInterest($newInterest);
@@ -410,6 +408,14 @@ final class RingController extends AbstractController
 
         $em->remove($ring);
         $em->flush();
+
+        $interest = $ring->getInterest();
+        $ringCount = $ringRepository->count(['interest' => $interest]);
+
+        if ($interest && $ringCount === 0 && $interest->getUser() === null) {
+            $em->remove($interest);
+            $em->flush();
+        }
 
         $this->addFlash('success', 'Ring deleted successfully.');
 
@@ -629,9 +635,6 @@ final class RingController extends AbstractController
         }
 
         $ringMember->setRole('owner');
-        if(!($userRingMember->getInterests()->contains($ring->getInterest()))) {
-            $userRingMember->getInterests()->add($ring->getInterest());
-        }
 
         $ring->setUser($userRingMember);
         $currentRingMember->setRole('member');

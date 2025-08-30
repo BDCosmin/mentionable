@@ -24,7 +24,7 @@ class Interest
     /**
      * @var Collection<int, Ring>
      */
-    #[ORM\OneToMany(targetEntity: Ring::class, mappedBy: 'interest')]
+    #[ORM\OneToMany(targetEntity: Ring::class, mappedBy: 'interest', orphanRemoval: true)]
     private Collection $rings;
 
     public function __construct()
