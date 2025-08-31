@@ -123,7 +123,14 @@
         {% if item.note.image %}
             <div class="d-flex flex-row text-gray justify-content-center mb-2">
                 <a href="{{ path('app_note_show', {'noteId': item.note.id}) }}">
-                    <img src="{{ asset('Uploads/notes/' ~ item.note.image)}}" class="img-fluid" id="noteImage" alt="noteImage" onerror="showDefaultImage(this)"/>
+                    <img
+                            {% if item.note.image starts with 'https://' %}
+                                src="{{ item.note.image }}"
+                            {% else %}
+                                src="{{ asset('uploads/notes/' ~ item.note.image)}}"
+                            {% endif %}
+                            class="img-fluid" id="noteImage" alt="noteImage" onerror="showDefaultImage(this)"
+                    />
                 </a>
             </div>
         {% endif %}

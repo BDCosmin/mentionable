@@ -12,6 +12,7 @@ use App\Repository\NoteVoteRepository;
 use App\Repository\NotificationRepository;
 use App\Repository\RingMemberRepository;
 use App\Repository\RingRepository;
+use App\Service\GiphyService;
 use App\Service\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -140,6 +141,13 @@ final class DefaultController extends AbstractController
         $apiKey = $_ENV['EMOJI_API_KEY'];
         $data = file_get_contents("https://emoji-api.com/emojis?access_key={$apiKey}");
         return $this->json(json_decode($data, true));
+    }
+
+    #[Route('/gif/search/{term}', name: 'gif_search', methods: ['GET'])]
+    public function search(string $term, GiphyService $giphy): JsonResponse
+    {
+        $gifs = $giphy->search($term, 12);
+        return new JsonResponse($gifs);
     }
 
     #[Route('/mark-as-read', name: 'mark_notifications_read', methods: ['POST', 'GET'])]

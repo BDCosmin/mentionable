@@ -5,17 +5,15 @@
 {% block body %}
 <div class="main-panel">
     <div class="content-wrapper p-0">
-        <div class="row mt-4">
-            <div class="col-lg-12 text-end text-muted">
-                <p>beta version 8.25</p>
-            </div>
-        </div>
         {# CENTERED CONTAINER #}
-        <div class="row justify-content-center mb-2">
+        <div class="row justify-content-center mb-2 mt-5">
             <nav class="col-lg-7 m-0 p-0" aria-label="breadcrumb" style="border-radius: 5px;">
                 <ol class="breadcrumb m-0 p-0">
                     <li class="breadcrumb-item active d-flex justify-content-start" style="width: 100%" aria-current="page">
                         <p class="text-white" style="font-size: 30px; user-select: none"><b>Feed</b></p>
+                        <div class="ms-auto mt-3">
+                            <p style="color: rgba(255,255,255,0.7)">beta version 9.25</p>
+                        </div>
                     </li>
                 </ol>
             </nav>
@@ -32,42 +30,78 @@
             </a>
             {# CREATE NOTE MODAL #}
             <div class="modal fade" id="newNoteModal" tabindex="-1" aria-labelledby="newNoteModalLabel" aria-hidden="true" style="overflow-y: hidden;">
-                <div class="modal-dialog" style="max-width: 850px;">
+                <div class="modal-dialog" style="max-width: 850px; margin-top: 50px">
                     <div class="modal-content" style="background-color: #181b20; border-radius: 5px;">
-                        <div class="modal-body">
+                        <div class="modal-body" style="overflow: visible !important;">
                             <form id="new-note-form" class="forms-sample" method="POST" enctype="multipart/form-data">
                                 <h3 class="text-white mb-4">Write a note</h3>
+
+                                {# NOTE CONTENT #}
                                 <div class="form-group mb-0">
-                                    <textarea name="content" id="post-content" class="form-control note-input" style="height: 85px;" required></textarea>
+                                    <textarea name="content" id="post-content" class="form-control note-input" style="height: 85px; border: 1px solid rgba(255,255,255,0.3);" required></textarea>
+                                </div>
+                                <div class="d-flex flex-row p-0 justify-content-end mb-2">
+                                    <div class="d-none d-sm-flex position-relative">
+                                        {# EMOJI BUTTON #}
+                                        <button type="button" class="btn btn-light btn-sm px-3 emoji-toggle-btn"
+                                                style="height: 2.2rem; background-color: #2A3038; border: 1px solid rgba(255,255,255,0.3); border-radius: 0;">
+                                            <i class='bx bx-happy-beaming' style='color:#ffffff; font-size: 24px'></i>
+                                        </button>
+                                    </div>
+                                    <div class="gif-container position-relative " style="display:inline-block;">
+                                        {# GIF BUTTON #}
+                                        <button type="button" id="gifButton" class="btn text-white btn-sm px-3"
+                                                style="height: 2.2rem; font-size: 20px; background-color: #2A3038; border: 1px solid rgba(255,255,255,0.3); border-radius: 0; font-weight: bold">
+                                            GIF
+                                        </button>
+                                    </div>
                                 </div>
 
-                                <div class="d-none d-sm-flex justify-content-end mb-3 position-relative">
-                                    <button type="button" class="btn btn-light btn-sm px-3 emoji-toggle-btn"
-                                            style="height: 2.575rem; background-color: #252c35;">
-                                        <i class='bx bx-happy-beaming' style='color:#ffffff; font-size: 24px'></i>
+                                {# GIF PREVIEW #}
+                                <div class="mb-3" id="gifPreviewContainer" style="display: none; margin-bottom: 10px; text-align: center; position: relative;">
+                                    <button id="gifPreviewClear" type="button"
+                                            style="position: absolute; top: 0; right: 0; background: transparent; border: none; color: rgba(255,255,255,0.71); font-size: 24px; cursor: pointer;">
+                                        &times;
                                     </button>
+                                    <img id="gifPreview" src="" alt="Selected GIF" style="max-width: 100%; max-height: 250px; border-radius: 5px;">
                                 </div>
+                                <input type="hidden" name="gif_url" id="gifUrlInput">
 
+                                {# USER MENTION #}
                                 {% if app.user.nametag != 'mentionable' %}
-                                    <div class="form-group d-flex flex-row mb-3">
-                                        <a class="btn" style="height: 2.575rem; background-color: #2A3038; border-top-right-radius: 0; border-bottom-right-radius: 0;" tabindex="-1" role="button" aria-disabled="true">
+                                    <div class="form-group d-flex flex-row mb-4">
+                                        <a class="btn" style="height: 2.575rem; border: 1px solid rgba(255,255,255,0.3); background-color: #2A3038; border-top-right-radius: 0; border-bottom-right-radius: 0;" tabindex="-1" role="button" aria-disabled="true">
                                             <p style="font-size: 20px; color: #eaeaea;">@</p>
                                         </a>
-                                        <input type="text" placeholder="Address to someone" name="nametag" id="nametag" class="form-control" style="border-top-left-radius: 0; border-bottom-left-radius: 0;" required>
+                                        <input type="text" placeholder="Address to someone" name="nametag" id="nametag" class="form-control" style="border: 1px solid rgba(255,255,255,0.3); border-top-left-radius: 0; border-bottom-left-radius: 0;" required>
                                     </div>
                                 {% endif %}
 
-                                <div class="form-group mb-3">
-                                    <label for="noteImage" class="form-label text-light">Add image</label>
-                                    <input type="file" class="form-control" style="height: auto" id="noteImage" name="image" accept="image/*">
+                                {# ADD IMAGE #}
+                                <div id="noteImageContainer" class="form-group mb-3 mt-3">
+                                    <label for="noteImage" class="form-label text-light">Add image <i style="font-size: 12px">(optional)</i></label>
+                                    <input type="file" class="form-control" style="border: 1px solid rgba(255,255,255,0.3); height: auto" id="noteImage" name="image" accept="image/*">
                                 </div>
 
+                                {# POST NOTE & CANCEL #}
                                 <div class="d-flex justify-content-end">
                                     <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal" aria-label="Close">Close</button>
-                                    <button type="submit" class="btn btn-warning" style="width: 120px;">Post</button>
+                                    <button type="submit" class="btn btn-warning" style="width: 120px; font-weight: bold">Post</button>
                                 </div>
+
+                                {# EMOJI LIST #}
                                 <div class="emoji-list position-absolute p-2 rounded"
-                                     style="display:none; background-color: #2A3038; top: 100%; right: 0; max-height: 200px; overflow-y: auto; z-index: 1000;">
+                                     style="display:none; border: 1px solid rgba(255,255,255,0.3); background-color: #2A3038; top: 100%; right: 0; max-height: 200px; overflow-y: auto; z-index: 1000;">
+                                </div>
+                                {# GIF LIST #}
+                                <div id="gifDropdown"
+                                     style="position: absolute; top: 100%; left: 0; width: 850px;
+                                            max-height: 250px; overflow-y: auto;
+                                            border: 1px solid rgba(255,255,255,0.3); background-color: #181b20;
+                                            display: none; padding: 5px; z-index: 100;">
+                                    <input type="text" id="gifSearch" placeholder="Search GIFs..."
+                                           style="width: 100%; margin-bottom: 5px; background-color: #2A3038">
+                                    <div id="gifResults" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px;"></div>
                                 </div>
                             </form>
                         </div>
@@ -201,6 +235,7 @@ document.addEventListener("DOMContentLoaded", function () {
 <script src="{{ asset('../assets/js/comments.js') }}"></script>
 <script src="{{ asset('../assets/js/favorite.js') }}"></script>
 <script src="{{ asset('../assets/js/emoji.js') }}"></script>
+<script src="{{ asset('../assets/js/gif.js') }}"></script>
 <script>
     window.commentVotesMap = {{ commentVotesMap|json_encode|raw }};
     window.currentUserNametag = "{{ app.user ? app.user.nametag : '' }}";

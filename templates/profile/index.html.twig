@@ -356,7 +356,14 @@
                                                 {% if item.note.image %}
                                                     <div class="d-flex flex-row text-gray justify-content-center mb-2">
                                                         <a href="{{ path('app_note_show', {'noteId': item.note.id}) }}">
-                                                            <img src="{{ asset('uploads/notes/' ~ item.note.image)}}" class="img-fluid" id="noteImage" alt="noteImage" onerror="showDefaultImage(this)"/>
+                                                            <img
+                                                                {% if item.note.image starts with 'https://' %}
+                                                                    src="{{ item.note.image }}"
+                                                                {% else %}
+                                                                    src="{{ asset('uploads/notes/' ~ item.note.image)}}"
+                                                                {% endif %}
+                                                                class="img-fluid" id="noteImage" alt="noteImage" onerror="showDefaultImage(this)"
+                                                            />
                                                         </a>
                                                     </div>
                                                 {% endif %}
@@ -464,7 +471,7 @@
                                                     </form>
                                                     <div class="new-comments"></div>
 
-                                                    <!-- NOTE COMMENTS LIST -->
+                                                    {# NOTE COMMENTS LIST #}
                                                     <div id="comments-list-{{ item.note.id }}">
                                                         {% for comment in limitedComments[item.note.id] %}
                                                             <div class="d-flex flex-row mb-3 comment-item" data-note-id="{{ item.note.id }}">
