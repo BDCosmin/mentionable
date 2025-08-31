@@ -95,7 +95,7 @@
                                         </p>
                                     {% endif %}
                                 </div>
-                                <!-- Modal displaying the members -->
+                                {# SHOW MEMBERS #}
                                 <div class="modal fade" id="membersModal-{{ ring.id }}" tabindex="-1" aria-labelledby="membersModalLabel-{{ ring.id }}" aria-hidden="true">
                                     <div class="modal-dialog w-100" style="max-width: 700px;">
                                         <div class="modal-content bg-dark text-white">
@@ -183,7 +183,7 @@
                                     <small>View more</small>
                                 </a>
 
-                                <!-- VIEW MORE MODAL -->
+                                {# VIEW MORE MODAL #}
                                 <div class="modal fade" id="viewMoreDescModal" tabindex="-1" aria-labelledby="viewMoreDescModalLabel" aria-hidden="true">
                                     <div class="modal-dialog" style="max-width: 850px;">
                                         <div class="modal-content bg-dark text-white">
@@ -251,7 +251,7 @@
 
                                     {% if isMember %}
                                         {% if ring.isSuspended == 0 %}
-                                            <a href="#" data-bs-toggle="modal" data-bs-target="#newRingNoteModal"
+                                            <a href="#" data-bs-toggle="modal" data-bs-target="#newNoteModal"
                                                class="text-decoration-none mt-3"
                                                style="line-height: 1; padding: 0; margin-top: 4px;">
                                                 <span class="btn btn-light px-2 py-1 text-dark d-inline-block"
@@ -298,10 +298,10 @@
                                         </span>
                                     </a>
                                 {% endif %}
-                                {# ADD NOTE TO COMMUNITY #}
+                                {# ADD NOTE TO RING #}
                                 {% if isMember %}
                                     {% if ring.isSuspended == 0 %}
-                                        <a href="#" data-bs-toggle="modal" data-bs-target="#newRingNoteModal"
+                                        <a href="#" data-bs-toggle="modal" data-bs-target="#newNoteModal"
                                            class="ms-auto align-self-start text-decoration-none mt-3 ps-1 pe-1"
                                            style="line-height: 1; padding: 0; margin-top: 4px;">
                                         <span class="btn btn-light px-2 py-1 text-dark d-inline-block"
@@ -393,30 +393,71 @@
         </div>
     </div>
     {# NEW NOTE MODAL #}
-    <div class="modal fade" id="newRingNoteModal" tabindex="-1" aria-labelledby="newRingNoteModalLabel" aria-hidden="true" style="overflow-y: hidden;">
+    <div class="modal fade" id="newNoteModal" tabindex="-1" aria-labelledby="newNoteModalLabel" aria-hidden="true" style="overflow-y: hidden;">
         <div class="modal-dialog" style="max-width: 850px;">
             <div class="modal-content" style="background-color: #181b20; border-radius: 5px;">
                 <div class="modal-body">
                     <form id="new-ring-note-form" class="forms-sample" method="POST" enctype="multipart/form-data">
-                        <div class="form-group mb-3">
-                            <textarea name="content" id="post-content" placeholder="Write a new note in {{ ring.title }}..." class="form-control" style="height: 85px;" required></textarea>
+                        <div class="form-group mb-0">
+                            <textarea name="content" id="post-content" placeholder="Write a new note in {{ ring.title }}..." class="note-input form-control" style="border: 1px solid rgba(255,255,255,0.3); height: 85px;" required></textarea>
                         </div>
+                        <div class="d-flex flex-row p-0 justify-content-end mb-2">
+                            <div class="d-none d-sm-flex position-relative">
+                                {# EMOJI BUTTON #}
+                                <button type="button" class="btn btn-light btn-sm px-3 emoji-toggle-btn"
+                                        style="height: 2.2rem; background-color: #2A3038; border: 1px solid rgba(255,255,255,0.3); border-radius: 0;">
+                                    <i class='bx bx-happy-beaming' style='color:#ffffff; font-size: 24px'></i>
+                                </button>
+                            </div>
+                            <div class="gif-container position-relative " style="display:inline-block;">
+                                {# GIF BUTTON #}
+                                <button type="button" id="gifButton" class="btn text-white btn-sm px-3"
+                                        style="height: 2.2rem; font-size: 20px; background-color: #2A3038; border: 1px solid rgba(255,255,255,0.3); border-radius: 0; font-weight: bold">
+                                    GIF
+                                </button>
+                            </div>
+                        </div>
+
+                        {# GIF PREVIEW #}
+                        <div class="mb-3" id="gifPreviewContainer" style="display: none; margin-bottom: 10px; text-align: center; position: relative;">
+                            <button id="gifPreviewClear" type="button"
+                                    style="position: absolute; top: 0; right: 0; background: transparent; border: none; color: rgba(255,255,255,0.71); font-size: 24px; cursor: pointer;">
+                                &times;
+                            </button>
+                            <img id="gifPreview" src="" alt="Selected GIF" style="max-width: 100%; max-height: 250px; border-radius: 5px;">
+                        </div>
+                        <input type="hidden" name="gif_url" id="gifUrlInput">
 
                         <div class="form-group d-flex flex-row mb-3">
                             <a class="btn" style="height: 2.575rem; background-color: #2A3038; border-top-right-radius: 0; border-bottom-right-radius: 0;" tabindex="-1" role="button" aria-disabled="true">
                                 <p style="font-size: 20px; color: #eaeaea;">@</p>
                             </a>
-                            <input type="text" placeholder="Address to a member" name="nametag" id="nametag" class="form-control" style="border-top-left-radius: 0; border-bottom-left-radius: 0;" required>
+                            <input type="text" placeholder="Address to a member" name="nametag" id="nametag" class="form-control" style="border: 1px solid rgba(255,255,255,0.3); border-top-left-radius: 0; border-bottom-left-radius: 0;" required>
                         </div>
 
-                        <div class="form-group mb-3">
-                            <label for="noteImage" class="form-label text-light">Add image</label>
-                            <input type="file" class="form-control" id="noteImage" name="image" accept="image/*">
+                        <div id="noteImageContainer" class="form-group mb-3">
+                            <label for="noteImage" class="form-label text-light">Add image <i style="font-size: 12px">(optional)</i></label>
+                            <input type="file" class="form-control" style="border: 1px solid rgba(255,255,255,0.3);" id="noteImage" name="image" accept="image/*">
                         </div>
 
                         <div class="d-flex justify-content-end">
                             <button type="button" class="btn btn-danger me-2" data-bs-dismiss="modal" aria-label="Close">Close</button>
-                            <button type="submit" class="btn btn-light" style="width: 120px;">Post</button>
+                            <button type="submit" class="btn btn-light" style="width: 120px; font-weight: bold">Post</button>
+                        </div>
+
+                        {# EMOJI LIST #}
+                        <div class="emoji-list position-absolute p-2 rounded"
+                             style="display:none; border: 1px solid rgba(255,255,255,0.3); background-color: #2A3038; top: 100%; right: 0; max-height: 200px; overflow-y: auto; z-index: 1000;">
+                        </div>
+                        {# GIF LIST #}
+                        <div id="gifDropdown"
+                             style="position: absolute; top: 100%; left: 0; width: 850px;
+                                            max-height: 250px; overflow-y: auto;
+                                            border: 1px solid rgba(255,255,255,0.3); background-color: #181b20;
+                                            display: none; padding: 5px; z-index: 100;">
+                            <input type="text" id="gifSearch" placeholder="Search GIFs..."
+                                   style="width: 100%; margin-bottom: 5px; background-color: #2A3038">
+                            <div id="gifResults" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px;"></div>
                         </div>
                     </form>
                 </div>
@@ -490,7 +531,7 @@ document.addEventListener("DOMContentLoaded", function () {
             processData: false,
             contentType: false,
             success: function (response) {
-                const modalEl = document.getElementById('newRingNoteModal');
+                const modalEl = document.getElementById('newNoteModal');
                 modalEl.classList.remove('show');
                 modalEl.style.display = 'none';
                 document.body.classList.remove('modal-open');
@@ -535,6 +576,7 @@ document.addEventListener("DOMContentLoaded", function () {
 <script src="{{ asset('../assets/js/comments.js') }}"></script>
 <script src="{{ asset('../assets/js/favorite.js') }}"></script>
 <script src="{{ asset('../assets/js/emoji.js') }}"></script>
+<script src="{{ asset('../assets/js/gif.js') }}"></script>
 <script>
     window.commentVotesMap = {{ commentVotesMap|json_encode|raw }};
     window.currentUserNametag = "{{ app.user ? app.user.nametag : '' }}";

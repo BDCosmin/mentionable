@@ -9,6 +9,7 @@ parameters:
     rings_directory: '%kernel.project_dir%/public/uploads/rings'
     assets_avatars_directory: '%kernel.project_dir%/public/assets/images/auth'
     perspective_api_key: '%env(PERSPECTIVE_API_KEY)%'
+    giphy_api_key: '%env(GIPHY_API_KEY)%'
 
 services:
     # default configuration for services in *this* file
@@ -32,6 +33,9 @@ services:
         autoconfigure: true
         arguments:
             $apiKey: '%perspective_api_key%'
+    App\Service\GiphyService:
+        arguments:
+            $apiKey: '%giphy_api_key%'
     App\Twig\:
         resource: '../src/Twig'
         tags: ['twig.extension']

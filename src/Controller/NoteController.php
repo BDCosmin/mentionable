@@ -96,6 +96,7 @@ class NoteController extends AbstractController
 
         if ($request->isMethod('POST')) {
             $content = $request->request->get('content');
+            $gifUrl = $request->request->get('gif_url');
 
             // Perspective API
             $moderation = $moderator->analyze($content);
@@ -134,6 +135,10 @@ class NoteController extends AbstractController
 
                 $noteImageFile->move($this->getParameter('notes_directory'), $newFilename);
                 $fileName = $newFilename;
+            }
+
+            if ($gifUrl) {
+                $fileName = $gifUrl;
             }
 
             // Verify if posted from the 'mentionable' account
