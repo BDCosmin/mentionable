@@ -21,6 +21,9 @@ class Comment
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $message = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $image = null;
+
     #[ORM\ManyToOne(targetEntity: Note::class, inversedBy: 'comments')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Note $note = null;
@@ -255,6 +258,17 @@ class Comment
             }
         }
 
+        return $this;
+    }
+
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(?string $image): static
+    {
+        $this->image = $image;
         return $this;
     }
 }

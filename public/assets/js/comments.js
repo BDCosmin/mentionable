@@ -12,9 +12,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const noteId = form.dataset.noteId;
         const input = form.querySelector('.comment-input');
         const message = input.value.trim();
+        const gifUrlInput = form.querySelector('.gif-url-input');
+        const gifUrl = gifUrlInput ? gifUrlInput.value.trim() : '';
         const csrfToken = document.querySelector('meta[name="csrf-token-comment"]').content;
 
-        if (!message) return;
+        if (!message && !gifUrl) return;
+
+        const body = new URLSearchParams();
+        if (message) body.append('message', message);
+        if (gifUrl) body.append('gif_url', gifUrl);
 
         fetch(form.action, {
             method: 'POST',
@@ -23,19 +29,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 'X-Requested-With': 'XMLHttpRequest',
                 'X-CSRF-TOKEN': csrfToken
             },
-            body: new URLSearchParams({ message })
+            body: body
         })
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
                     const commentsContainer = form.closest('.note-comments').querySelector('.new-comments');
                     commentsContainer.insertAdjacentHTML('afterbegin', data.html);
+
                     input.value = '';
+                    if (gifUrlInput) gifUrlInput.value = '';
+                    const previewContainer = form.querySelector('.gif-preview-container');
+                    const preview = form.querySelector('.gif-preview');
+                    if (preview) preview.src = '';
+                    if (previewContainer) previewContainer.classList.add('d-none');
 
                     const countSpan = document.querySelector(`.toggle-comments[data-note-id="${noteId}"] .comment-count`);
-                    if (countSpan) {
-                        countSpan.textContent = (parseInt(countSpan.textContent) || 0) + 1;
-                    }
+                    if (countSpan) countSpan.textContent = (parseInt(countSpan.textContent) || 0) + 1;
 
                     hideCommentError(form);
                 } else {
@@ -44,6 +54,36 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .catch(err => showCommentError(form, err?.message || 'Something went wrong.'));
     });
+
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('.gif-preview-clear');
+        if (!btn) return;
+        const container = btn.closest('.gif-preview-container');
+        if (!container) return;
+        const img = container.querySelector('.gif-preview');
+        const input = container.querySelector('.gif-url-input');
+        if (img) img.src = '';
+        if (input) input.value = '';
+        container.classList.add('d-none');
+    });
+
+    // Select GIF
+    document.addEventListener('click', function(e) {
+        const gif = e.target.closest('.gif-result-item'); // presupunem că GIF-urile au clasa gif-result-item
+        if (!gif) return;
+        const form = gif.closest('.ajax-comment-form');
+        if (!form) return;
+        const gifUrlInput = form.querySelector('.gif-url-input');
+        const previewContainer = form.querySelector('.gif-preview-container');
+        const preview = form.querySelector('.gif-preview');
+        if (gifUrlInput && preview && previewContainer) {
+            const url = gif.dataset.url; // URL-ul GIF-ului
+            gifUrlInput.value = url;
+            preview.src = url;
+            previewContainer.classList.remove('d-none');
+        }
+    });
+
 
     function showCommentError(form, message) {
         const errorDiv = form.querySelector('.comment-error');

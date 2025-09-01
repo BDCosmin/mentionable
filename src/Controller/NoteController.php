@@ -604,18 +604,29 @@ class NoteController extends AbstractController
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
         $message = $request->request->get('message');
+        $gifUrl = trim($request->request->get('gif_url'));
 
-        $moderation = $moderator->analyze($message);
-        $toxicityScore = $moderation['attributeScores']['TOXICITY']['summaryScore']['value'] ?? 0;
-        $insultScore = $moderation['attributeScores']['INSULT']['summaryScore']['value'] ?? 0;
-
-        if ($toxicityScore > 0.85 || $insultScore > 0.85) {
+        if (empty($message) && empty($gifUrl)) {
             if ($request->isXmlHttpRequest()) {
-                return new JsonResponse(['status' => 'error', 'message' => 'Your comment was rejected because it may be toxic or insulting.'], 400);
+                return new JsonResponse(['status' => 'error', 'message' => 'Comment cannot be empty.'], 400);
             }
-
-            $this->addFlash('danger', 'Your comment was rejected because it may be toxic or insulting.');
+            $this->addFlash('danger', 'Comment cannot be empty.');
             return $this->redirectToRoute('homepage');
+        }
+
+        if (!empty($message)) {
+            $moderation = $moderator->analyze($message);
+            $toxicityScore = $moderation['attributeScores']['TOXICITY']['summaryScore']['value'] ?? 0;
+            $insultScore = $moderation['attributeScores']['INSULT']['summaryScore']['value'] ?? 0;
+
+            if ($toxicityScore > 0.85 || $insultScore > 0.85) {
+                if ($request->isXmlHttpRequest()) {
+                    return new JsonResponse(['status' => 'error', 'message' => 'Your comment was rejected because it may be toxic or insulting.'], 400);
+                }
+
+                $this->addFlash('danger', 'Your comment was rejected because it may be toxic or insulting.');
+                return $this->redirectToRoute('homepage');
+            }
         }
 
         $comment = new Comment();
@@ -623,6 +634,10 @@ class NoteController extends AbstractController
         $comment->setMessage($request->request->get('message'));
         $comment->setPublicationDate(new \DateTime());
         $comment->setNote($note);
+
+        if ($gifUrl) {
+            $comment->setImage($gifUrl);
+        }
 
         $em->persist($comment);
         $em->flush();
