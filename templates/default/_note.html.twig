@@ -223,15 +223,19 @@
                                 <i class='bx bx-happy-beaming' style='color:#ffffff; font-size: 24px'></i>
                             </button>
                         </div>
-                        <div class="gif-container me-1 d-none d-sm-inline-block position-relative">
+                        <div class="gif-container me-1 d-flex position-relative">
                             <button type="button" class="btn btn-light btn-sm text-white gif-toggle-btn"
                                     style="height: 2.575rem; font-size: 20px; border-bottom-left-radius: 0; border-top-left-radius: 0; background-color: #2A3038;font-weight: bold">
                                 GIF
                             </button>
-
                             {# GIF DROPDOWN #}
                             <div class="gif-dropdown d-none"
                                  style="position: absolute; top: 100%; right: 0; width: 700px;  max-height: 300px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.3); background-color: #181b20; z-index: 1000; padding: 8px; border-radius: 5px;">
+                                <input type="text" class="gif-search form-control form-control-sm mb-2" placeholder="Search GIFs..." style="width: 100%;">
+                                <div class="gif-results d-grid gap-2" style="grid-template-columns: repeat(3, 1fr);"></div>
+                            </div>
+                            {# GIF DROPDOWN MOBILE #}
+                            <div class="gif-dropdown-mobile d-none">
                                 <input type="text" class="gif-search form-control form-control-sm mb-2" placeholder="Search GIFs..." style="width: 100%;">
                                 <div class="gif-results d-grid gap-2" style="grid-template-columns: repeat(3, 1fr);"></div>
                             </div>

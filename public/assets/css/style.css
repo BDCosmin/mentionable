@@ -8546,6 +8546,22 @@
   }
 }
 
+@media (max-width: 575.98px) {
+  .gif-dropdown-mobile {
+    position: fixed;
+    top: 10%;
+    left: 5%;
+    width: 90%;
+    max-height: 60%;
+    overflow-y: auto;
+    border: 1px solid rgba(255,255,255,0.3);
+    background-color: #181b20;
+    z-index: 10;
+    padding: 8px;
+    border-radius: 8px;
+  }
+}
+
 body {
   margin: 0;
   font-family: var(--bs-body-font-family);
