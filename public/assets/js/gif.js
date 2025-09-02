@@ -105,6 +105,9 @@ document.querySelectorAll('.ajax-comment-form').forEach(form => {
                     gifDropdown.classList.add('d-none');
                     gifPreview.src = url;
                     gifPreviewContainer.classList.remove('d-none');
+                    gifPreviewContainer.style.display = 'flex';
+                    gifPreviewContainer.style.justifyContent = 'center';
+                    gifPreviewContainer.style.alignItems = 'center';
                     gifUrlInput.value = url;
                 });
                 gifResults.appendChild(img);

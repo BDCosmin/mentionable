@@ -22,24 +22,37 @@
             <p class="text-gray mt-1">{{ comment.humanTimeComment }}</p>
         </div>
 
-        <div class="d-inline-flex">
-            <small style="font-size: 16px; color: #404040; background-color: #ffffff; border-radius: 8px; opacity: 0.9; padding: 5px;">
-                {{ comment.message }}
-            </small>
-
-            <button class="btn btn-sm d-flex align-items-center border-0 comment-upvote-btn
-                    {% if commentVotesMap is defined and commentVotesMap[comment.id] is defined and commentVotesMap[comment.id] == 'upvote' %}
-                            btn-light
-                    {% else %}
-                        btn-outline-light
-                    {% endif %}"
-                    type="button"
-                    data-note-id="{{ comment.note.id }}"
-                    data-comment-id="{{ comment.id }}"
-                    data-csrf="{{ csrf_token('vote') }}">
-                <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
-                <span id="comment-upvotes-{{ comment.id }}" class="ms-1">{{ comment.upVote ?? 0 }}</span>
-            </button>
+        <div class="d-inline-flex align-items-center">
+            <div class="d-flex flex-column">
+                {% if comment.message %}
+                    <small class="d-inline-block" style="font-size: 16px; align-self: flex-start; max-width: 300px; color: #404040; background-color: #ffffff; border-radius: 8px; opacity: 0.9; padding: 5px;">
+                        {{ comment.message }}
+                    </small>
+                {% endif %}
+                {% if comment.image %}
+                    <div class="comment-gif-container mb-1" style="width: 100%; max-width: 200px;">
+                        <img src="{{ comment.image }}"
+                             alt="GIF"
+                             style="width: 100%; height: auto; object-fit: contain; border-radius: 8px; display: block;">
+                    </div>
+                {% endif %}
+            </div>
+            {# UPVOTE FORM #}
+            <div class="d-flex flex-column ms-2">
+                <button class="btn btn-sm ms-2 d-flex align-items-center border-0 comment-upvote-btn
+                                                            {% if commentVotesMap is defined and commentVotesMap[comment.id] is defined and commentVotesMap[comment.id] == 'upvote' %}
+                                                                    btn-light
+                                                            {% else %}
+                                                                btn-outline-light
+                                                            {% endif %}"
+                        type="button"
+                        data-note-id="{{ comment.note.id }}"
+                        data-comment-id="{{ comment.id }}"
+                        data-csrf="{{ csrf_token('vote') }}">
+                    <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
+                    <span id="comment-upvotes-{{ comment.id }}" class="ms-1">{{ comment.upVote ?? 0 }}</span>
+                </button>
+            </div>
         </div>
     </div>
 

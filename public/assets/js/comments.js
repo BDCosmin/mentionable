@@ -81,6 +81,9 @@ document.addEventListener('DOMContentLoaded', () => {
             gifUrlInput.value = url;
             preview.src = url;
             previewContainer.classList.remove('d-none');
+            previewContainer.style.display = 'flex';
+            previewContainer.style.justifyContent = 'center';
+            previewContainer.style.alignItems = 'center';
         }
     });
 

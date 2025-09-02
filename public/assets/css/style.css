@@ -25248,7 +25248,7 @@ input[type="file"]::file-selector-button {
 
 .gif-container {
   position: relative;
-  z-index: 1050;
+  z-index: 10;
 }
 
 .main-panel {
