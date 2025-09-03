@@ -48,9 +48,9 @@
                                             <i class='bx bx-happy-beaming' style='color:#ffffff; font-size: 24px'></i>
                                         </button>
                                     </div>
-                                    <div class="gif-container d-none d-sm-inline-block position-relative">
+                                    <div class="gif-container d-sm-inline-block position-relative">
                                         {# GIF BUTTON #}
-                                        <button type="button" id="gifButton" class="btn text-white btn-sm px-3"
+                                        <button type="button" class="btn text-white btn-sm px-3 gif-toggle-btn"
                                                 style="height: 2.2rem; font-size: 20px; background-color: #2A3038; border: 1px solid rgba(255,255,255,0.3); border-radius: 0; font-weight: bold">
                                             GIF
                                         </button>
@@ -58,14 +58,14 @@
                                 </div>
 
                                 {# GIF PREVIEW #}
-                                <div class="mb-3" id="gifPreviewContainer" style="display: none; margin-bottom: 10px; text-align: center; position: relative;">
-                                    <button id="gifPreviewClear" type="button"
+                                <div class="mb-3 gif-preview-container" style="display: none; margin-bottom: 10px; text-align: center; position: relative;">
+                                    <button class="gif-preview-clear" type="button"
                                             style="position: absolute; top: 0; right: 0; background: transparent; border: none; color: rgba(255,255,255,0.71); font-size: 24px; cursor: pointer;">
                                         &times;
                                     </button>
-                                    <img id="gifPreview" src="" alt="Selected GIF" style="max-width: 100%; max-height: 250px; border-radius: 5px;">
+                                    <img class="gif-preview" src="" alt="Selected GIF" style="max-width: 100%; max-height: 250px; border-radius: 5px;">
                                 </div>
-                                <input type="hidden" name="gif_url" id="gifUrlInput">
+                                <input type="hidden" name="gif_url" class="gif-url-input">
 
                                 {# USER MENTION #}
                                 {% if app.user.nametag != 'mentionable' %}
@@ -99,9 +99,9 @@
                                             max-height: 250px; overflow-y: auto;
                                             border: 1px solid rgba(255,255,255,0.3); background-color: #181b20;
                                             display: none; padding: 5px; z-index: 100;">
-                                    <input type="text" id="gifSearch" placeholder="Search GIFs..."
+                                    <input type="text" class="gif-search" placeholder="Search GIFs..."
                                            style="width: 100%; margin-bottom: 5px; background-color: #2A3038">
-                                    <div id="gifResults" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px;"></div>
+                                    <div class="gif-results" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px;"></div>
                                 </div>
                             </form>
                         </div>
