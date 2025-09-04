@@ -1,11 +1,14 @@
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', () => {
+
+    // =========================
+    // NEW NOTE MODAL GIF HANDLER
+    // =========================
     const newNoteModalEl = document.getElementById('newNoteModal');
-    if (!newNoteModalEl) return;
+    let newNoteModal;
 
-    // Creează instanța Bootstrap Modal
-    const newNoteModal = new bootstrap.Modal(newNoteModalEl);
+    if (newNoteModalEl) {
+        newNoteModal = new bootstrap.Modal(newNoteModalEl);
 
-    newNoteModalEl.addEventListener('shown.bs.modal', () => {
         const gifButton = newNoteModalEl.querySelector('.gif-toggle-btn');
         const gifDropdown = newNoteModalEl.querySelector('#gifDropdown');
         const gifSearch = gifDropdown.querySelector('.gif-search');
@@ -16,17 +19,16 @@ document.addEventListener('DOMContentLoaded', function () {
         const noteImageContainer = newNoteModalEl.querySelector('#noteImageContainer');
         const gifUrlInput = newNoteModalEl.querySelector('.gif-url-input');
 
-        // Deschide/închide dropdown GIF
+        // Toggle dropdown
         gifButton.addEventListener('click', e => {
             e.stopPropagation();
             gifDropdown.style.display = gifDropdown.style.display === 'block' ? 'none' : 'block';
             gifDropdown.style.width = window.innerWidth < 768 ? '100%' : '850px';
-            gifSearch.focus();
+            setTimeout(() => gifSearch.focus(), 50);
         });
 
         gifDropdown.addEventListener('click', e => e.stopPropagation());
 
-        // Clear GIF preview
         gifPreviewClear.addEventListener('click', () => {
             gifPreview.src = '';
             gifPreviewContainer.style.display = 'none';
@@ -34,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function () {
             gifUrlInput.value = '';
         });
 
-        // Căutare GIF
+        // Search GIFs
         let gifTimeout;
         gifSearch.addEventListener('keyup', e => {
             const query = e.target.value.trim();
@@ -45,13 +47,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 try {
                     const response = await fetch(`/gif/search/${encodeURIComponent(query)}`);
                     const gifs = await response.json();
-
                     gifResults.innerHTML = '';
+
                     gifs.forEach(url => {
                         const img = document.createElement('img');
                         img.src = url;
                         img.style.width = '100%';
                         img.style.cursor = 'pointer';
+
                         img.addEventListener('click', () => {
                             gifDropdown.style.display = 'none';
                             gifPreview.src = url;
@@ -61,6 +64,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             noteImageContainer.style.display = 'none';
                             gifUrlInput.value = url;
                         });
+
                         gifResults.appendChild(img);
                     });
                 } catch (err) {
@@ -69,31 +73,34 @@ document.addEventListener('DOMContentLoaded', function () {
             }, 300);
         });
 
-        document.addEventListener('click', () => {
-            gifDropdown.style.display = 'none';
-        });
-    });
+        // Submit new note
+        const newNoteForm = document.getElementById('new-note-form');
+        if (newNoteForm) {
+            newNoteForm.addEventListener('submit', async e => {
+                e.preventDefault();
+                const formData = new FormData(newNoteForm);
 
-    // Închiderea modalului prin API Bootstrap (fără manipulări manuale)
-    document.getElementById('new-note-form').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const formData = new FormData(this);
+                try {
+                    const response = await fetch(newNoteForm.action || "/note/new", {
+                        method: 'POST',
+                        body: formData
+                    });
+                    if (!response.ok) throw new Error("Error while posting note");
 
-        try {
-            const res = await fetch(this.action, { method: 'POST', body: formData });
-            if (!res.ok) throw new Error('Server error');
+                    newNoteForm.reset();
+                    if (newNoteModal) newNoteModal.hide();
+                    setTimeout(() => location.reload(), 800);
 
-            // Închide modalul corect
-            newNoteModal.hide();
-
-            this.reset();
-            location.reload();
-        } catch (err) {
-            console.error(err);
-            newNoteModal.hide(); // și aici
+                } catch (err) {
+                    console.error(err);
+                }
+            });
         }
-    });
+    }
 
+    // =========================
+    // COMMENT GIF HANDLER
+    // =========================
     document.querySelectorAll('.ajax-comment-form').forEach(form => {
         const gifButton = form.querySelector('.gif-toggle-btn');
         const gifDropdownDesktop = form.querySelector('.gif-dropdown');
@@ -144,16 +151,9 @@ document.addEventListener('DOMContentLoaded', function () {
                         img.src = url;
                         img.style.width = '100%';
                         img.style.cursor = 'pointer';
-                        img.addEventListener('click', () => {
-                            if (gifDropdownDesktop) gifDropdownDesktop.classList.add('d-none');
-                            if (gifDropdownMobile) gifDropdownMobile.classList.add('d-none');
-                            gifPreview.src = url;
-                            gifPreviewContainer.classList.remove('d-none');
-                            gifPreviewContainer.style.display = 'flex';
-                            gifPreviewContainer.style.justifyContent = 'center';
-                            gifPreviewContainer.style.alignItems = 'center';
-                            gifUrlInput.value = url;
-                        });
+                        img.classList.add('gif-result-item');
+                        img.dataset.url = url;
+
                         resultsDiv.appendChild(img);
                     });
                 } catch (err) {
@@ -164,10 +164,106 @@ document.addEventListener('DOMContentLoaded', function () {
 
         setupGifSearch(gifDropdownDesktop);
         setupGifSearch(gifDropdownMobile);
+    });
 
-        document.addEventListener('click', () => {
-            if (gifDropdownDesktop) gifDropdownDesktop.classList.add('d-none');
-            if (gifDropdownMobile) gifDropdownMobile.classList.add('d-none');
+    // =========================
+    // GLOBAL CLICK LISTENER
+    // =========================
+    document.addEventListener('click', e => {
+        // Close modal dropdown
+        if (newNoteModalEl) {
+            const gifDropdown = newNoteModalEl.querySelector('#gifDropdown');
+            if (gifDropdown && !gifDropdown.contains(e.target) && e.target !== newNoteModalEl.querySelector('.gif-toggle-btn')) {
+                gifDropdown.style.display = 'none';
+            }
+        }
+
+        // Close comment dropdowns
+        document.querySelectorAll('.gif-dropdown, .gif-dropdown-mobile').forEach(dd => {
+            if (!dd.contains(e.target)) dd.classList.add('d-none');
         });
+
+        // Handle selecting a GIF in comments
+        const gif = e.target.closest('.gif-result-item');
+        if (gif) {
+            const form = gif.closest('.ajax-comment-form');
+            if (!form) return;
+            const gifUrlInput = form.querySelector('.gif-url-input');
+            const previewContainer = form.querySelector('.gif-preview-container');
+            const preview = form.querySelector('.gif-preview');
+            const url = gif.dataset.url;
+            if (gifUrlInput && preview && previewContainer) {
+                gifUrlInput.value = url;
+                preview.src = url;
+                previewContainer.classList.remove('d-none');
+                previewContainer.style.display = 'flex';
+                previewContainer.style.justifyContent = 'center';
+                previewContainer.style.alignItems = 'center';
+            }
+        }
+    });
+
+    // =========================
+    // OPEN NEW NOTE MODAL METHOD
+    // =========================
+    window.openNewNoteModal = () => {
+        if (newNoteModal) newNoteModal.show();
+    };
+
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const gifModalEl = document.getElementById('gifCommentModal');
+    const gifSearch = gifModalEl.querySelector('.gif-search');
+    const gifResults = gifModalEl.querySelector('.gif-results');
+    let currentForm = null;
+
+    gifModalEl.addEventListener('show.bs.modal', e => {
+        const btn = e.relatedTarget;
+        const noteId = btn.dataset.noteId;
+        currentForm = document.querySelector(`.ajax-comment-form[data-note-id="${noteId}"]`);
+        gifSearch.value = '';
+        gifResults.innerHTML = '';
+        gifSearch.focus();
+    });
+
+    let gifTimeout;
+    gifSearch.addEventListener('keyup', e => {
+        const query = e.target.value.trim();
+        if (query.length < 2) return;
+
+        clearTimeout(gifTimeout);
+        gifTimeout = setTimeout(async () => {
+            try {
+                const response = await fetch(`/gif/search/${encodeURIComponent(query)}`);
+                const gifs = await response.json();
+                gifResults.innerHTML = '';
+
+                gifs.forEach(url => {
+                    const img = document.createElement('img');
+                    img.src = url;
+                    img.style.cursor = 'pointer';
+                    img.style.width = '100%';
+                    img.addEventListener('click', () => {
+                        if (!currentForm) return;
+                        const previewContainer = currentForm.querySelector('.gif-preview-container');
+                        const preview = currentForm.querySelector('.gif-preview');
+                        const input = currentForm.querySelector('.gif-url-input');
+
+                        if (previewContainer && preview && input) {
+                            preview.src = url;
+                            input.value = url;
+                            previewContainer.classList.remove('d-none');
+                        }
+
+                        bootstrap.Modal.getInstance(gifModalEl).hide();
+                    });
+                    gifResults.appendChild(img);
+                });
+            } catch (err) {
+                console.error('Error fetching GIFs:', err);
+            }
+        }, 300);
     });
 });
+

@@ -225,20 +225,12 @@
                         </div>
                         <div class="gif-container me-1 d-flex position-relative">
                             <button type="button" class="btn btn-light btn-sm text-white gif-toggle-btn"
-                                    style="height: 2.575rem; font-size: 20px; border-bottom-left-radius: 0; border-top-left-radius: 0; background-color: #2A3038;font-weight: bold">
+                                    style="height: 2.575rem; font-size: 20px; border-bottom-left-radius: 0; border-top-left-radius: 0; background-color: #2A3038;font-weight: bold"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#gifCommentModal"
+                                    data-note-id="{{ note.id }}">
                                 GIF
                             </button>
-                            {# GIF DROPDOWN #}
-                            <div class="gif-dropdown d-none"
-                                 style="position: absolute; top: 100%; right: 0; width: 700px;  max-height: 300px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.3); background-color: #181b20; z-index: 1000; padding: 8px; border-radius: 5px;">
-                                <input type="text" class="gif-search form-control form-control-sm mb-2" placeholder="Search GIFs..." style="width: 100%;">
-                                <div class="gif-results d-grid gap-2" style="grid-template-columns: repeat(3, 1fr);"></div>
-                            </div>
-                            {# GIF DROPDOWN MOBILE #}
-                            <div class="gif-dropdown-mobile d-none">
-                                <input type="text" class="gif-search form-control form-control-sm mb-2" placeholder="Search GIFs..." style="width: 100%;">
-                                <div class="gif-results d-grid gap-2" style="grid-template-columns: repeat(3, 1fr);"></div>
-                            </div>
                         </div>
                         <div class="d-flex justify-content-end">
                             <button type="submit" class="btn btn-light btn-sm px-3" style="height: 40px;">Post</button>
@@ -255,7 +247,7 @@
                      id="gif-preview-container-{{ note.id }}"
                      style="position: relative; width: 100%;">
                     <div class="d-flex flex-column">
-                        <div class="d-flex flex-row">
+                        <div class="d-flex flex-row justify-content-center position-relative">
                             <button type="button" class="btn-close btn-close-white gif-preview-clear position-absolute top-0 end-0"></button>
                             <img class="gif-preview img-fluid"
                                  id="gif-preview-{{ note.id }}"
@@ -347,3 +339,17 @@
         </div>
     </div>
 {% endfor %}
+<div class="modal fade" id="gifCommentModal" tabindex="-1" aria-labelledby="gifCommentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-custom">
+        <div class="modal-content" style="background-color: #181b20; color: white; border-radius: 5px;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="gifCommentModalLabel">Select a GIF</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="text" class="form-control gif-search mb-2" placeholder="Search GIFs...">
+                <div class="gif-results d-grid gap-2" style="grid-template-columns: repeat(3, 1fr);"></div>
+            </div>
+        </div>
+    </div>
+</div>

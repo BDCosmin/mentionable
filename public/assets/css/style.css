@@ -25553,4 +25553,22 @@ button.downvote-btn.active {
     width: 50%;
   }
 }
+
+.modal-custom {
+  max-width: 694px;
+  margin: 1rem;
+  top: 90px;
+  left: 518px;
+  transform: none;
+}
+
+/* Mobile adjustments */
+@media (max-width: 767px) {
+  .modal-custom {
+    top: 20px;
+    left: 10px;
+    right: 10px;
+    max-width: calc(100% - 20px);
+  }
+}
 /*# sourceMappingURL=maps/style.css.map */
