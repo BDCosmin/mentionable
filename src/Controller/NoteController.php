@@ -450,7 +450,10 @@ class NoteController extends AbstractController
             $favoritesMap[$note->getId()] = $user->hasFavorite($note);
         }
 
-        $comments = $note->getComments();
+        $comments = $note->getComments()->toArray();
+        usort($comments, fn($a, $b) => $b->getPublicationDate() <=> $a->getPublicationDate());
+
+
         $mentionedUser = $note->getMentionedUser();
 
         return $this->render('note/index.html.twig', [
@@ -870,7 +873,7 @@ class NoteController extends AbstractController
 
         $comments = $note->getComments()->toArray();
 
-        usort($comments, fn($a, $b) => $a->getPublicationDate() <=> $b->getPublicationDate());
+        usort($comments, fn($a, $b) => $b->getPublicationDate() <=> $a->getPublicationDate());
 
         $commentsData = array_map(function ($comment) {
             return [
@@ -880,6 +883,7 @@ class NoteController extends AbstractController
                     'nametag' => $comment->getUser()->getNametag(),
                     'avatar' => $comment->getUser()->getAvatar(),
                 ],
+                'image' => $comment->getImage(),
                 'message' => $comment->getMessage(),
                 'date' => $comment->getPublicationDate()->format('Y-m-d H:i'),
                 'isEdited' => $comment->isEdited(),

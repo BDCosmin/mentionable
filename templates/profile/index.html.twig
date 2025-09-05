@@ -452,10 +452,19 @@
                                                             <div class="d-flex flex-row w-100">
                                                                 <input type="text" name="message" class="form-control comment-input mb-1" placeholder="Write a comment..."
                                                                        style="border-bottom-right-radius: 0; border-top-right-radius: 0;" required>
-                                                                <div class="d-none d-sm-flex justify-content-end me-1 position-relative">
+                                                                <div class="d-none d-sm-flex justify-content-end position-relative">
                                                                     <button type="button" class="btn btn-light btn-sm px-3 emoji-toggle-btn"
                                                                             style="height: 2.575rem; border-bottom-left-radius: 0; border-top-left-radius: 0; background-color: #252c35;">
                                                                         <i class='bx bx-happy-beaming' style='color:#ffffff; font-size: 24px'></i>
+                                                                    </button>
+                                                                </div>
+                                                                <div class="gif-container me-1 d-flex position-relative">
+                                                                    <button type="button" class="btn btn-light btn-sm text-white gif-toggle-btn"
+                                                                            style="height: 2.575rem; font-size: 20px; border-bottom-left-radius: 0; border-top-left-radius: 0; background-color: #2A3038;font-weight: bold"
+                                                                            data-bs-toggle="modal"
+                                                                            data-bs-target="#gifCommentModal"
+                                                                            data-note-id="{{ item.note.id }}">
+                                                                        GIF
                                                                     </button>
                                                                 </div>
                                                                 <div class="d-flex justify-content-end">
@@ -468,6 +477,27 @@
                                                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                                         </div>
                                                         <div class="emoji-list position-absolute p-2 rounded" style="display:none; background-color: #2A3038; bottom: 100%; right: 0; max-height: 200px; overflow-y: auto; z-index: 1000;"></div>
+                                                        {# GIF PREVIEW #}
+                                                        <div class="gif-preview-container d-none mt-2 mb-2"
+                                                             id="gif-preview-container-{{ item.note.id }}"
+                                                             style="position: relative; width: 100%;">
+                                                            <div class="d-flex flex-column align-items-center">
+                                                                <div class="gif-wrapper position-relative d-inline-block">
+                                                                    <button type="button"
+                                                                            class="btn-close btn-close-white gif-preview-clear position-absolute top-0 end-0"></button>
+                                                                    <img class="gif-preview img-fluid"
+                                                                         id="gif-preview-{{ item.note.id }}"
+                                                                         src=""
+                                                                         alt="Selected GIF"
+                                                                         style="border: 1px solid #fff; height: auto; max-height: 300px; width: auto; display: block;">
+                                                                    <input type="hidden" name="gif_url" class="gif-url-input" id="gif-url-{{ item.note.id }}">
+                                                                    <p class="bg-light text-dark text-center m-0"
+                                                                       style="border-radius: 0 0 0.375rem 0.375rem; width: 100%;">
+                                                                        Preview
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </form>
                                                     <div class="new-comments"></div>
 
@@ -490,21 +520,37 @@
                                                                         {% endif %}
                                                                         <p class="text-gray mb-0" style="font-size: 12px;">{{ comment.humanTimeComment }}</p>
                                                                     </div>
-                                                                    <div class="d-flex flex-row align-items-center mt-1">
-                                                                        <small style="font-size: 14px; color: #404040; background-color: #ffffff; border-radius: 8px; opacity: 0.9; padding: 4px;">{{ comment.message }}</small>
-                                                                        <button class="btn btn-sm d-flex align-items-center border-0 ms-2 comment-upvote-btn
-                                                                                {% if commentVotesMap is defined and commentVotesMap[comment.id] is defined and commentVotesMap[comment.id] == 'upvote' %}
-                                                                                        btn-light
-                                                                                {% else %}
-                                                                                    btn-outline-light
-                                                                                {% endif %}"
-                                                                                type="button"
-                                                                                data-note-id="{{ item.note.id }}"
-                                                                                data-comment-id="{{ comment.id }}"
-                                                                                data-csrf="{{ csrf_token('vote') }}">
-                                                                            <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
-                                                                            <span id="comment-upvotes-{{ comment.id }}" class="ms-1">{{ comment.upVote ?? 0 }}</span>
-                                                                        </button>
+                                                                    <div class="d-inline-flex align-items-center">
+                                                                        <div class="d-flex flex-column">
+                                                                            {% if comment.message %}
+                                                                                <small class="d-inline-block" style="font-size: 16px; align-self: flex-start; max-width: 300px; color: #404040; background-color: #ffffff; border-radius: 8px; opacity: 0.9; padding: 5px;">
+                                                                                    {{ comment.message }}
+                                                                                </small>
+                                                                            {% endif %}
+                                                                            {% if comment.image %}
+                                                                                <div class="comment-gif-container mb-1" style="width: 100%; max-width: 200px;">
+                                                                                    <img src="{{ comment.image }}"
+                                                                                         alt="GIF"
+                                                                                         style="width: 100%; height: auto; object-fit: contain; border-radius: 8px; display: block;">
+                                                                                </div>
+                                                                            {% endif %}
+                                                                        </div>
+                                                                        {# UPVOTE FORM #}
+                                                                        <div class="d-flex flex-column ms-2">
+                                                                            <button class="btn btn-sm ms-2 d-flex align-items-center border-0 comment-upvote-btn
+                                                                                    {% if commentVotesMap is defined and commentVotesMap[comment.id] is defined and commentVotesMap[comment.id] == 'upvote' %}
+                                                                                            btn-light
+                                                                                    {% else %}
+                                                                                        btn-outline-light
+                                                                                    {% endif %}"
+                                                                                    type="button"
+                                                                                    data-note-id="{{ comment.note.id }}"
+                                                                                    data-comment-id="{{ comment.id }}"
+                                                                                    data-csrf="{{ csrf_token('vote') }}">
+                                                                                <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
+                                                                                <span id="comment-upvotes-{{ comment.id }}" class="ms-1">{{ comment.upVote ?? 0 }}</span>
+                                                                            </button>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                                 <div class="dropdown ms-auto me-1 d-flex align-items-start">
@@ -585,6 +631,20 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="gifCommentModal" tabindex="-1" aria-labelledby="gifCommentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-custom">
+            <div class="modal-content" style="background-color: #181b20; color: white; border-radius: 5px;">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="gifCommentModalLabel">Select a GIF</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" class="form-control gif-search mb-2" placeholder="Search GIFs...">
+                    <div class="gif-results d-grid gap-2" style="grid-template-columns: repeat(3, 1fr);"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block javascript %}
@@ -614,10 +674,6 @@
         });
     });
 </script>
-<script src="{{ asset('../assets/js/feed.js') }}"></script>
-<script src="{{ asset('../assets/js/comments.js') }}"></script>
-<script src="{{ asset('../assets/js/favorite.js') }}"></script>
-<script src="{{ asset('../assets/js/emoji.js') }}"></script>
 <script>
 document.addEventListener('click', function (e) {
     if (e.target.classList.contains('delete-interest')) {
@@ -673,29 +729,56 @@ document.addEventListener('DOMContentLoaded', function () {
 
                             const isUpvoted = window.commentVotesMap && window.commentVotesMap[comment.id] === 'upvote';
 
+                            const messageHtml = comment.message
+                                ? `<small class="d-inline-block"
+                                          style="font-size: 16px; align-self: flex-start; max-width: 300px; color: #404040;
+                                                 background-color: #ffffff; border-radius: 8px; opacity: 0.9; padding: 5px;">
+                                        ${comment.message}
+                                   </small>`
+                                : '';
+
+                            const gifHtml = comment.image
+                                ? `<div class="comment-gif-container mb-1" style="width: 100%; max-width: 200px;">
+                                        <img src="${comment.image.startsWith('http') ? comment.image : '/uploads/notes/' + comment.image}"
+                                             alt="GIF"
+                                             style="width: 100%; height: auto; object-fit: contain; border-radius: 8px; display: block;">
+                                   </div>`
+                                : '';
+
                             const html = `
                                 <div class="d-flex flex-row mb-3" data-note-id="${noteId}" data-comment-id="${comment.id}">
                                     <a class="nav-link me-2" href="/profile/${comment.user.id}/view">
-                                        <img class="img-xs rounded-circle" src="/uploads/avatars/${comment.user.avatar}" alt="avatarComment" onerror="showDefaultIcon(this)">
+                                        <img class="img-xs rounded-circle"
+                                             src="/uploads/avatars/${comment.user.avatar}"
+                                             alt="avatarComment"
+                                             onerror="showDefaultIcon(this)">
                                     </a>
                                     <div class="ms-2 p-0">
                                         <div class="d-flex flex-row" style="height: 30px;">
                                             <a class="m-0 p-0 text-decoration-none text-white" href="/profile/${comment.user.id}/view">
                                                 <p class="text-white me-2" style="font-size: 18px;">@${comment.user.nametag}</p>
                                             </a>
-                                            ${comment.isEdited ? `<i class="fa fa-clock-o text-gray me-1" style="margin-top: 6px"></i>` : `<p class="text-gray mt-1 me-2">•</p>`}
+                                            ${comment.isEdited
+                                                ? `<i class="fa fa-clock-o text-gray me-1" style="margin-top: 6px"></i>`
+                                                : `<p class="text-gray mt-1 me-2">•</p>`
+                                            }
                                             <p class="text-gray mt-1">${comment.humanTime}</p>
                                         </div>
-                                        <div class="d-inline-flex">
-                                            <small style="font-size: 16px; color: #404040; background-color: #ffffff; border-radius: 8px; opacity: 0.9; padding: 5px;">${comment.message}</small>
-                                            <button class="btn btn-sm ms-2 d-flex align-items-center border-0 comment-upvote-btn ${isUpvoted ? 'btn-light' : 'btn-outline-light'}"
-                                                    type="button"
-                                                    data-note-id="${noteId}"
-                                                    data-comment-id="${comment.id}"
-                                                    data-csrf="${window.csrfToken}">
-                                                <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
-                                                <span id="comment-upvotes-${comment.id}" class="ms-1">${comment.upVote || 0}</span>
-                                            </button>
+                                        <div class="d-inline-flex align-items-center">
+                                            <div class="d-flex flex-column">
+                                                ${messageHtml}
+                                                ${gifHtml}
+                                            </div>
+                                            <div class="d-flex flex-column ms-2">
+                                                <button class="btn btn-sm ms-2 d-flex align-items-center border-0 comment-upvote-btn ${isUpvoted ? 'btn-light' : 'btn-outline-light'}"
+                                                        type="button"
+                                                        data-note-id="${noteId}"
+                                                        data-comment-id="${comment.id}"
+                                                        data-csrf="${window.csrfToken}">
+                                                    <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
+                                                    <span id="comment-upvotes-${comment.id}" class="ms-1">${comment.upVote || 0}</span>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="dropdown ms-auto me-1 d-inline-flex justify-content-end">
@@ -703,8 +786,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                             <i class='bx bx-dots-horizontal-rounded' style='color:#ffffff'></i>
                                         </a>
                                         <ul class="dropdown-menu m-0">
-                                            ${
-                                                comment.user.nametag === window.currentUserNametag
+                                            ${comment.user.nametag === window.currentUserNametag
                                                 ? `<li><a class="dropdown-item" href="/post/comment/${noteId}-${comment.id}/update">Edit...</a></li>
                                                    <li><a class="dropdown-item delete-comment-btn" href="/post/comment/${noteId}-${comment.id}/delete">Delete comment</a></li>`
                                                 : `<li><a class="dropdown-item" href="/note/comment/${noteId}-${comment.id}/report">Report</a></li>`
@@ -713,6 +795,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                     </div>
                                 </div>
                             `;
+
                             commentsContainer.insertAdjacentHTML('beforeend', html);
                         }
                     });
@@ -724,4 +807,9 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
+<script src="{{ asset('../assets/js/feed.js') }}"></script>
+<script src="{{ asset('../assets/js/comments.js') }}"></script>
+<script src="{{ asset('../assets/js/favorite.js') }}"></script>
+<script src="{{ asset('../assets/js/emoji.js') }}"></script>
+<script src="{{ asset('../assets/js/gif.js') }}"></script>
 {% endblock %}

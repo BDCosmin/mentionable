@@ -356,9 +356,10 @@ final class RingController extends AbstractController
         }
 
         $limitedComments = [];
-
         foreach ($ringNotes as $note) {
-            $limitedComments[$note->getId()] = array_slice($note->getComments()->toArray(), 0, 5);
+            $comments = $note->getComments()->toArray();
+            usort($comments, fn($a, $b) => $b->getPublicationDate() <=> $a->getPublicationDate());
+            $limitedComments[$note->getId()] = array_slice($comments, 0, 5);
         }
 
         $favoritesMap = [];
