@@ -11,6 +11,7 @@
                         <div id="notes-container" class="d-flex flex-column align-items-center">
                             {% include 'note/_note_partial.html.twig' with {
                                 note: note,
+                                comments: comments,
                                 votesMap: votesMap,
                                 commentVotesMap: commentVotesMap,
                                 favoritesMap: favoritesMap,
@@ -56,4 +57,8 @@
     });
 </script>
 <script src="{{ asset('../assets/js/feed.js') }}"></script>
+<script src="{{ asset('../assets/js/comments.js') }}"></script>
+<script src="{{ asset('../assets/js/favorite.js') }}"></script>
+<script src="{{ asset('../assets/js/emoji.js') }}"></script>
+<script src="{{ asset('../assets/js/gif.js') }}"></script>
 {% endblock %}

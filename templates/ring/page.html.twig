@@ -409,9 +409,9 @@
                                     <i class='bx bx-happy-beaming' style='color:#ffffff; font-size: 24px'></i>
                                 </button>
                             </div>
-                            <div class="gif-container position-relative " style="display:inline-block;">
+                            <div class="gif-container d-sm-inline-block position-relative">
                                 {# GIF BUTTON #}
-                                <button type="button" id="gifButton" class="btn text-white btn-sm px-3"
+                                <button type="button" class="btn text-white btn-sm px-3 gif-toggle-btn"
                                         style="height: 2.2rem; font-size: 20px; background-color: #2A3038; border: 1px solid rgba(255,255,255,0.3); border-radius: 0; font-weight: bold">
                                     GIF
                                 </button>
@@ -419,14 +419,14 @@
                         </div>
 
                         {# GIF PREVIEW #}
-                        <div class="mb-3" id="gifPreviewContainer" style="display: none; margin-bottom: 10px; text-align: center; position: relative;">
-                            <button id="gifPreviewClear" type="button"
+                        <div class="mb-3 gif-preview-container" style="display: none; margin-bottom: 10px; text-align: center; position: relative;">
+                            <button class="gif-preview-clear" type="button"
                                     style="position: absolute; top: 0; right: 0; background: transparent; border: none; color: rgba(255,255,255,0.71); font-size: 24px; cursor: pointer;">
                                 &times;
                             </button>
-                            <img id="gifPreview" src="" alt="Selected GIF" style="max-width: 100%; max-height: 250px; border-radius: 5px;">
+                            <img class="gif-preview" src="" alt="Selected GIF" style="max-width: 100%; max-height: 250px; border-radius: 5px;">
                         </div>
-                        <input type="hidden" name="gif_url" id="gifUrlInput">
+                        <input type="hidden" name="gif_url" class="gif-url-input">
 
                         <div class="form-group d-flex flex-row mb-3">
                             <a class="btn" style="height: 2.575rem; background-color: #2A3038; border-top-right-radius: 0; border-bottom-right-radius: 0;" tabindex="-1" role="button" aria-disabled="true">
@@ -455,9 +455,9 @@
                                             max-height: 250px; overflow-y: auto;
                                             border: 1px solid rgba(255,255,255,0.3); background-color: #181b20;
                                             display: none; padding: 5px; z-index: 100;">
-                            <input type="text" id="gifSearch" placeholder="Search GIFs..."
+                            <input type="text" class="gif-search" placeholder="Search GIFs..."
                                    style="width: 100%; margin-bottom: 5px; background-color: #2A3038">
-                            <div id="gifResults" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px;"></div>
+                            <div class="gif-results" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px;"></div>
                         </div>
                     </form>
                 </div>
@@ -571,12 +571,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 </script>
-<script src="{{ asset('../assets/js/pin.js') }}"></script>
-<script src="{{ asset('../assets/js/feed.js') }}"></script>
-<script src="{{ asset('../assets/js/comments.js') }}"></script>
-<script src="{{ asset('../assets/js/favorite.js') }}"></script>
-<script src="{{ asset('../assets/js/emoji.js') }}"></script>
-<script src="{{ asset('../assets/js/gif.js') }}"></script>
 <script>
     window.commentVotesMap = {{ commentVotesMap|json_encode|raw }};
     window.currentUserNametag = "{{ app.user ? app.user.nametag : '' }}";
@@ -604,29 +598,56 @@ document.addEventListener('DOMContentLoaded', function () {
 
                             const isUpvoted = window.commentVotesMap && window.commentVotesMap[comment.id] === 'upvote';
 
+                            const messageHtml = comment.message
+                                ? `<small class="d-inline-block"
+                                          style="font-size: 16px; align-self: flex-start; max-width: 300px; color: #404040;
+                                                 background-color: #ffffff; border-radius: 8px; opacity: 0.9; padding: 5px;">
+                                        ${comment.message}
+                                   </small>`
+                                : '';
+
+                            const gifHtml = comment.image
+                                ? `<div class="comment-gif-container mb-1" style="width: 100%; max-width: 200px;">
+                                        <img src="${comment.image.startsWith('http') ? comment.image : '/uploads/notes/' + comment.image}"
+                                             alt="GIF"
+                                             style="width: 100%; height: auto; object-fit: contain; border-radius: 8px; display: block;">
+                                   </div>`
+                                : '';
+
                             const html = `
                                 <div class="d-flex flex-row mb-3" data-note-id="${noteId}" data-comment-id="${comment.id}">
                                     <a class="nav-link me-2" href="/profile/${comment.user.id}/view">
-                                        <img class="img-xs rounded-circle" src="/uploads/avatars/${comment.user.avatar}" alt="avatarComment" onerror="showDefaultIcon(this)">
+                                        <img class="img-xs rounded-circle"
+                                             src="/uploads/avatars/${comment.user.avatar}"
+                                             alt="avatarComment"
+                                             onerror="showDefaultIcon(this)">
                                     </a>
                                     <div class="ms-2 p-0">
                                         <div class="d-flex flex-row" style="height: 30px;">
                                             <a class="m-0 p-0 text-decoration-none text-white" href="/profile/${comment.user.id}/view">
                                                 <p class="text-white me-2" style="font-size: 18px;">@${comment.user.nametag}</p>
                                             </a>
-                                            ${comment.isEdited ? `<i class="fa fa-clock-o text-gray me-1" style="margin-top: 6px"></i>` : `<p class="text-gray mt-1 me-2">•</p>`}
+                                            ${comment.isEdited
+                                                ? `<i class="fa fa-clock-o text-gray me-1" style="margin-top: 6px"></i>`
+                                                : `<p class="text-gray mt-1 me-2">•</p>`
+                                            }
                                             <p class="text-gray mt-1">${comment.humanTime}</p>
                                         </div>
-                                        <div class="d-inline-flex">
-                                            <small style="font-size: 16px; color: #404040; background-color: #ffffff; border-radius: 8px; opacity: 0.9; padding: 5px;">${comment.message}</small>
-                                            <button class="btn btn-sm ms-2 d-flex align-items-center border-0 comment-upvote-btn ${isUpvoted ? 'btn-light' : 'btn-outline-light'}"
-                                                    type="button"
-                                                    data-note-id="${noteId}"
-                                                    data-comment-id="${comment.id}"
-                                                    data-csrf="${window.csrfToken}">
-                                                <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
-                                                <span id="comment-upvotes-${comment.id}" class="ms-1">${comment.upVote || 0}</span>
-                                            </button>
+                                        <div class="d-inline-flex align-items-center">
+                                            <div class="d-flex flex-column">
+                                                ${messageHtml}
+                                                ${gifHtml}
+                                            </div>
+                                            <div class="d-flex flex-column ms-2">
+                                                <button class="btn btn-sm ms-2 d-flex align-items-center border-0 comment-upvote-btn ${isUpvoted ? 'btn-light' : 'btn-outline-light'}"
+                                                        type="button"
+                                                        data-note-id="${noteId}"
+                                                        data-comment-id="${comment.id}"
+                                                        data-csrf="${window.csrfToken}">
+                                                    <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
+                                                    <span id="comment-upvotes-${comment.id}" class="ms-1">${comment.upVote || 0}</span>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="dropdown ms-auto me-1 d-inline-flex justify-content-end">
@@ -634,8 +655,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                             <i class='bx bx-dots-horizontal-rounded' style='color:#ffffff'></i>
                                         </a>
                                         <ul class="dropdown-menu m-0">
-                                            ${
-                                                comment.user.nametag === window.currentUserNametag
+                                            ${comment.user.nametag === window.currentUserNametag
                                                 ? `<li><a class="dropdown-item" href="/post/comment/${noteId}-${comment.id}/update">Edit...</a></li>
                                                    <li><a class="dropdown-item delete-comment-btn" href="/post/comment/${noteId}-${comment.id}/delete">Delete comment</a></li>`
                                                 : `<li><a class="dropdown-item" href="/note/comment/${noteId}-${comment.id}/report">Report</a></li>`
@@ -644,6 +664,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                     </div>
                                 </div>
                             `;
+
                             commentsContainer.insertAdjacentHTML('beforeend', html);
                         }
                     });
@@ -701,6 +722,11 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
-
 </script>
+<script src="{{ asset('../assets/js/pin.js') }}"></script>
+<script src="{{ asset('../assets/js/feed.js') }}"></script>
+<script src="{{ asset('../assets/js/comments.js') }}"></script>
+<script src="{{ asset('../assets/js/favorite.js') }}"></script>
+<script src="{{ asset('../assets/js/emoji.js') }}"></script>
+<script src="{{ asset('../assets/js/gif.js') }}"></script>
 {% endblock %}

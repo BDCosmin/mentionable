@@ -109,8 +109,9 @@ final class UserController extends AbstractController
 
         $limitedComments = [];
         foreach ($notes as $note) {
-            $comments = $note->getComments()->slice(0, 5);
-            $limitedComments[$note->getId()] = $comments;
+            $comments = $note->getComments()->toArray();
+            usort($comments, fn($a, $b) => $b->getPublicationDate() <=> $a->getPublicationDate());
+            $limitedComments[$note->getId()] = array_slice($comments, 0, 5);
         }
 
         $favoritesMap = [];
@@ -201,8 +202,9 @@ final class UserController extends AbstractController
 
         $limitedComments = [];
         foreach ($notes as $note) {
-            $comments = $note->getComments()->slice(0, 5);
-            $limitedComments[$note->getId()] = $comments;
+            $comments = $note->getComments()->toArray();
+            usort($comments, fn($a, $b) => $b->getPublicationDate() <=> $a->getPublicationDate());
+            $limitedComments[$note->getId()] = array_slice($comments, 0, 5);
         }
 
         $favoritesMap = [];
