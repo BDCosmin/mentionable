@@ -72,30 +72,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }, 300);
         });
-
-        // Submit new note
-        const newNoteForm = document.getElementById('new-note-form');
-        if (newNoteForm) {
-            newNoteForm.addEventListener('submit', async e => {
-                e.preventDefault();
-                const formData = new FormData(newNoteForm);
-
-                try {
-                    const response = await fetch(newNoteForm.action || "/note/new", {
-                        method: 'POST',
-                        body: formData
-                    });
-                    if (!response.ok) throw new Error("Error while posting note");
-
-                    newNoteForm.reset();
-                    if (newNoteModal) newNoteModal.hide();
-                    setTimeout(() => location.reload(), 800);
-
-                } catch (err) {
-                    console.error(err);
-                }
-            });
-        }
     }
 
     // =========================
