@@ -20,7 +20,7 @@
         </div>
         <div class="row justify-content-center">
             <div class="col-lg-7 m-0 p-0 mb-3" id="errorWhilePosting" style="display: none;">
-                <span id="errorMessage" class="badge bg-danger"></span>
+                <span id="note-error-message" class="badge bg-danger"></span>
             </div>
             <a class="col-lg-7 note-launch-link d-flex flex-row p-3 mb-2 text-white" style="text-decoration: none; background-color: #bc7b00; border-radius: 10px;" href="#" data-bs-toggle="modal" data-bs-target="#newNoteModal">
                 <h4 class="m-0 p-0">
@@ -168,6 +168,45 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error("The comment with the following id was not found: comments-" + noteId);
             }
         }
+    });
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    $('#new-note-form').on('submit', function (e) {
+        e.preventDefault();
+        let form = $('#new-note-form')[0];
+        let formData = new FormData(form);
+
+        $('#loading-spinner').show();
+
+        $.ajax({
+            url: "{{ path('app_note_new') }}",
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                const modalEl = document.getElementById('newNoteModal');
+                const modalInstance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                modalInstance.hide();
+
+                form.reset();
+
+                location.reload();
+            },
+            error: function (xhr) {
+                $('#loading-spinner').hide();
+                const errorBox = $('#note-error-message');
+                const response = xhr.responseJSON;
+
+                if (response && response.message) {
+                    errorBox.text(response.message).removeClass('d-none');
+                } else {
+                    errorBox.text('Unexpected error occurred.').removeClass('d-none');
+                }
+            }
+        });
     });
 });
 </script>

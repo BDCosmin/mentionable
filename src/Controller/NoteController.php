@@ -217,14 +217,9 @@ class NoteController extends AbstractController
             }
 
             if ($request->isXmlHttpRequest()) {
-                $favoritesMap = [$note->getId() => $user->hasFavorite($note)];
-
-                $html = $this->renderView('note/_note_partial.html.twig', ['note' => $note, 'favoritesMap' => $favoritesMap]);
-
                 return new JsonResponse([
                     'status' => 'success',
-                    'message' => 'Note created successfully',
-                    'noteHtml' => $html
+                    'message' => 'Note created successfully'
                 ]);
             }
 
