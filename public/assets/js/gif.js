@@ -1,8 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // =========================
-    // NEW NOTE MODAL GIF HANDLER
-    // =========================
+    // NEW NOTE MODAL GIF
     const newNoteModalEl = document.getElementById('newNoteModal');
     let newNoteModal;
 
@@ -19,7 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const noteImageContainer = newNoteModalEl.querySelector('#noteImageContainer');
         const gifUrlInput = newNoteModalEl.querySelector('.gif-url-input');
 
-        // Toggle dropdown
         gifButton.addEventListener('click', e => {
             e.stopPropagation();
             gifDropdown.style.display = gifDropdown.style.display === 'block' ? 'none' : 'block';
@@ -31,12 +28,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         gifPreviewClear.addEventListener('click', () => {
             gifPreview.src = '';
+
+            gifPreviewContainer.classList.add('d-none');
             gifPreviewContainer.style.display = 'none';
+
             noteImageContainer.style.display = 'block';
             gifUrlInput.value = '';
         });
 
-        // Search GIFs
+
         let gifTimeout;
         gifSearch.addEventListener('keyup', e => {
             const query = e.target.value.trim();
@@ -57,10 +57,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         img.addEventListener('click', () => {
                             gifDropdown.style.display = 'none';
+
                             gifPreview.src = url;
+
+                            gifPreviewContainer.classList.remove('d-none');
                             gifPreviewContainer.style.display = 'flex';
                             gifPreviewContainer.style.justifyContent = 'center';
                             gifPreviewContainer.style.alignItems = 'center';
+
                             noteImageContainer.style.display = 'none';
                             gifUrlInput.value = url;
                         });
@@ -74,9 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // =========================
-    // COMMENT GIF HANDLER
-    // =========================
+    // COMMENT GIF
     document.querySelectorAll('.ajax-comment-form').forEach(form => {
         const gifButton = form.querySelector('.gif-toggle-btn');
         const gifDropdownDesktop = form.querySelector('.gif-dropdown');
@@ -142,11 +144,8 @@ document.addEventListener('DOMContentLoaded', () => {
         setupGifSearch(gifDropdownMobile);
     });
 
-    // =========================
-    // GLOBAL CLICK LISTENER
-    // =========================
+    // GIF DROPDOWN NOTE & COMMENT
     document.addEventListener('click', e => {
-        // Close modal dropdown
         if (newNoteModalEl) {
             const gifDropdown = newNoteModalEl.querySelector('#gifDropdown');
             if (gifDropdown && !gifDropdown.contains(e.target) && e.target !== newNoteModalEl.querySelector('.gif-toggle-btn')) {
@@ -154,12 +153,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Close comment dropdowns
         document.querySelectorAll('.gif-dropdown, .gif-dropdown-mobile').forEach(dd => {
             if (!dd.contains(e.target)) dd.classList.add('d-none');
         });
 
-        // Handle selecting a GIF in comments
         const gif = e.target.closest('.gif-result-item');
         if (gif) {
             const form = gif.closest('.ajax-comment-form');
@@ -179,9 +176,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // =========================
-    // OPEN NEW NOTE MODAL METHOD
-    // =========================
     window.openNewNoteModal = () => {
         if (newNoteModal) newNoteModal.show();
     };
