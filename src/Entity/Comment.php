@@ -59,12 +59,19 @@ class Comment
     #[ORM\OneToMany(targetEntity: CommentVote::class, mappedBy: 'comment', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $commentVotes;
 
+    /**
+     * @var Collection<int, CommentReply>
+     */
+    #[ORM\OneToMany(targetEntity: CommentReply::class, mappedBy: 'comment')]
+    private Collection $commentReplies;
+
     public function __construct()
     {
         $this->notifications = new ArrayCollection();
         $this->commentReports = new ArrayCollection();
         $this->commentVotes = new ArrayCollection();
         $this->upVote = 0;
+        $this->commentReplies = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -269,6 +276,36 @@ class Comment
     public function setImage(?string $image): static
     {
         $this->image = $image;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CommentReply>
+     */
+    public function getCommentReplies(): Collection
+    {
+        return $this->commentReplies;
+    }
+
+    public function addCommentReply(CommentReply $commentReply): static
+    {
+        if (!$this->commentReplies->contains($commentReply)) {
+            $this->commentReplies->add($commentReply);
+            $commentReply->setComment($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCommentReply(CommentReply $commentReply): static
+    {
+        if ($this->commentReplies->removeElement($commentReply)) {
+            // set the owning side to null (unless already changed)
+            if ($commentReply->getComment() === $this) {
+                $commentReply->setComment(null);
+            }
+        }
+
         return $this;
     }
 }

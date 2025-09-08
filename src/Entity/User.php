@@ -131,6 +131,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\JoinTable(name: 'user_favorite_notes')]
     private Collection $favoriteNotes;
 
+    /**
+     * @var Collection<int, CommentReply>
+     */
+    #[ORM\OneToMany(targetEntity: CommentReply::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $commentReplies;
+
     public function __construct()
     {
         $this->notes = new ArrayCollection();
@@ -147,6 +153,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->mentionedNotes = new ArrayCollection();
         $this->tickets = new ArrayCollection();
         $this->favoriteNotes = new ArrayCollection();
+        $this->commentReplies = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -561,5 +568,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function hasFavorite(Note $note): bool
     {
         return $this->favoriteNotes->contains($note);
+    }
+
+    /**
+     * @return Collection<int, CommentReply>
+     */
+    public function getCommentReplies(): Collection
+    {
+        return $this->commentReplies;
+    }
+
+    public function addCommentReply(CommentReply $commentReply): static
+    {
+        if (!$this->commentReplies->contains($commentReply)) {
+            $this->commentReplies->add($commentReply);
+            $commentReply->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCommentReply(CommentReply $commentReply): static
+    {
+        if ($this->commentReplies->removeElement($commentReply)) {
+            // set the owning side to null (unless already changed)
+            if ($commentReply->getUser() === $this) {
+                $commentReply->setUser(null);
+            }
+        }
+
+        return $this;
     }
 }

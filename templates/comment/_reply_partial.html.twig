@@ -1,0 +1,87 @@
+<div class="d-flex flex-row mb-3"
+     data-reply-id="{{ reply.id }}"
+     data-comment-id="{{ reply.comment.id }}">
+
+    <a class="nav-link me-2" href="{{ path('app_profile', {'id': reply.user.id}) }}">
+        <img class="img-xs rounded-circle"
+             src="{{ asset('uploads/avatars/' ~ reply.user.avatar) }}"
+             alt="avatarComment"
+             onerror="showDefaultIcon(this)">
+    </a>
+
+    <div class="m-0 p-0">
+        <div class="d-flex flex-row" style="height: 30px;">
+            <a class="m-0 p-0 text-decoration-none text-white" href="{{ path('app_profile', {'id': reply.user.id}) }}">
+                <p class="text-white me-2" style="font-size: 18px;">@{{ reply.user.nametag }}</p>
+            </a>
+            {% if reply.isEdited %}
+                <i class="fa fa-clock-o text-gray me-1" style="margin-top: 6px"></i>
+            {% else %}
+                <p class="text-gray mt-1 me-2">•</p>
+            {% endif %}
+            <p class="text-gray mt-1">{{ reply.humanTimeReplyComment }}</p>
+        </div>
+
+        <div class="d-inline-flex align-items-center">
+            <div class="d-flex flex-column">
+                {% if reply.message %}
+                    <small class="d-inline-block" style="font-size: 16px; align-self: flex-start; max-width: 300px; color: #404040; background-color: #ffffff; border-radius: 8px; opacity: 0.9; padding: 5px;">
+                        {{ reply.message }}
+                    </small>
+                {% endif %}
+                {% if reply.image %}
+                    <div class="comment-gif-container mb-1" style="width: 100%; max-width: 200px;">
+                        <img src="{{ reply.image }}"
+                             alt="GIF"
+                             style="width: 100%; height: auto; object-fit: contain; border-radius: 8px; display: block;">
+                    </div>
+                {% endif %}
+            </div>
+            {# UPVOTE FORM #}
+{#            <div class="d-flex flex-column ms-2">#}
+{#                <button class="btn btn-sm ms-2 d-flex align-items-center border-0 reply-upvote-btn"#}
+{#                                                            {% if commentVotesMap is defined and commentVotesMap[comment.id] is defined and commentVotesMap[comment.id] == 'upvote' %}#}
+{#                                                                    btn-light#}
+{#                                                            {% else %}#}
+{#                                                                btn-outline-light#}
+{#                                                            {% endif %}"#}
+{#                        type="button"#}
+{#                        data-comment-id="{{ comment.id }}"#}
+{#                        data-reply-id="{{ reply.id }}"#}
+{#                        data-csrf="{{ csrf_token('vote') }}">#}
+{#                    <i class='bx bx-arrow-up' style="font-size: 20px;"></i>#}
+{#                    <span id="reply-upvotes-{{ reply.id }}" class="ms-1">{{ reply.upvote ?? 0 }}</span>#}
+{#                </button>#}
+{#            </div>#}
+        </div>
+    </div>
+
+    <div class="dropdown ms-auto me-1 d-inline-flex justify-content-end">
+        <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="height: 30px;">
+            <i class='bx bx-dots-horizontal-rounded' style='color:#ffffff'></i>
+        </a>
+        <ul class="dropdown-menu m-0">
+            {% if app.user.nametag == reply.user.nametag %}
+                <li>
+                    <a class="dropdown-item"
+                       href="#">
+                        Edit...
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item delete-comment-btn"
+                       href="#">
+                        Delete comment
+                    </a>
+                </li>
+            {% else %}
+                <li>
+                    <a class="dropdown-item"
+                       href="#">
+                        Report
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
