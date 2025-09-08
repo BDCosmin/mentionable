@@ -6,6 +6,7 @@ use App\Entity\FriendRequest;
 use App\Entity\Note;
 use App\Entity\Notification;
 use App\Entity\User;
+use App\Repository\CommentReplyRepository;
 use App\Repository\CommentVoteRepository;
 use App\Repository\FriendRequestRepository;
 use App\Repository\NoteVoteRepository;
@@ -29,6 +30,7 @@ final class DefaultController extends AbstractController
         NoteVoteRepository $noteVoteRepository,
         CommentVoteRepository $commentVoteRepository,
         RingMemberRepository $ringMemberRepository,
+        CommentReplyRepository $commentReplyRepository,
         Request $request,
     ): Response {
         $error = ' ';
@@ -46,6 +48,16 @@ final class DefaultController extends AbstractController
         $offset = ($page - 1) * $limit;
 
         $notes = $em->getRepository(Note::class)->findFeedNotesForUser($ringIds, $limit, $offset);
+
+        $repliesMap = [];
+        foreach ($notes as $note) {
+            foreach ($note->getComments() as $comment) {
+                $repliesMap[$comment->getId()] = $commentReplyRepository->findBy(
+                    ['comment' => $comment],
+                    ['publicationDate' => 'DESC']
+                );
+            }
+        }
 
         $rolesMap = [];
         foreach ($notes as $note) {
@@ -119,6 +131,7 @@ final class DefaultController extends AbstractController
                 'limitedComments' => $limitedComments,
                 'favoritesMap' => $favoritesMap,
                 'currentUserNametag' => $user->getNametag(),
+                'repliesMap' => $repliesMap
             ]);
         }
 
@@ -133,6 +146,7 @@ final class DefaultController extends AbstractController
             'rolesMap' => $rolesMap,
             'limitedComments' => $limitedComments,
             'page' => $page,
+            'repliesMap' => $repliesMap
         ]);
     }
 

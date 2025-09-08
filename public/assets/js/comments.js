@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Select GIF
     document.addEventListener('click', function(e) {
-        const gif = e.target.closest('.gif-result-item'); // presupunem că GIF-urile au clasa gif-result-item
+        const gif = e.target.closest('.gif-result-item');
         if (!gif) return;
         const form = gif.closest('.ajax-comment-form');
         if (!form) return;
@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const previewContainer = form.querySelector('.gif-preview-container');
         const preview = form.querySelector('.gif-preview');
         if (gifUrlInput && preview && previewContainer) {
-            const url = gif.dataset.url; // URL-ul GIF-ului
+            const url = gif.dataset.url;
             gifUrlInput.value = url;
             preview.src = url;
             previewContainer.classList.remove('d-none');
@@ -178,3 +178,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 });
+

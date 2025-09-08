@@ -1,0 +1,5 @@
+{% for reply in replies %}
+    {% include 'comment/_reply_partial.html.twig' with { reply: reply, currentUserNametag: currentUserNametag } %}
+{% else %}
+    <p class="text-muted">No replies yet.</p>
+{% endfor %}

@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Comment;
+use App\Entity\CommentReply;
 use App\Entity\CommentReport;
 use App\Entity\CommentVote;
 use App\Entity\Note;
@@ -11,6 +12,7 @@ use App\Entity\NoteVote;
 use App\Entity\Notification;
 use App\Entity\RingMembers;
 use App\Entity\User;
+use App\Repository\CommentReplyRepository;
 use App\Repository\CommentRepository;
 use App\Repository\CommentVoteRepository;
 use App\Repository\FriendRequestRepository;
@@ -666,6 +668,89 @@ class NoteController extends AbstractController
         }
 
         return $this->redirectToRoute('homepage');
+    }
+
+    #[Route('/comment/{comment}/reply', name: 'note_comment_reply', methods: ['POST'])]
+    public function commentReply(Comment $comment,
+                            Request $request,
+                            EntityManagerInterface $em,
+                            CommentVoteRepository $commentVoteRepository,
+                            NotificationService $notificationService,
+                            TextModerationService $moderator
+    ): Response
+    {
+        $user = $this->getUser();
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        $message = $request->request->get('message', '');
+        $gifUrl = trim($request->request->get('gif_url'));
+
+        if (empty($message) && empty($gifUrl)) {
+            if ($request->isXmlHttpRequest()) {
+                return new JsonResponse(['status' => 'error', 'message' => 'Comment reply cannot be empty.'], 400);
+            }
+            $this->addFlash('danger', 'Comment reply cannot be empty.');
+            return $this->redirectToRoute('homepage');
+        }
+
+        if (!empty($message)) {
+            $moderation = $moderator->analyze($message);
+            $toxicityScore = $moderation['attributeScores']['TOXICITY']['summaryScore']['value'] ?? 0;
+            $insultScore = $moderation['attributeScores']['INSULT']['summaryScore']['value'] ?? 0;
+
+            if ($toxicityScore > 0.85 || $insultScore > 0.85) {
+                if ($request->isXmlHttpRequest()) {
+                    return new JsonResponse(['status' => 'error', 'message' => 'Your comment was rejected because it may be toxic or insulting.'], 400);
+                }
+
+                $this->addFlash('danger', 'Your comment was rejected because it may be toxic or insulting.');
+                return $this->redirectToRoute('homepage');
+            }
+        }
+
+        $commentReply = new CommentReply();
+        $commentReply->setComment($comment);
+        $commentReply->setMessage($message);
+        $commentReply->setUser($this->getUser());
+        $commentReply->setPublicationDate(new \DateTime());
+        $commentReply->setIsEdited(false);
+
+        if ($gifUrl) {
+            $commentReply->setImage($gifUrl);
+        }
+
+        $em->persist($commentReply);
+        $em->flush();
+
+        if ($request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
+
+            $html = $this->renderView('comment/_reply_partial.html.twig', [
+                'reply' => $commentReply,
+                'currentUserNametag' => $user->getNametag(),
+            ]);
+
+            return new JsonResponse([
+                'success' => true,
+                'html' => $html,
+            ]);
+        }
+
+        return $this->redirectToRoute('homepage');
+    }
+
+    #[Route('/comment/{comment}/replies', name: 'comment_replies', methods: ['GET'])]
+    public function getCommentReplies(Comment $comment, CommentReplyRepository $commentReplyRepository, EntityManagerInterface $em): Response
+    {
+        $replies = $commentReplyRepository->findBy(
+            ['comment' => $comment],
+            ['publicationDate' => 'DESC']
+        );
+        $html = $this->renderView('comment/_replies_partial.html.twig', [
+            'replies' => $replies,
+            'currentUserNametag' => $this->getUser()->getNametag(),
+        ]);
+
+        return new Response($html);
     }
 
     #[Route('post/comment/{noteId}-{id}/delete', name: 'note_comment_delete', methods: ['GET', 'POST'])]
