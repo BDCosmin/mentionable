@@ -38,7 +38,7 @@
                 {% endif %}
             </div>
             {# UPVOTE FORM #}
-            <div class="d-flex flex-column ms-2">
+            <div class="d-flex flex-row ms-2">
                 <button class="btn btn-sm ms-2 d-flex align-items-center border-0 comment-upvote-btn
                                                             {% if commentVotesMap is defined and commentVotesMap[comment.id] is defined and commentVotesMap[comment.id] == 'upvote' %}
                                                                     btn-light
@@ -51,6 +51,16 @@
                         data-csrf="{{ csrf_token('vote') }}">
                     <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
                     <span id="comment-upvotes-{{ comment.id }}" class="ms-1">{{ comment.upVote ?? 0 }}</span>
+                </button>
+                <button class="btn btn-sm d-flex align-items-center border-0"
+                        type="button"
+                        data-bs-toggle="modal" data-bs-target="#newCommentReplyModal" data-comment-id="{{ comment.id }}"
+                        data-comment-message="{{ comment.message }}"
+                        data-username="{{ comment.user.nametag }}"
+                        data-comment-img="{{ comment.image }}"
+                >
+                    <i class='bx bx-message-circle-plus' style='color:#ffffff; font-size: 20px;'></i>
+                    <span class="ps-2">{{ comment.commentReplies|length }}</span>
                 </button>
             </div>
         </div>

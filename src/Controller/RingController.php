@@ -8,6 +8,7 @@ use App\Entity\Ring;
 use App\Entity\RingMembers;
 use App\Entity\User;
 use App\Form\RingForm;
+use App\Repository\CommentReplyRepository;
 use App\Repository\CommentVoteRepository;
 use App\Repository\NoteRepository;
 use App\Repository\NoteVoteRepository;
@@ -291,6 +292,7 @@ final class RingController extends AbstractController
         RingMemberRepository $ringMemberRepository,
         NoteVoteRepository $noteVoteRepository,
         EntityManagerInterface $em,
+        CommentReplyRepository $commentReplyRepository,
         CommentVoteRepository $commentVoteRepository,
         Request $request
     ): Response
@@ -351,6 +353,16 @@ final class RingController extends AbstractController
             }
         }
 
+        $repliesMap = [];
+        foreach ($ringNotes as $note) {
+            foreach ($note->getComments() as $comment) {
+                $repliesMap[$comment->getId()] = $commentReplyRepository->findBy(
+                    ['comment' => $comment],
+                    ['publicationDate' => 'DESC']
+                );
+            }
+        }
+
         if ($ring->getIsSuspended() == 1) {
             $this->addFlash('danger', '<b>This ring has been suspended.</b> <br/> Reason: '.$ring->getSuspensionReason());
         }
@@ -377,6 +389,7 @@ final class RingController extends AbstractController
                 'favoritesMap' => $favoritesMap,
                 'isMember' => in_array($ring->getId(), $ringIds),
                 'ring' => $ring,
+                'repliesMap' => $repliesMap
             ]);
         }
 
