@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Interest;
 use App\Entity\Note;
+use App\Repository\CommentReplyRepository;
 use App\Repository\CommentVoteRepository;
 use App\Repository\InterestRepository;
 use App\Repository\NoteRepository;
@@ -38,6 +39,8 @@ class ProfileController extends AbstractController
         NotificationRepository $notificationRepository,
         EntityManagerInterface $em,
         RingMemberRepository $ringMemberRepository,
+        CommentReplyRepository $commentReplyRepository,
+        Request $request,
     ): Response
     {
         $user = $userRepository->find($id);
@@ -72,6 +75,16 @@ class ProfileController extends AbstractController
                 } elseif ($vote->isDownvoted()) {
                     $votesMap[$vote->getNote()->getId()] = 'downvote';
                 }
+            }
+        }
+
+        $repliesMap = [];
+        foreach ($notes as $note) {
+            foreach ($note->getComments() as $comment) {
+                $repliesMap[$comment->getId()] = $commentReplyRepository->findBy(
+                    ['comment' => $comment],
+                    ['publicationDate' => 'DESC']
+                );
             }
         }
 
@@ -121,6 +134,18 @@ class ProfileController extends AbstractController
 
         if ($user->isBanned()) {
             $this->addFlash('danger', '<b>This user has been banned.</b> Please check the profile later.');
+        }
+
+        if ($request->isXmlHttpRequest()) {
+            return $this->render('note/_note_partial.html.twig', [
+                'notes' => $notes,
+                'votesMap' => $votesMap,
+                'commentVotesMap' => $commentVotesMap,
+                'rolesMap' => $rolesMap,
+                'favoritesMap' => $favoritesMap,
+                'currentUserNametag' => $user->getNametag(),
+                'repliesMap' => $repliesMap
+            ]);
         }
 
         if ($user->getId() === 24) {

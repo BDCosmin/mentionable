@@ -378,12 +378,17 @@
                 <h5 class="modal-title">Reply to @<span id="reply-username"></span></h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-                <div class="modal-body p-4">
-                    <p class="d-inline-block mb-3" style="font-size: 20px; font-weight: bold; align-self: flex-start; max-width: 300px; color: #404040; background-color: #ffffff; border-radius: 8px; opacity: 0.9; padding: 5px;">
-                        <span id="parent-comment-message"></span>
-                    </p>
-                    <img id="parent-comment-img" src="" alt="reply-gif">
-                    <form class="ajax-reply-form" id="reply-form" method="POST" action="">
+                <div class="modal-body p-4" style="max-height: 70vh; overflow-y: auto;">
+                    <div id="parent-comment-message"
+                         class="d-inline-block mb-3"
+                         style="font-size: 20px; font-weight: bold; align-self: flex-start; max-width: 300px;
+                                color: #404040; background-color: #ffffff; border-radius: 8px;
+                                opacity: 0.9; padding: 5px; display: none;">
+                    </div>
+                    <div style="position: relative; width: 100%;">
+                        <img id="parent-comment-img" src="" style="height: auto; max-height: 300px; width: auto;" alt="reply-gif">
+                    </div>
+                    <form class="ajax-reply-form mt-3" id="reply-form" method="POST" action="">
                         <input type="hidden" name="_token" value="{{ csrf_token('reply') }}">
                         <input type="hidden" name="parent_comment_id" id="parent-comment-id">
                         <div class="d-inline-flex flex-row p-0" style="width: 100%;">
@@ -397,43 +402,4 @@
             </div>
         </div>
     </div>
-<script>
-    const replyModal = document.getElementById('newCommentReplyModal');
-
-    replyModal.addEventListener('show.bs.modal', function(event) {
-        const button = event.relatedTarget;
-        const username = button.getAttribute('data-username');
-        const comment = button.getAttribute('data-comment-id');
-        const commentMessage = button.getAttribute('data-comment-message');
-        const commentImg = button.getAttribute('data-comment-img');
-
-        document.getElementById('reply-username').textContent = username;
-        document.getElementById('parent-comment-id').value = comment;
-
-        const parentMessageEl = document.getElementById('parent-comment-message');
-        const parentMessageWrapper = parentMessageEl.closest('p');
-
-        if (commentMessage) {
-            parentMessageEl.textContent = commentMessage;
-            parentMessageWrapper.style.display = 'block';
-        } else {
-            parentMessageWrapper.style.display = 'none';
-        }
-
-        const parentImgEl = document.getElementById('parent-comment-img');
-        if (commentImg) {
-            parentImgEl.src = commentImg;
-            parentImgEl.style.display = 'block';
-        } else {
-            parentImgEl.style.display = 'none';
-        }
-
-        document.getElementById('reply-form').action = `/comment/${comment}/reply`;
-
-        fetch(`/comment/${comment}/replies`)
-            .then(res => res.text())
-            .then(html => {
-                document.getElementById('replies-container').innerHTML = html;
-            });
-    });
-</script>
+<script src="{{ asset('../assets/js/comment-replies-modal.js') }}"></script>

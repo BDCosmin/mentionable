@@ -384,6 +384,8 @@ class NoteController extends AbstractController
         NoteVoteRepository $noteVoteRepository,
         CommentVoteRepository $commentVoteRepository,
         RingMemberRepository $ringMemberRepository,
+        CommentReplyRepository $commentReplyRepository,
+        Request $request
     ): Response
     {
         $user = $this->getUser();
@@ -447,11 +449,31 @@ class NoteController extends AbstractController
             $favoritesMap[$note->getId()] = $user->hasFavorite($note);
         }
 
+        $repliesMap = [];
+        foreach ($note->getComments() as $comment) {
+            $repliesMap[$comment->getId()] = $commentReplyRepository->findBy(
+                ['comment' => $comment],
+                ['publicationDate' => 'DESC']
+            );
+        }
+
         $comments = $note->getComments()->toArray();
         usort($comments, fn($a, $b) => $b->getPublicationDate() <=> $a->getPublicationDate());
 
 
         $mentionedUser = $note->getMentionedUser();
+
+        if ($request->isXmlHttpRequest()) {
+            return $this->render('note/_note_partial.html.twig', [
+                'note' => $note,
+                'votesMap' => $votesMap,
+                'commentVotesMap' => $commentVotesMap,
+                'rolesMap' => $rolesMap,
+                'favoritesMap' => $favoritesMap,
+                'currentUserNametag' => $user->getNametag(),
+                'repliesMap' => $repliesMap
+            ]);
+        }
 
         return $this->render('note/index.html.twig', [
             'divVisibility' => 'none',
