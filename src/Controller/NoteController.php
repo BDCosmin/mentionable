@@ -619,7 +619,8 @@ class NoteController extends AbstractController
                             EntityManagerInterface $em,
                             CommentVoteRepository $commentVoteRepository,
                             NotificationService $notificationService,
-                            TextModerationService $moderator
+                            TextModerationService $moderator,
+                            CommentReplyRepository $commentReplyRepository
     ): Response
     {
         $user = $this->getUser();
@@ -678,9 +679,18 @@ class NoteController extends AbstractController
                 }
             }
 
+            $repliesMap = [];
+            foreach ($note->getComments() as $comment) {
+                $repliesMap[$comment->getId()] = $commentReplyRepository->findBy(
+                    ['comment' => $comment],
+                    ['publicationDate' => 'DESC']
+                );
+            }
+
             $html = $this->renderView('comment/partial.html.twig', [
                 'comment' => $comment,
                 'commentVotesMap' => $commentVotesMap,
+                'repliesMap' => $repliesMap
             ]);
 
             return new JsonResponse([
@@ -775,7 +785,7 @@ class NoteController extends AbstractController
         return new Response($html);
     }
 
-    #[Route('post/comment/{noteId}-{id}/delete', name: 'note_comment_delete', methods: ['GET', 'POST'])]
+    #[Route('note/comment/{noteId}-{id}/delete', name: 'note_comment_delete', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_USER')]
     public function deleteComment(int $id ,Request $request, EntityManagerInterface $em, CommentRepository $commentRepository): Response
     {
@@ -783,7 +793,7 @@ class NoteController extends AbstractController
         $comment = $commentRepository->find($id);
 
         if (!$comment) {
-            return new JsonResponse(['success' => false, 'message' => 'Comentariu inexistent'], 404);
+            return new JsonResponse(['success' => false, 'message' => 'Comment not found'], 404);
         }
 
         $em->remove($comment);
@@ -796,7 +806,7 @@ class NoteController extends AbstractController
         return $this->redirect($request->headers->get('referer'));
     }
 
-    #[Route('post/comment/{noteId}-{id}/update', name: 'note_comment_update', methods: ['GET', 'POST'])]
+    #[Route('note/comment/{noteId}-{id}/update', name: 'note_comment_update', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_USER')]
     public function updateComment(Request $request,
                                   int $id,
@@ -1060,5 +1070,19 @@ class NoteController extends AbstractController
         $em->flush();
 
         return $this->json(['status' => $status]);
+    }
+
+    #[Route('comment/reply/{id}/delete', name: 'comment_reply_delete', methods: ['POST'])]
+    public function deleteCommentReply(int $id, Request $request, EntityManagerInterface $em, CommentReplyRepository $commentReplyRepository): JsonResponse
+    {
+        $reply = $commentReplyRepository->find($id);
+        if (!$reply) {
+            return new JsonResponse(['success' => false, 'message' => 'Reply not found'], 404);
+        }
+
+        $em->remove($reply);
+        $em->flush();
+
+        return new JsonResponse(['success' => true]);
     }
 }

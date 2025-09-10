@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Success - Mentionable{% endblock %}
+{% block title %}Welcome to Mentionable!{% endblock %}
 
 {% block body %}
     <div class="main-panel">
@@ -8,8 +8,8 @@
             <div class="col-12 grid-margin stretch-card">
                 <div class="card">
                     <div class="card-body">
-                        <h3 class="menu-title"> Verification email sent! </h3>
-                        <p class="menu-title">You are now an unverified member of Mentionable. We've just sent you a confirmation email to <b>{{ app.user.email }}</b></p>
+                        <h3 class="menu-title"> Hello, @{{ app.user.nametag }}! </h3>
+                        <p class="menu-title">You are now part of our Mentionable family. In order to confirm your account, we've just sent you an email to <b>{{ app.user.email }}</b></p>
                     </div>
                 </div>
             </div>

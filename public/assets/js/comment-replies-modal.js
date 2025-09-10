@@ -44,6 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
             parentImgEl.style.display = 'none';
         }
 
+
         document.getElementById('reply-form').action = `/comment/${comment}/reply`;
 
         fetch(`/comment/${comment}/replies`)

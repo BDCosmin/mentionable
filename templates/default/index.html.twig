@@ -222,17 +222,23 @@ document.addEventListener("DOMContentLoaded", function () {
     window.csrfToken = "{{ csrf_token('comment_vote') }}";
 </script>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('.see-all-comments').forEach(function(link) {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            const noteId = this.dataset.noteId;
-            const commentsContainer = document.getElementById('comments-list-' + noteId);
-            const url = '/note/' + noteId + '/comments';
+    window.repliesMap = {{ repliesMap|json_encode|raw }};
+</script>
+<script>
+document.addEventListener('click', function(e) {
+        const link = e.target.closest('.see-all-comments');
+        if (!link) return;
+
+        e.preventDefault();
+
+        const noteId = link.dataset.noteId;
+        const commentsContainer = document.getElementById('comments-list-' + noteId);
+        const url = '/note/' + noteId + '/comments';
 
             fetch(url)
                 .then(res => res.json())
                 .then(data => {
+                    console.log(data);
                     const commentsArray = Array.isArray(data) ? data : (data.comments || []);
                     const existingIds = Array.from(commentsContainer.querySelectorAll('[data-comment-id]'))
                         .map(el => el.dataset.commentId);
@@ -242,6 +248,16 @@ document.addEventListener('DOMContentLoaded', function () {
                         if (!existingIds.includes(String(comment.id))) {
 
                             const isUpvoted = window.commentVotesMap && window.commentVotesMap[comment.id] === 'upvote';
+
+                            const repliesCount = window.repliesMap && window.repliesMap[comment.id]
+                                ? window.repliesMap[comment.id].length
+                                : 0;
+
+                            const replyCountEl = document.getElementById(`reply-count-${comment.id}`);
+
+                            if (replyCountEl) {
+                                replyCountEl.innerText = repliesCount;
+                            }
 
                             const messageHtml = comment.message
                                 ? `<small class="d-inline-block"
@@ -283,7 +299,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                                 ${messageHtml}
                                                 ${gifHtml}
                                             </div>
-                                            <div class="d-flex flex-column ms-2">
+                                            <div class="d-flex flex-row ms-2">
                                                 <button class="btn btn-sm ms-2 d-flex align-items-center border-0 comment-upvote-btn ${isUpvoted ? 'btn-light' : 'btn-outline-light'}"
                                                         type="button"
                                                         data-note-id="${noteId}"
@@ -291,6 +307,15 @@ document.addEventListener('DOMContentLoaded', function () {
                                                         data-csrf="${window.csrfToken}">
                                                     <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
                                                     <span id="comment-upvotes-${comment.id}" class="ms-1">${comment.upVote || 0}</span>
+                                                </button>
+                                                <button class="btn btn-sm d-flex align-items-center border-0"
+                                                        type="button"
+                                                        data-bs-toggle="modal" data-bs-target="#newCommentReplyModal" data-comment-id="${comment.id}"
+                                                        data-comment-message="${comment.message}"
+                                                        data-username="${comment.user.nametag}"
+                                                        data-comment-img="${comment.image || ''}">
+                                                    <i class='bx bx-message-circle-plus' style='color:#ffffff; font-size: 20px;'></i>
+                                                    <span class="ps-2" id="reply-count-${comment.id}">${repliesCount}</span>
                                                 </button>
                                             </div>
                                         </div>
@@ -311,15 +336,14 @@ document.addEventListener('DOMContentLoaded', function () {
                             `;
 
                             commentsContainer.insertAdjacentHTML('beforeend', html);
+
                         }
                     });
 
-                    this.style.display = 'none';
+                    link.style.display = 'none';
                 })
                 .catch(err => console.error('Error loading comments:', err));
-        });
     });
-});
 </script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {

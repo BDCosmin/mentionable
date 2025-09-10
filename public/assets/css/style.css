@@ -24532,12 +24532,10 @@ input[type="file"]::file-selector-button {
   width: 10px;
   height: 10px;
   color: #ffffff;
-  border-radius: 100%;
   text-align: center;
   font-size: 0.625rem;
   line-height: 1.5;
   top: 26px;
-  border: 2px solid #2c2e33;
 }
 .sidebar .nav .nav-item.profile .profile-desc .mdi-dots-vertical {
   font-size: 20px;

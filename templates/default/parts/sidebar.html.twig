@@ -13,9 +13,9 @@
             <div class="profile-desc">
                 <div class="profile-pic">
                     <div class="count-indicator">
-                        <img class="img-xs rounded-circle " src="{{ asset('uploads/avatars/' ~ app.user.avatar) }}" alt="avatar-sidebar" onerror="showDefaultIcon(this)">
+                        <img class="img-xs rounded-circle " src="{{ asset('uploads/avatars/' ~ app.user.avatar) }}" alt="AV" onerror="showDefaultIcon(this)">
                         {% if app.user.isVerified %}
-                            <i class='count fa fa-check-circle'></i>
+                            <i class='count fa fa-check-circle' style="font-size: 18px; top: 15px"></i>
                         {% endif %}
                     </div>
                     <div class="profile-name">
@@ -23,10 +23,7 @@
                             @{{ app.user.nametag }}
                         </h5>
                         {% if app.user.isVerified %}
-                            <span>Verified member</span>
-                        {% else %}
-                            <span>Unverified member</span>
-                            <span><b>limited access</b></span>
+                            <span>Verified</span>
                         {% endif %}
                     </div>
                 </div>
