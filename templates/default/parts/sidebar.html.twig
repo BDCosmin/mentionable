@@ -4,8 +4,8 @@
         <a class="sidebar-brand brand-logo" href="{{ path('homepage') }}">
             <img src="{{ asset('assets/images/logo.png')}}" style="height: 20px; width: 145px" alt="logo" />
         </a>
-        <a class="sidebar-brand brand-logo-mini" style="padding-left: 15px" href="{{ path('homepage') }}">
-            <img src="{{ asset('assets/images/logo-mini.png')}}" style="height: 40px; width: 40px" alt="logo" />
+        <a class="sidebar-brand brand-logo-mini ps-3" style="padding-left: 15px" href="{{ path('homepage') }}">
+            <img src="{{ asset('assets/images/logo-mini.png')}}" style="height: 40px; width: 38px" alt="logo" />
         </a>
     </div>
     <ul class="nav">
@@ -14,14 +14,16 @@
                 <div class="profile-pic">
                     <div class="count-indicator">
                         <img class="img-xs rounded-circle " src="{{ asset('uploads/avatars/' ~ app.user.avatar) }}" alt="AV" onerror="showDefaultIcon(this)">
-                        {% if app.user.isVerified %}
-                            <i class='count fa fa-check-circle' style="font-size: 18px; top: 15px"></i>
-                        {% endif %}
                     </div>
                     <div class="profile-name">
-                        <h5 class="mb-0 font-weight-normal">
-                            @{{ app.user.nametag }}
-                        </h5>
+                        <div class="d-flex flex-row">
+                            <h5 class="mb-0 me-1 font-weight-normal">
+                                @{{ app.user.nametag }}
+                            </h5>
+                            {% if app.user.isVerified %}
+                                <i class='fa fa-check-circle' style="font-size: 16px; margin-top: 0.10rem !important"></i>
+                            {% endif %}
+                        </div>
                         {% if app.user.isVerified %}
                             <span>Verified</span>
                         {% endif %}
