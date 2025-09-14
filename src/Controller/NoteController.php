@@ -1073,8 +1073,17 @@ class NoteController extends AbstractController
     }
 
     #[Route('comment/reply/{id}/delete', name: 'comment_reply_delete', methods: ['POST'])]
-    public function deleteCommentReply(int $id, Request $request, EntityManagerInterface $em, CommentReplyRepository $commentReplyRepository): JsonResponse
-    {
+    public function deleteCommentReply(
+        int $id,
+        Request $request,
+        EntityManagerInterface $em,
+        CommentReplyRepository $commentReplyRepository
+    ): JsonResponse {
+        $csrfToken = $request->headers->get('X-CSRF-TOKEN');
+        if (!$this->isCsrfTokenValid('delete_reply', $csrfToken)) {
+            return new JsonResponse(['success' => false, 'message' => 'Invalid CSRF token'], 400);
+        }
+
         $reply = $commentReplyRepository->find($id);
         if (!$reply) {
             return new JsonResponse(['success' => false, 'message' => 'Reply not found'], 404);
@@ -1085,4 +1094,5 @@ class NoteController extends AbstractController
 
         return new JsonResponse(['success' => true]);
     }
+
 }
