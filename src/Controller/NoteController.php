@@ -764,6 +764,8 @@ class NoteController extends AbstractController
             return new JsonResponse([
                 'success' => true,
                 'html' => $html,
+                'commentId' => $comment->getId(),
+                'repliesCount' => count($comment->getCommentReplies())
             ]);
         }
 
@@ -1080,7 +1082,7 @@ class NoteController extends AbstractController
         CommentReplyRepository $commentReplyRepository
     ): JsonResponse {
         $csrfToken = $request->headers->get('X-CSRF-TOKEN');
-        if (!$this->isCsrfTokenValid('delete_reply', $csrfToken)) {
+        if (!$this->isCsrfTokenValid('delete_reply' . $id, $csrfToken)) {
             return new JsonResponse(['success' => false, 'message' => 'Invalid CSRF token'], 400);
         }
 
@@ -1089,10 +1091,18 @@ class NoteController extends AbstractController
             return new JsonResponse(['success' => false, 'message' => 'Reply not found'], 404);
         }
 
+        $comment = $reply->getComment();
+
         $em->remove($reply);
         $em->flush();
 
-        return new JsonResponse(['success' => true]);
+        $repliesCount = $commentReplyRepository->count(['comment' => $comment]);
+
+        return new JsonResponse([
+            'success' => true,
+            'commentId' => $comment->getId(),
+            'repliesCount' => $repliesCount,
+        ]);
     }
 
 }

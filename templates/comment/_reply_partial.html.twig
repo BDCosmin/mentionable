@@ -70,7 +70,10 @@
                 </li>
                 <li>
                     <a class="dropdown-item delete-reply-btn"
-                       href="#">
+                       href="#"
+                       data-reply-id="{{ reply.id }}"
+                       data-comment-id="{{ reply.comment.id }}"
+                       data-csrf="{{ csrf_token('delete_reply' ~ reply.id) }}">
                         Delete
                     </a>
                 </li>
