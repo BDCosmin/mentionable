@@ -22,6 +22,11 @@ document.getElementById('reply-form').addEventListener('submit', function(e) {
                     commentRepliesContainer.insertAdjacentHTML('afterbegin', data.html);
                 }
 
+                const counterSpan = document.getElementById(`reply-count-${data.commentId}`);
+                if (counterSpan) {
+                    counterSpan.textContent = data.repliesCount;
+                }
+
                 form.querySelector('textarea').value = '';
             } else {
                 alert(data.message || 'Something went wrong.');
@@ -29,3 +34,40 @@ document.getElementById('reply-form').addEventListener('submit', function(e) {
         })
         .catch(err => console.error(err));
 });
+
+document.addEventListener('click', function(e) {
+    const deleteBtn = e.target.closest('.delete-reply-btn');
+    if (!deleteBtn) return;
+
+    e.preventDefault();
+
+    const replyEl = deleteBtn.closest('[data-reply-id]');
+    const replyId = replyEl.dataset.replyId;
+    const commentId = replyEl.dataset.commentId;
+    const csrfToken = deleteBtn.dataset.csrf; // token corect generat în Twig
+
+    fetch(`/comment/reply/${replyId}/delete`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest',
+        }
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // Șterge reply-ul din DOM
+                replyEl.remove();
+
+                // Actualizează counter-ul
+                const counterSpan = document.getElementById(`reply-count-${data.commentId}`);
+                if (counterSpan) counterSpan.textContent = data.repliesCount;
+            } else {
+                alert(data.message || 'Failed to delete reply.');
+            }
+        })
+        .catch(err => console.error(err));
+});
+
+
+

@@ -325,7 +325,9 @@
                                         data-comment-img="{{ comment.image }}"
                                 >
                                     <i class='bx bx-message-circle-plus' style='color:#ffffff; font-size: 20px;'></i>
-                                    <span class="ps-2">{{ comment.commentReplies|length }}</span>
+                                    <span id="reply-count-{{ comment.id }}" class="ps-2">
+                                        {{ comment.commentReplies|length }}
+                                    </span>
                                 </button>
                             </div>
                         </div>
