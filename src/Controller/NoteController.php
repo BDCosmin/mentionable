@@ -1081,18 +1081,17 @@ class NoteController extends AbstractController
         EntityManagerInterface $em,
         CommentReplyRepository $commentReplyRepository
     ): JsonResponse {
-        $csrfToken = $request->headers->get('X-CSRF-TOKEN');
-        if (!$this->isCsrfTokenValid('delete_reply' . $id, $csrfToken)) {
-            return new JsonResponse(['success' => false, 'message' => 'Invalid CSRF token'], 400);
-        }
-
         $reply = $commentReplyRepository->find($id);
         if (!$reply) {
             return new JsonResponse(['success' => false, 'message' => 'Reply not found'], 404);
         }
 
-        $comment = $reply->getComment();
+        $csrfToken = $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('delete_reply' . $reply->getId(), $csrfToken)) {
+            return new JsonResponse(['success' => false, 'message' => 'Invalid CSRF token'], 400);
+        }
 
+        $comment = $reply->getComment();
         $em->remove($reply);
         $em->flush();
 

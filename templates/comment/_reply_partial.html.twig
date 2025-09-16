@@ -73,6 +73,7 @@
                        href="#"
                        data-reply-id="{{ reply.id }}"
                        data-comment-id="{{ reply.comment.id }}"
+                       data-url="{{ path('comment_reply_delete', {'id': reply.id}) }}"
                        data-csrf="{{ csrf_token('delete_reply' ~ reply.id) }}">
                         Delete
                     </a>

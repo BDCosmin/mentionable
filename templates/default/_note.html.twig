@@ -391,7 +391,7 @@
                         <img id="parent-comment-img" src="" style="height: auto; max-height: 300px; width: auto;" alt="reply-gif">
                     </div>
                     <form class="ajax-reply-form mt-3" id="reply-form" method="POST" action="">
-                        <input type="hidden" name="_token" value="{{ csrf_token('reply') }}">
+                        <input type="hidden" id="csrfReplyToken" value="{{ csrf_token('reply') }}">
                         <input type="hidden" name="parent_comment_id" id="parent-comment-id">
                         <div class="d-inline-flex flex-row p-0" style="width: 100%;">
                             <textarea class="form-control" name="message" rows="3" placeholder="Write your reply..."></textarea>
