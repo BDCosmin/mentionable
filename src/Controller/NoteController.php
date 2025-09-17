@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Entity\Comment;
 use App\Entity\CommentReply;
+use App\Entity\CommentReplyReport;
+use App\Entity\CommentReplyVote;
 use App\Entity\CommentReport;
 use App\Entity\CommentVote;
 use App\Entity\Note;
@@ -13,6 +15,7 @@ use App\Entity\Notification;
 use App\Entity\RingMembers;
 use App\Entity\User;
 use App\Repository\CommentReplyRepository;
+use App\Repository\CommentReplyVoteRepository;
 use App\Repository\CommentRepository;
 use App\Repository\CommentVoteRepository;
 use App\Repository\FriendRequestRepository;
@@ -1104,4 +1107,92 @@ class NoteController extends AbstractController
         ]);
     }
 
+    #[Route('comment/reply/{id}/toggle-upvote', name: 'comment_reply_toggle_upvote', methods: ['POST'])]
+    public function toggleUpvote(
+        CommentReply $reply,
+        EntityManagerInterface $em,
+        CommentReplyVoteRepository $replyVoteRepository
+    ): JsonResponse {
+        $user = $this->getUser();
+        if (!$user) {
+            return new JsonResponse(['success' => false, 'message' => 'Not logged in'], 403);
+        }
+
+        $existingVote = $replyVoteRepository->findOneByUserAndReply($user, $reply);
+
+        if (!$existingVote) {
+            $vote = new CommentReplyVote();
+            $vote->setUser($user)
+                ->setReply($reply)
+                ->setIsUpvoted(true);
+
+            $reply->setUpvote(($reply->getUpvote() ?? 0) + 1);
+            $em->persist($vote);
+        } else {
+            if ($existingVote->isUpvoted()) {
+                $reply->setUpvote(max(($reply->getUpvote() ?? 1) - 1, 0));
+                $em->remove($existingVote);
+            } else {
+                $existingVote->setIsUpvoted(true);
+                $reply->setUpvote(($reply->getUpvote() ?? 0) + 1);
+                $em->persist($existingVote);
+            }
+        }
+
+        $em->persist($reply);
+        $em->flush();
+
+        return new JsonResponse([
+            'success' => true,
+            'upvotes' => $reply->getUpvote(),
+            'replyId' => $reply->getId(),
+            'userVoted' => !$existingVote || !$existingVote->isUpvoted()
+        ]);
+    }
+
+    #[Route('note/comment/reply/{id}/report', name: 'note_reply_report', methods: ['GET','POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function reportReply(
+        CommentReply $reply,
+        Request $request,
+        EntityManagerInterface $em,
+        NotificationService $notificationService
+    ): Response
+    {
+        if ($request->isMethod('POST')) {
+            $reason = $request->request->get('reason');
+
+            if (!$reason) {
+                $this->addFlash('error', 'Please select at least one reason.');
+                return $this->redirectToRoute('note_reply_report', ['id' => $reply->getId()]);
+            }
+
+            $report = new CommentReplyReport();
+            $report->setReply($reply)
+                ->setType($reason)
+                ->setStatus('pending')
+                ->setCreationDate(new \DateTime())
+                ->setReporterId($this->getUser()->getId());
+
+            $notification = new Notification();
+            $notification->setComment($reply->getComment())
+                ->setType('reported')
+                ->setSender($this->getUser())
+                ->setReceiver($reply->getUser())
+                ->setNotifiedDate(new \DateTime())
+                ->setIsRead(false);
+
+            $em->persist($report);
+            $em->persist($notification);
+            $em->flush();
+
+            return $this->redirectToRoute('homepage');
+        }
+
+        return $this->render('comment/reply.report.html.twig', [
+            'reply' => $reply,
+            'formActionRoute' => 'note_reply_report',
+            'routeParams' => ['id' => $reply->getId()]
+        ]);
+    }
 }

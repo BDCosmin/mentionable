@@ -6,6 +6,7 @@ use App\Entity\Interest;
 use App\Entity\Notification;
 use App\Entity\Ring;
 use App\Entity\User;
+use App\Repository\CommentReplyReportRepository;
 use App\Repository\CommentReportRepository;
 use App\Repository\InterestRepository;
 use App\Repository\NoteReportRepository;
@@ -33,6 +34,7 @@ final class AdminController extends AbstractController
         CommentReportRepository $commentReportRepository,
         InterestRepository $interestRepository,
         TicketRepository $ticketRepository,
+        CommentReplyReportRepository $commentReplyReportRepository,
     ): Response
     {
         $users = $userRepository->findAll();
@@ -42,8 +44,9 @@ final class AdminController extends AbstractController
         $commentReports = $commentReportRepository->findAll();
         $interests = $interestRepository->findAll();
         $tickets = $ticketRepository->findAll();
+        $replyReports = $commentReplyReportRepository->findAll();
 
-        $reportsNumber = count($noteReports) + count($commentReports);
+        $reportsNumber = count($noteReports) + count($commentReports) + count($replyReports);
 
         $typedNoteReports = array_map(function($r) {
             return ['type' => 'note', 'data' => $r];
@@ -53,7 +56,11 @@ final class AdminController extends AbstractController
             return ['type' => 'comment', 'data' => $r];
         }, $commentReports);
 
-        $reports = array_merge($typedNoteReports, $typedCommentReports);
+        $typedReplyReports = array_map(function($r) {
+            return ['type' => 'reply', 'data' => $r];
+        }, $replyReports);
+
+        $reports = array_merge($typedNoteReports, $typedCommentReports, $typedReplyReports);
 
         usort($reports, function ($a, $b) {
             return $b['data']->getCreationDate() <=> $a['data']->getCreationDate();
@@ -75,17 +82,16 @@ final class AdminController extends AbstractController
 
     #[Route('/admin/reports', name: 'admin_show_reports', methods: ['GET', 'POST'])]
     public function showReports(
-        UserRepository $userRepository,
-        NoteRepository $noteRepository,
-        RingRepository $ringRepository,
         NoteReportRepository $noteReportRepository,
         CommentReportRepository $commentReportRepository,
+        CommentReplyReportRepository $commentReplyReportRepository,
     ): Response
     {
         $noteReports = $noteReportRepository->findAll();
         $commentReports = $commentReportRepository->findAll();
+        $replyReports = $commentReplyReportRepository->findAll();
 
-        $reportsNumber = count($noteReports) + count($commentReports);
+        $reportsNumber = count($noteReports) + count($commentReports) + count($replyReports);
 
         $typedNoteReports = array_map(function($r) {
             return ['type' => 'note', 'data' => $r];
@@ -95,7 +101,11 @@ final class AdminController extends AbstractController
             return ['type' => 'comment', 'data' => $r];
         }, $commentReports);
 
-        $reports = array_merge($typedNoteReports, $typedCommentReports);
+        $typedReplyReports = array_map(function($r) {
+            return ['type' => 'reply', 'data' => $r];
+        }, $replyReports);
+
+        $reports = array_merge($typedNoteReports, $typedCommentReports, $typedReplyReports);
 
         usort($reports, function ($a, $b) {
             return $b['data']->getCreationDate() <=> $a['data']->getCreationDate();
