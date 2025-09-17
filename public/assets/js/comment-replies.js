@@ -34,7 +34,6 @@ document.addEventListener('click', function(e) {
 
     e.preventDefault();
 
-    // previne click dublu
     if (deleteBtn.disabled) return;
     deleteBtn.disabled = true;
 
@@ -59,10 +58,8 @@ document.addEventListener('click', function(e) {
                 return alert(data.message || 'Failed to delete reply.');
             }
 
-            // elimină reply-ul din DOM
-            replyEl.remove();
+            document.querySelectorAll(`#reply-${replyEl.dataset.replyId}`).forEach(el => el.remove());
 
-            // actualizează counter-ul de reply-uri
             const counterSpan = document.getElementById(`reply-count-${data.commentId}`);
             if (counterSpan) counterSpan.textContent = data.repliesCount;
         })
@@ -71,5 +68,37 @@ document.addEventListener('click', function(e) {
             deleteBtn.disabled = false;
         });
 });
+
+document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.reply-upvote-btn');
+    if (!btn) return;
+
+    e.preventDefault();
+
+    const replyId = btn.dataset.replyId;
+
+    fetch(`/comment/reply/${replyId}/toggle-upvote`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-TOKEN': btn.dataset.csrf
+        }
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) return console.error('Upvote failed');
+
+            const span = document.getElementById(`reply-upvotes-${data.replyId}`);
+            span.textContent = data.upvotes;
+
+            btn.classList.toggle('btn-light', data.userVoted);
+            btn.classList.toggle('btn-outline-light', !data.userVoted);
+        })
+        .catch(err => console.error(err));
+});
+
+
+
+
 
 

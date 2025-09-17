@@ -1,4 +1,5 @@
 <div class="d-flex flex-row mb-3"
+     id="reply-{{ reply.id }}"
      data-reply-id="{{ reply.id }}"
      data-comment-id="{{ reply.comment.id }}">
 
@@ -38,21 +39,20 @@
                 {% endif %}
             </div>
             {# UPVOTE FORM #}
-{#            <div class="d-flex flex-column ms-2">#}
-{#                <button class="btn btn-sm ms-2 d-flex align-items-center border-0 reply-upvote-btn"#}
-{#                                                            {% if commentVotesMap is defined and commentVotesMap[comment.id] is defined and commentVotesMap[comment.id] == 'upvote' %}#}
-{#                                                                    btn-light#}
-{#                                                            {% else %}#}
-{#                                                                btn-outline-light#}
-{#                                                            {% endif %}"#}
-{#                        type="button"#}
-{#                        data-comment-id="{{ comment.id }}"#}
-{#                        data-reply-id="{{ reply.id }}"#}
-{#                        data-csrf="{{ csrf_token('vote') }}">#}
-{#                    <i class='bx bx-arrow-up' style="font-size: 20px;"></i>#}
-{#                    <span id="reply-upvotes-{{ reply.id }}" class="ms-1">{{ reply.upvote ?? 0 }}</span>#}
-{#                </button>#}
-{#            </div>#}
+            <div class="d-flex flex-column ms-2">
+                <button class="btn btn-sm ms-2 d-flex align-items-center border-0 reply-upvote-btn
+                    {% if reply.upvote is defined and reply.upvote > 0 %}
+                        btn-light
+                    {% else %}
+                        btn-outline-light
+                    {% endif %}"
+                        type="button"
+                        data-reply-id="{{ reply.id }}"
+                        data-csrf="{{ csrf_token('vote') }}">
+                    <i class='bx bx-arrow-up' style="font-size: 20px;"></i>
+                    <span id="reply-upvotes-{{ reply.id }}" class="ms-1">{{ reply.upvote ?? 0 }}</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -81,7 +81,7 @@
             {% else %}
                 <li>
                     <a class="dropdown-item"
-                       href="#">
+                       href="{{ path('note_reply_report', {id: reply.id}) }}">
                         Report
                     </a>
                 </li>

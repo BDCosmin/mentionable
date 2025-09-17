@@ -393,37 +393,5 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
-<script>
-    document.addEventListener('click', function(e) {
-        const btn = e.target.closest('.delete-reply-btn');
-        if (!btn) return;
-
-        e.preventDefault();
-
-        const replyContainer = btn.closest('[data-reply-id]');
-        if (!replyContainer) return;
-
-        const replyId = replyContainer.dataset.replyId;
-
-        fetch(`/comment/reply/${replyId}/delete`, {
-            method: 'POST',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-TOKEN': '{{ csrf_token("delete_reply") }}'
-            }
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    replyContainer.remove();
-                } else {
-                    console.error(data.message || 'Failed to delete reply');
-                }
-            })
-            .catch(err => {
-                console.error(err);
-            });
-    });
-</script>
 {% endblock %}
 

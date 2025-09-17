@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\CommentReplyRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: CommentReplyRepository::class)]
@@ -19,6 +21,9 @@ class CommentReply
     #[ORM\Column(length: 255)]
     private ?string $message = null;
 
+    #[ORM\OneToMany(targetEntity: CommentReplyReport::class, mappedBy: 'reply', cascade: ['remove'], orphanRemoval: true)]
+    private Collection $reports;
+
     #[ORM\Column]
     private ?\DateTime $publicationDate = null;
 
@@ -34,6 +39,11 @@ class CommentReply
 
     #[ORM\Column(nullable: true)]
     private ?int $upvote = null;
+
+    public function __construct()
+    {
+        $this->reports = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -121,6 +131,33 @@ class CommentReply
     {
         $this->upvote = $upvote;
 
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CommentReplyReport>
+     */
+    public function getReports(): Collection
+    {
+        return $this->reports;
+    }
+
+    public function addReport(CommentReplyReport $report): static
+    {
+        if (!$this->reports->contains($report)) {
+            $this->reports->add($report);
+            $report->setReply($this);
+        }
+        return $this;
+    }
+
+    public function removeReport(CommentReplyReport $report): static
+    {
+        if ($this->reports->removeElement($report)) {
+            if ($report->getReply() === $this) {
+                $report->setReply(null);
+            }
+        }
         return $this;
     }
 
