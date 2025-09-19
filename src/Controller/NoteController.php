@@ -1175,7 +1175,8 @@ class NoteController extends AbstractController
                 ->setReporterId($this->getUser()->getId());
 
             $notification = new Notification();
-            $notification->setComment($reply->getComment())
+            $notification->setNote($reply->getComment()->getNote())
+            ->setComment($reply->getComment())
                 ->setType('reported')
                 ->setSender($this->getUser())
                 ->setReceiver($reply->getUser())

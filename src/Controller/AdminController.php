@@ -122,12 +122,12 @@ final class AdminController extends AbstractController
         int $id,
         NoteReportRepository $noteReportRepository,
         CommentReportRepository $commentReportRepository,
+        CommentReplyReportRepository $commentReplyReportRepository,
         EntityManagerInterface $em,
         UserRepository $userRepository,
     ): Response
     {
         $report = $noteReportRepository->find($id);
-        $note = null;
         $comment = null;
 
         if ($report) {
@@ -135,12 +135,19 @@ final class AdminController extends AbstractController
             $reporterId = $report->getReporterId() ?? 0;
         } else {
             $report = $commentReportRepository->find($id);
-            if (!$report) {
-                throw $this->createNotFoundException('Report not found.');
+            if ($report) {
+                $comment = $report->getComment();
+                $note = $comment?->getNote();
+                $reporterId = $report->getReporterId() ?? 0;
+            } else {
+                $report = $commentReplyReportRepository->find($id);
+                if (!$report) {
+                    throw $this->createNotFoundException('Report not found.');
+                }
+                $comment = $report->getReply()?->getComment();
+                $note = $comment?->getNote();
+                $reporterId = $report->getReporterId() ?? 0;
             }
-            $comment = $report->getComment();
-            $note = $comment?->getNote();
-            $reporterId = $report->getReporterId() ?? 0;
         }
 
         $receiver = null;
@@ -178,10 +185,19 @@ final class AdminController extends AbstractController
     public function actionNoneReports(
         int $id,
         NoteReportRepository $noteReportRepository,
+        CommentReportRepository $commentReportRepository,
+        CommentReplyReportRepository $commentReplyReportRepository,
         EntityManagerInterface $em,
     ): Response
     {
-        $report = $noteReportRepository->find($id);
+        $report = $noteReportRepository->find($id)
+            ?? $commentReportRepository->find($id)
+            ?? $commentReplyReportRepository->find($id);
+
+        if (!$report) {
+            $this->addFlash('warning', 'Report not found.');
+            return $this->redirectToRoute('admin_show_reports');
+        }
 
         $report->setStatus('done');
         $em->persist($report);
