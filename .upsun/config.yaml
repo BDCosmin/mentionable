@@ -34,6 +34,10 @@ services:
   mariadb:
     type: mariadb:11.4
 routes:
-  "https://{default}/":
+  "https://www.{default}/":
     type: upstream
-    upstream: "myapp:http"
+    upstream: "app:http"
+
+  "https://{default}/":
+    type: redirect
+    to: "https://www.{default}/"
