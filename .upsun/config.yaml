@@ -1,9 +1,6 @@
-# .upsun/config.yaml
-
 applications:
   app:
     type: 'php:8.4'
-
     variables:
       env:
         DATABASE_URL: '${env:DATABASE_URL}'
@@ -13,7 +10,6 @@ applications:
         APP_ENV: 'prod'
         APP_DEBUG: '1'
         UPLOADS_DIR: '${env:UPLOADS_DIR}'
-
     mounts:
       '/public/uploads':
         source: local
@@ -24,18 +20,20 @@ applications:
       'var/cache':
         source: local
         source_path: cache
-
-    disk: 256
-
     relationships:
       mariadb: 'mariadb:mysql'
-
     hooks:
       build: |
         php bin/console cache:clear --env=prod
-
     web:
       locations:
         "/":
           root: "public"
           passthru: "/index.php"
+services:
+  mariadb:
+    type: mariadb:11.4
+routes:
+  "https://{default}/":
+    type: upstream
+    upstream: "myapp:http"
