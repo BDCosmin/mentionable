@@ -1,0 +1,8 @@
+applications:
+"https://www.{default}/":
+  type: upstream
+  upstream: "app:http"
+
+"https://{default}/":
+  type: redirect
+  to: "https://www.{default}/"

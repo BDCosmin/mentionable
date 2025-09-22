@@ -1,0 +1,41 @@
+# .upsun/config.yaml
+
+applications:
+  app:
+    type: 'php:8.4'
+
+    variables:
+      env:
+        DATABASE_URL: '${env:DATABASE_URL}'
+        MAILER_DSN: '${env:MAILER_DSN}'
+        MESSENGER_TRANSPORT_DSN: '${env:MESSENGER_TRANSPORT_DSN}'
+        APP_SECRET: '${env:APP_SECRET}'
+        APP_ENV: 'prod'
+        APP_DEBUG: '1'
+        UPLOADS_DIR: '${env:UPLOADS_DIR}'
+
+    mounts:
+      '/public/uploads':
+        source: local
+        source_path: uploads
+      'var/log':
+        source: local
+        source_path: log
+      'var/cache':
+        source: local
+        source_path: cache
+
+    disk: 256
+
+    relationships:
+      mariadb: 'mariadb:mysql'
+
+    hooks:
+      build: |
+        php bin/console cache:clear --env=prod
+
+    web:
+      locations:
+        "/":
+          root: "public"
+          passthru: "/index.php"
