@@ -394,7 +394,13 @@
                         <input type="hidden" id="csrfReplyToken" value="{{ csrf_token('reply') }}">
                         <input type="hidden" name="parent_comment_id" id="parent-comment-id">
                         <div class="d-inline-flex flex-row p-0" style="width: 100%;">
-                            <textarea class="form-control" name="message" rows="3" placeholder="Write your reply..."></textarea>
+                            <div class="d-none d-sm-flex justify-content-end position-relative">
+                                <textarea class="form-control" name="message" rows="3" placeholder="Write your reply..."></textarea>
+                                <button type="button" class="btn btn-light btn-sm px-3 emoji-toggle-btn"
+                                        style="height: 2.575rem; background-color: #252c35; border-radius: 0;">
+                                    <i class='bx bx-happy-beaming' style='color:#ffffff; font-size: 24px'></i>
+                                </button>
+                            </div>
                             <button type="submit" class="btn btn-light">Reply</button>
                         </div>
                     </form>
