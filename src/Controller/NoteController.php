@@ -1179,7 +1179,7 @@ class NoteController extends AbstractController
             ->setComment($reply->getComment())
                 ->setType('reported')
                 ->setSender($this->getUser())
-                ->setReceiver($reply->getUser())
+                ->setReceiver($this->getUser())
                 ->setNotifiedDate(new \DateTime())
                 ->setIsRead(false);
 
