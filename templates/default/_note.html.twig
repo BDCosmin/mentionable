@@ -1,3 +1,25 @@
+<style>
+    @media (max-width: 575.98px) {
+        .d-sm-flex.position-relative {
+            flex-direction: column; /* stack textarea on top, buttons below */
+            align-items: stretch;   /* textarea takes full width */
+        }
+
+        .d-sm-flex.position-relative textarea {
+            width: 100%;
+            margin-bottom: 0.5rem; /* space between textarea and buttons */
+        }
+
+        /* Align buttons to the right on mobile */
+        .d-sm-flex.position-relative > .emoji-toggle-btn,
+        .d-sm-flex.position-relative > .gif-container,
+        .d-inline-flex.flex-row.p-0 > button[type="submit"] {
+            align-self: flex-end;  /* push each button to the right */
+            margin-bottom: 0;      /* no extra spacing */
+        }
+    }
+
+</style>
 {% for note in notes %}
     <div class="col-lg-7 pt-4 ps-4 pe-4 pb-3 note-item" style="background-color: #181b20; border-radius: 5px; margin-top: 2rem;">
         {# NOTE PROFILE #}
@@ -317,6 +339,7 @@
                                         <span id="comment-upvotes-{{ comment.id }}" class="ms-1">{{ comment.upVote ?? 0 }}</span>
                                     </button>
                                 </div>
+                                {# REPLIES FORM #}
                                 <button class="btn btn-sm d-flex align-items-center border-0"
                                         type="button"
                                         data-bs-toggle="modal" data-bs-target="#newCommentReplyModal" data-comment-id="{{ comment.id }}"
@@ -373,7 +396,7 @@
 </div>
 
 {# COMMENT REPLY #}
-<div class="modal fade" id="newCommentReplyModal" tabindex="-1" aria-hidden="true" style="overflow-y: hidden;">
+<div class="modal fade" id="newCommentReplyModal" tabindex="-1" aria-hidden="true" style="overflow-y: none;">
     <div class="modal-dialog" style="max-width: 850px; margin-top: 50px">
         <div class="modal-content bg-dark text-light">
             <div class="modal-header">
@@ -390,19 +413,51 @@
                     <div style="position: relative; width: 100%;">
                         <img id="parent-comment-img" src="" style="height: auto; max-height: 300px; width: auto;" alt="reply-gif">
                     </div>
-                    <form class="ajax-reply-form mt-3" id="reply-form" method="POST" action="">
+                    <form class="ajax-reply-form mt-3" id="reply-form" method="POST" action="" data-comment-id="" style="width: 100%">
                         <input type="hidden" id="csrfReplyToken" value="{{ csrf_token('reply') }}">
                         <input type="hidden" name="parent_comment_id" id="parent-comment-id">
                         <div class="d-inline-flex flex-row p-0" style="width: 100%;">
-                            <div class="d-none d-sm-flex justify-content-end position-relative">
+                            <div class="d-flex justify-content-end position-relative" style="width: 100%;">
                                 <textarea class="form-control" name="message" rows="3" placeholder="Write your reply..."></textarea>
                                 <button type="button" class="btn btn-light btn-sm px-3 emoji-toggle-btn"
-                                        style="height: 2.575rem; background-color: #252c35; border-radius: 0;">
+                                        style="height: 2.875rem; background-color: #252c35; border-radius: 0;">
                                     <i class='bx bx-happy-beaming' style='color:#ffffff; font-size: 24px'></i>
                                 </button>
+                                <div class="gif-container d-flex position-relative">
+                                    <button type="button" class="btn btn-light btn-sm text-white gif-reply-toggle-btn"
+                                            style="height: 2.875rem; font-size: 20px; border-bottom-left-radius: 0; border-top-left-radius: 0; background-color: #2A3038;font-weight: bold">
+                                        GIF
+                                    </button>
+                                </div>
                             </div>
                             <button type="submit" class="btn btn-light">Reply</button>
+                            {# GIF LIST #}
+                            <div class="gif-reply-dropdown" data-type="reply"
+                                 style="position: absolute; top: 30%; left: 50%; transform: translateX(-50%);
+                                        width: 790px; max-height: 350px; overflow-y: auto;
+                                        border: 1px solid rgba(255,255,255,0.3); background-color: #181b20;
+                                        display: none; padding: 5px; z-index: 100;">
+                                <input type="text" class="gif-reply-search" placeholder="Search GIFs..."
+                                       style="width: 100%; margin-bottom: 5px; background-color: #2A3038">
+                                <div class="gif-reply-results" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px;"></div>
+                            </div>
                         </div>
+                        {# GIF PREVIEW #}
+                        <div class="mb-3 gif-reply-preview-container gif-wrapper position-relative d-flex justify-content-center"
+                             style="display: none; margin-bottom: 10px; text-align: center; width: 100%;">
+                            <button class="gif-reply-preview-clear" type="button"
+                                    style="position: absolute; top: 0; right: 0; background: transparent; border: none; color: rgba(255,255,255,0.71); font-size: 24px; cursor: pointer;">
+                                &times;
+                            </button>
+                            <div style="text-align: center;">
+                                <img class="gif-reply-preview" src="" alt="Selected GIF" style="border: 1px solid #fff; height: auto; max-width: 100%; max-height: 250px; display: inline-block;">
+                                <p class="bg-light text-dark text-center m-0"
+                                   style="border-radius: 0 0 0.375rem 0.375rem; width: 100%;">
+                                    Preview
+                                </p>
+                            </div>
+                        </div>
+                        <input type="hidden" name="gif_url" class="gif-reply-url-input">
                     </form>
                     <h3 class="mt-3">Replies</h3>
                     <div class="new-replies mt-3" id="replies-container"></div>
