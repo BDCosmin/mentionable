@@ -717,16 +717,18 @@ class NoteController extends AbstractController
         $user = $this->getUser();
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
-        $message = $request->request->get('message', '');
-        $gifUrl = trim($request->request->get('gif_url'));
+        $data = json_decode($request->getContent(), true) ?? [];
+
+        $message = $data['message'] ?? '';
+        $gifUrl = trim($data['gif_url'] ?? '');
 
         if (empty($message) && empty($gifUrl)) {
-            if ($request->isXmlHttpRequest()) {
-                return new JsonResponse(['status' => 'error', 'message' => 'Comment reply cannot be empty.'], 400);
-            }
-            $this->addFlash('danger', 'Comment reply cannot be empty.');
-            return $this->redirectToRoute('homepage');
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'Comment reply cannot be empty.'
+            ], 400);
         }
+
 
         if (!empty($message)) {
             $moderation = $moderator->analyze($message);
@@ -1114,7 +1116,7 @@ class NoteController extends AbstractController
         CommentReplyVoteRepository $replyVoteRepository
     ): JsonResponse {
         $user = $this->getUser();
-        if (!$user) {
+        if (!$user instanceof \App\Entity\User) {
             return new JsonResponse(['success' => false, 'message' => 'Not logged in'], 403);
         }
 
@@ -1122,32 +1124,20 @@ class NoteController extends AbstractController
 
         if (!$existingVote) {
             $vote = new CommentReplyVote();
-            $vote->setUser($user)
-                ->setReply($reply)
-                ->setIsUpvoted(true);
-
-            $reply->setUpvote(($reply->getUpvote() ?? 0) + 1);
+            $vote->setUser($user)->setReply($reply)->setIsUpvoted(true);
             $em->persist($vote);
         } else {
-            if ($existingVote->isUpvoted()) {
-                $reply->setUpvote(max(($reply->getUpvote() ?? 1) - 1, 0));
-                $em->remove($existingVote);
-            } else {
-                $existingVote->setIsUpvoted(true);
-                $reply->setUpvote(($reply->getUpvote() ?? 0) + 1);
-                $em->persist($existingVote);
-            }
+            $em->remove($existingVote);
         }
-
-        $em->persist($reply);
         $em->flush();
 
         return new JsonResponse([
             'success' => true,
-            'upvotes' => $reply->getUpvote(),
+            'upvotes' => $reply->getUpvotes()->count(),
             'replyId' => $reply->getId(),
-            'userVoted' => !$existingVote || !$existingVote->isUpvoted()
+            'userVoted' => !$existingVote
         ]);
+
     }
 
     #[Route('note/comment/reply/{id}/report', name: 'note_reply_report', methods: ['GET','POST'])]
