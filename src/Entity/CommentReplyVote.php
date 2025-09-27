@@ -13,11 +13,11 @@ class CommentReplyVote
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'votes')]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
-    #[ORM\ManyToOne(inversedBy: 'votes')]
+    #[ORM\ManyToOne(targetEntity: CommentReply::class, inversedBy: 'upvotes')]
     #[ORM\JoinColumn(nullable: false)]
     private ?CommentReply $reply = null;
 

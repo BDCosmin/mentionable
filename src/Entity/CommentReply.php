@@ -37,12 +37,13 @@ class CommentReply
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $image = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?int $upvote = null;
+    #[ORM\OneToMany(targetEntity: CommentReplyVote::class, mappedBy:'reply', cascade: ['remove'], orphanRemoval: true)]
+    private Collection $upvotes;
 
     public function __construct()
     {
         $this->reports = new ArrayCollection();
+        $this->upvotes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -122,14 +123,31 @@ class CommentReply
         return $this;
     }
 
-    public function getUpvote(): ?int
+    /**
+     * @return Collection<int, CommentReplyVote>
+     */
+    public function getUpvotes(): Collection
     {
-        return $this->upvote;
+        return $this->upvotes;
     }
 
-    public function setUpvote(?int $upvote): static
+    public function addUpvote(CommentReplyVote $vote): static
     {
-        $this->upvote = $upvote;
+        if (!$this->upvotes->contains($vote)) {
+            $this->upvotes->add($vote);
+            $vote->setReply($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUpvote(CommentReplyVote $vote): static
+    {
+        if ($this->upvotes->removeElement($vote)) {
+            if ($vote->getReply() === $this) {
+                $vote->setReply(null);
+            }
+        }
 
         return $this;
     }
