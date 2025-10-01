@@ -184,7 +184,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     gifPreviewContainer.classList.add('d-none');
                     gifPreviewContainer.style.display = 'none';
                     replyModal.querySelectorAll('.gif-reply-dropdown').forEach(dd => dd.style.display = 'none');
-                    bootstrap.Modal.getInstance(replyModal).hide();
+
+                    const repliesContainer = document.getElementById('replies-container');
+                    if (repliesContainer && data.html) {
+                        repliesContainer.insertAdjacentHTML('afterbegin', data.html);
+                    }
+
+                    const counterSpan = document.getElementById(`reply-count-${data.commentId}`);
+                    if (counterSpan) counterSpan.textContent = data.repliesCount;
+
                 } else {
                     alert(data.error || 'Something went wrong.');
                 }

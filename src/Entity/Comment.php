@@ -62,7 +62,7 @@ class Comment
     /**
      * @var Collection<int, CommentReply>
      */
-    #[ORM\OneToMany(targetEntity: CommentReply::class, mappedBy: 'comment')]
+    #[ORM\OneToMany(targetEntity: CommentReply::class, mappedBy: 'comment', cascade: ['remove'], orphanRemoval: true)]
     private Collection $commentReplies;
 
     public function __construct()
