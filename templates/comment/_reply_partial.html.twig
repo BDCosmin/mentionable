@@ -25,18 +25,22 @@
 
         <div class="d-inline-flex align-items-center">
             <div class="d-flex flex-column">
-                {% if reply.message %}
-                    <small class="d-inline-block" style="font-size: 16px; align-self: flex-start; max-width: 300px; color: #404040; background-color: #ffffff; border-radius: 8px; opacity: 0.9; padding: 5px;">
-                        {{ reply.message }}
-                    </small>
-                {% endif %}
-                {% if reply.image %}
-                    <div class="comment-gif-container mb-1" style="width: 100%; max-width: 200px;">
-                        <img src="{{ reply.image }}"
-                             alt="GIF"
-                             style="width: 100%; height: auto; object-fit: contain; border-radius: 8px; display: block;">
-                    </div>
-                {% endif %}
+                <div id="reply-message-{{ reply.id }}" data-original-message="{{ reply.message }}">
+                    {% if reply.message %}
+                        <small class="d-inline-block"
+                               style="font-size:16px; align-self:flex-start; max-width:300px; color:#404040; background-color:#fff; border-radius:8px; opacity:0.9; padding:5px;">
+                            {{ reply.message }}
+                        </small>
+                    {% endif %}
+                </div>
+
+                <div id="reply-gif-{{ reply.id }}" data-original-gif="{{ reply.image }}">
+                    {% if reply.image %}
+                        <div class="comment-gif-container mb-1" style="width:100%; max-width:200px;">
+                            <img src="{{ reply.image }}" alt="GIF" style="width:100%; height:auto; object-fit:contain; border-radius:8px; display:block;">
+                        </div>
+                    {% endif %}
+                </div>
             </div>
             {# UPVOTE FORM #}
             {% set userVoted = reply.upvotes|filter(v => v.user == app.user)|length > 0 %}
@@ -64,10 +68,12 @@
         <ul class="dropdown-menu m-0">
             {% if app.user.nametag == reply.user.nametag %}
                 <li>
-                    <a class="dropdown-item"
-                       href="#">
+                    <button class="dropdown-item edit-reply-btn"
+                            type="button"
+                            data-reply-id="{{ reply.id }}"
+                            data-csrf="{{ csrf_token('edit_reply' ~ reply.id) }}">
                         Edit...
-                    </a>
+                    </button>
                 </li>
                 <li>
                     <a class="dropdown-item delete-reply-btn"

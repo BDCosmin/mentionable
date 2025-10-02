@@ -68,6 +68,83 @@ document.addEventListener('click', function(e) {
         .catch(err => console.error(err));
 });
 
+// Edit reply - text + GIF upload
+document.addEventListener('click', function(e) {
+    const editBtn = e.target.closest('.edit-reply-btn');
+    const saveBtn = e.target.closest('.save-reply-btn');
+    const cancelBtn = e.target.closest('.cancel-reply-btn');
+
+    if (editBtn) {
+        e.preventDefault();
+        const replyId = editBtn.dataset.replyId;
+        const messageEl = document.getElementById('reply-message-' + replyId);
+        const gifEl = document.getElementById('reply-gif-' + replyId);
+        const currentMessage = messageEl.dataset.originalMessage || '';
+        const currentGif = gifEl.dataset.originalGif || '';
+
+        messageEl.innerHTML = `
+            <textarea id="edit-reply-text-${replyId}" class="form-control mb-1">${currentMessage}</textarea>
+            <input type="text" id="edit-reply-gif-${replyId}" class="form-control mb-1" placeholder="GIF URL" value="${currentGif}">
+            <button class="btn btn-sm btn-primary save-reply-btn" data-reply-id="${replyId}" data-csrf="${editBtn.dataset.csrf}">Save</button>
+            <button class="btn btn-sm btn-secondary cancel-reply-btn" data-reply-id="${replyId}">Cancel</button>
+        `;
+    }
+
+    // CANCEL
+    if (cancelBtn) {
+        e.preventDefault();
+        const replyId = cancelBtn.dataset.replyId;
+        const messageEl = document.getElementById('reply-message-' + replyId);
+        const gifEl = document.getElementById('reply-gif-' + replyId);
+        messageEl.innerHTML = `<small>${messageEl.dataset.originalMessage}</small>`;
+        const originalGif = gifEl.dataset.originalGif;
+        if (originalGif) {
+            gifEl.innerHTML = `<img src="${originalGif}" alt="GIF" style="width:100%; max-width:200px; border-radius:8px;">`;
+        } else {
+            gifEl.innerHTML = '';
+        }
+    }
+
+    // SAVE
+    if (saveBtn) {
+        e.preventDefault();
+        const replyId = saveBtn.dataset.replyId;
+        const message = document.getElementById('edit-reply-text-' + replyId).value;
+        const gifUrl = document.getElementById('edit-reply-gif-' + replyId).value;
+
+        fetch(`/comment/${replyId}/reply/edit`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': saveBtn.dataset.csrf
+            },
+            body: JSON.stringify({ message: message, gifUrl: gifUrl })
+        })
+            .then(res => res.json())
+            .then(data => {
+                const messageEl = document.getElementById('reply-message-' + replyId);
+                const gifEl = document.getElementById('reply-gif-' + replyId);
+                if (data.success) {
+                    messageEl.dataset.originalMessage = message;
+                    messageEl.innerHTML = `<small>${message}</small>`;
+
+                    gifEl.dataset.originalGif = gifUrl;
+                    if (gifUrl) {
+                        gifEl.innerHTML = `<img src="${gifUrl}" alt="GIF" style="width:100%; max-width:200px; border-radius:8px;">`;
+                    } else {
+                        gifEl.innerHTML = '';
+                    }
+                } else {
+                    alert(data.error || 'Error updating reply');
+                }
+            });
+    }
+});
+
+
+
+
+
 
 
 

@@ -18,7 +18,6 @@ use App\Repository\CommentReplyRepository;
 use App\Repository\CommentReplyVoteRepository;
 use App\Repository\CommentRepository;
 use App\Repository\CommentVoteRepository;
-use App\Repository\FriendRequestRepository;
 use App\Repository\NoteRepository;
 use App\Repository\NoteVoteRepository;
 use App\Repository\RingMemberRepository;
@@ -34,8 +33,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Csrf\CsrfToken;
-use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use function Webmozart\Assert\Tests\StaticAnalysis\boolean;
@@ -709,8 +706,6 @@ class NoteController extends AbstractController
     public function commentReply(Comment $comment,
                             Request $request,
                             EntityManagerInterface $em,
-                            CommentVoteRepository $commentVoteRepository,
-                            NotificationService $notificationService,
                             TextModerationService $moderator
     ): Response
     {
@@ -787,6 +782,7 @@ class NoteController extends AbstractController
         $html = $this->renderView('comment/_replies_partial.html.twig', [
             'replies' => $replies,
             'currentUserNametag' => $this->getUser()->getNametag(),
+            'repliesCount' => count($replies)
         ]);
 
         return new Response($html);
@@ -1008,6 +1004,7 @@ class NoteController extends AbstractController
                 'isEdited' => $comment->isEdited(),
                 'humanTime' => $comment->getHumanTimeComment(),
                 'upVote' => $comment->getUpVote(),
+                'repliesCount' => count($comment->getCommentReplies()),
             ];
         }, $comments);
 
@@ -1116,7 +1113,7 @@ class NoteController extends AbstractController
         CommentReplyVoteRepository $replyVoteRepository
     ): JsonResponse {
         $user = $this->getUser();
-        if (!$user instanceof \App\Entity\User) {
+        if (!$user instanceof User) {
             return new JsonResponse(['success' => false, 'message' => 'Not logged in'], 403);
         }
 
@@ -1145,8 +1142,7 @@ class NoteController extends AbstractController
     public function reportReply(
         CommentReply $reply,
         Request $request,
-        EntityManagerInterface $em,
-        NotificationService $notificationService
+        EntityManagerInterface $em
     ): Response
     {
         if ($request->isMethod('POST')) {
@@ -1184,6 +1180,34 @@ class NoteController extends AbstractController
             'reply' => $reply,
             'formActionRoute' => 'note_reply_report',
             'routeParams' => ['id' => $reply->getId()]
+        ]);
+    }
+
+    #[Route('/comment/{reply}/reply/edit', name: 'comment_reply_edit', methods: ['POST'])]
+    public function editReply(CommentReply $reply, Request $request, EntityManagerInterface $em): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user || $reply->getUser() !== $user) {
+            return $this->json(['success' => false, 'error' => 'You can only edit your own reply'], 403);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        $message = trim($data['message'] ?? '');
+        $gifUrl = trim($data['gifUrl'] ?? '');
+
+        if ($message === '') {
+            return $this->json(['success' => false, 'error' => 'Message cannot be empty'], 400);
+        }
+
+        $reply->setMessage($message);
+        $reply->setImage($gifUrl ?: null);
+        $reply->setIsEdited(true);
+        $em->flush();
+
+        return $this->json([
+            'success' => true,
+            'message' => $message,
+            'gifUrl' => $gifUrl
         ]);
     }
 }
