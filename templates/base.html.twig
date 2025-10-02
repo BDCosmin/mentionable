@@ -1,115 +1,116 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token-vote" content="{{ csrf_token('vote') }}">
-        <meta name="csrf-token-comment" content="{{ csrf_token('comment') }}">
-        <title>{% block title %}Welcome!{% endblock %}</title>
+    <!DOCTYPE html>
+    <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <meta name="csrf-token-vote" content="{{ csrf_token('vote') }}">
+            <meta name="csrf-token-comment" content="{{ csrf_token('comment') }}">
+            <title>{% block title %}Welcome!{% endblock %}</title>
 
-        <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
-        <link rel="stylesheet" href="{{ asset('assets/vendors/mdi/css/materialdesignicons.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('assets/vendors/ti-icons/css/themify-icons.css') }}">
-        <link rel="stylesheet" href="{{ asset('assets/vendors/css/vendor.bundle.base.css') }}">
-        <link rel="stylesheet" href="{{ asset('assets/vendors/font-awesome/css/font-awesome.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('assets/vendors/jvectormap/jquery-jvectormap.css') }}">
-        <link rel="stylesheet" href="{{ asset('assets/vendors/flag-icon-css/css/flag-icons.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('assets/vendors/owl-carousel-2/owl.carousel.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('assets/vendors/owl-carousel-2/owl.theme.default.min.css') }}">
-        <link rel='stylesheet' href="{{ asset('https://cdn.boxicons.com/fonts/basic/boxicons.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
-        <link rel="shortcut icon" href="{{ asset('assets/images/favicon.png') }}" />
+            <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+            <link rel="stylesheet" href="{{ asset('assets/vendors/mdi/css/materialdesignicons.min.css') }}">
+            <link rel="stylesheet" href="{{ asset('assets/vendors/ti-icons/css/themify-icons.css') }}">
+            <link rel="stylesheet" href="{{ asset('assets/vendors/css/vendor.bundle.base.css') }}">
+            <link rel="stylesheet" href="{{ asset('assets/vendors/font-awesome/css/font-awesome.min.css') }}">
+            <link rel="stylesheet" href="{{ asset('assets/vendors/jvectormap/jquery-jvectormap.css') }}">
+            <link rel="stylesheet" href="{{ asset('assets/vendors/flag-icon-css/css/flag-icons.min.css') }}">
+            <link rel="stylesheet" href="{{ asset('assets/vendors/owl-carousel-2/owl.carousel.min.css') }}">
+            <link rel="stylesheet" href="{{ asset('assets/vendors/owl-carousel-2/owl.theme.default.min.css') }}">
+            <link rel='stylesheet' href="{{ asset('https://cdn.boxicons.com/fonts/basic/boxicons.min.css') }}">
+            <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+            <link rel="shortcut icon" href="{{ asset('assets/images/favicon.png') }}" />
 
-        <script src="{{ asset('assets/vendors/js/vendor.bundle.base.js') }}"></script>
+            <script src="{{ asset('assets/vendors/js/vendor.bundle.base.js') }}"></script>
 
-        <script src="{{ asset('assets/vendors/chart.js/chart.umd.js') }}"></script>
-        <script src="{{ asset('assets/vendors/progressbar.js/progressbar.min.js') }}"></script>
-        <script src="{{ asset('assets/vendors/jvectormap/jquery-jvectormap.min.js') }}"></script>
-        <script src="{{ asset('assets/vendors/jvectormap/jquery-jvectormap-world-mill-en.js') }}"></script>
-        <script src="{{ asset('assets/vendors/owl-carousel-2/owl.carousel.min.js') }}"></script>
-        <script src="{{ asset('assets/js/jquery.cookie.js') }}"></script>
+            <script src="{{ asset('assets/vendors/chart.js/chart.umd.js') }}"></script>
+            <script src="{{ asset('assets/vendors/progressbar.js/progressbar.min.js') }}"></script>
+            <script src="{{ asset('assets/vendors/jvectormap/jquery-jvectormap.min.js') }}"></script>
+            <script src="{{ asset('assets/vendors/jvectormap/jquery-jvectormap-world-mill-en.js') }}"></script>
+            <script src="{{ asset('assets/vendors/owl-carousel-2/owl.carousel.min.js') }}"></script>
+            <script src="{{ asset('assets/js/jquery.cookie.js') }}"></script>
 
-        <script src="{{ asset('assets/js/off-canvas.js') }}"></script>
-        <script src="{{ asset('assets/js/misc.js') }}"></script>
-        <script src="{{ asset('assets/js/settings.js') }}"></script>
-        <script src="{{ asset('assets/js/todolist.js') }}"></script>
-        
-        <script src="{{ asset('assets/js/proBanner.js') }}"></script>
-        <script src="{{ asset('assets/js/dashboard.js') }}"></script>
-    </head>
-    <body>
-            <div class="container-scroller">
-                {{ include ('default/parts/sidebar.html.twig') }}
-                <div class="container-fluid page-body-wrapper">
-                    {{ include ('default/parts/header.html.twig') }}
-                    <div class="main-panel">
-                        <div class="content-wrapper">
-                            {% block body %}{% endblock %}
+            <script src="{{ asset('assets/js/off-canvas.js') }}"></script>
+            <script src="{{ asset('assets/js/misc.js') }}"></script>
+            <script src="{{ asset('assets/js/settings.js') }}"></script>
+            <script src="{{ asset('assets/js/todolist.js') }}"></script>
+
+            <script src="{{ asset('assets/js/proBanner.js') }}"></script>
+            <script src="{{ asset('assets/js/dashboard.js') }}"></script>
+        </head>
+        <body>
+                <div class="container-scroller">
+                    {{ include ('default/parts/sidebar.html.twig') }}
+                    <div class="container-fluid page-body-wrapper">
+                        {{ include ('default/parts/header.html.twig') }}
+                        <div class="main-panel">
+                            <div class="content-wrapper">
+                                {% block body %}{% endblock %}
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            {% block javascript %}
-                {% verbatim %}
-                <script>
-                    function showDefaultIcon(img) {
-                        const icon = document.createElement("i");
-                        icon.className = "fa fa-user-circle";
-                        icon.style.fontSize = "32px";
-                        icon.style.color = "#ccc";
 
-                        img.replaceWith(icon);
+                {% block javascript %}
+                    <script>
+                        window.defaultImage = "{{ asset('assets/images/media/default-image.jpg') }}";
+                        window.defaultAvatar = "{{ asset('assets/images/media/default.jpg') }}";
+                        window.defaultBannerRing = "{{ asset('assets/images/media/default-image.jpg') }}";
+                        window.defaultUser = "{{ asset('assets/images/media/default.jpg') }}";
+                    </script>
+
+                    <script>
+                        if (window.performance && window.performance.getEntriesByType("navigation")[0].type === "back_forward") {
+                            window.location.href = window.location.href;
                         }
-                </script>
-                {% endverbatim %}
 
-                <script>
-                if (window.performance && window.performance.getEntriesByType("navigation")[0].type === "back_forward") {
-                    window.location.href = window.location.href;
-    }
-                </script>
-
-                <script>
-                    function showDefaultImage(img) {
-                        const wrapper = img.parentNode;
-                       wrapper.innerHTML = '<img src="{{ asset("assets/images/media/default-image.jpg") }}" class="img-fluid" alt="default-image"/>';
-                    }
-
-                    function showDefaultAvatar(img) {
-                        const wrapper = img.parentNode;
-                       wrapper.innerHTML = `<img src="{{ asset("assets/images/media/default.jpg") }}" class="img-thumbnail img-fluid rounded-circle mt-3" style="width: 400px; height: auto; alt="default-avatar-image"/>`;
-                    }
-
-                    function showDefaultBannerRing(img) {
-                        const wrapper = img.parentNode;
-                       wrapper.innerHTML = `<img src="{{ asset("assets/images/media/default-image.jpg") }}" class="img-thumbnail img-fluid rounded-circle" style="width: 60px; height: 60px; alt="default-avatar-image"/>`;
-                    }
-
-                    function showDefaultUser(img) {
-                        const wrapper = img.parentNode;
-                       wrapper.innerHTML = `<img src="{{ asset("assets/images/media/default.jpg") }}" class="img-fluid mt-1 mb-1" style="width: 40px; height: auto; alt="default-avatar-image"/>`;
-                    }
-                </script>
-
-                <script>
-                    document.addEventListener('DOMContentLoaded', function () {
-                        var deleteNoteModal = document.getElementById('deleteNoteModal');
-
-                        if (deleteNoteModal) {
-                            deleteNoteModal.addEventListener('show.bs.modal', function (event) {
-                                var button = event.relatedTarget;
-                                var noteId = button.getAttribute('data-note-id');
-                                var token = button.getAttribute('data-note-token');
-
-                                var form = deleteNoteModal.querySelector('#deleteNoteForm');
-                                var tokenInput = deleteNoteModal.querySelector('#deleteTokenInput');
-
-                                form.action = '/note/' + noteId + '/delete';
-                                tokenInput.value = token;
-                            });
+                        function showDefaultImage(img) {
+                            const wrapper = img.parentNode;
+                            wrapper.innerHTML = `<img src="${window.defaultImage}" class="img-fluid" alt="default-image"/>`;
                         }
-                    });
-                </script>
-            {% endblock %}
-    </body>
-</html>
+
+                        function showDefaultAvatar(img) {
+                            const wrapper = img.parentNode;
+                            wrapper.innerHTML = `<img src="${window.defaultAvatar}" class="img-thumbnail img-fluid rounded-circle mt-3" style="width: 400px; height: auto;" alt="default-avatar-image"/>`;
+                        }
+
+                        function showDefaultBannerRing(img) {
+                            const wrapper = img.parentNode;
+                            wrapper.innerHTML = `<img src="${window.defaultBannerRing}" class="img-thumbnail img-fluid rounded-circle" style="width: 60px; height: 60px;" alt="default-avatar-image"/>`;
+                        }
+
+                        function showDefaultUser(img) {
+                            const wrapper = img.parentNode;
+                            wrapper.innerHTML = `<img src="${window.defaultUser}" class="img-fluid mt-1 mb-1" style="width: 40px; height: auto;" alt="default-avatar-image"/>`;
+                        }
+
+                        function showDefaultIcon(img) {
+                            const icon = document.createElement("i");
+                            icon.className = "fa fa-user-circle";
+                            icon.style.fontSize = "32px";
+                            icon.style.color = "#ccc";
+                            img.replaceWith(icon);
+                        }
+                    </script>
+
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            var deleteNoteModal = document.getElementById('deleteNoteModal');
+
+                            if (deleteNoteModal) {
+                                deleteNoteModal.addEventListener('show.bs.modal', function (event) {
+                                    var button = event.relatedTarget;
+                                    var noteId = button.getAttribute('data-note-id');
+                                    var token = button.getAttribute('data-note-token');
+
+                                    var form = deleteNoteModal.querySelector('#deleteNoteForm');
+                                    var tokenInput = deleteNoteModal.querySelector('#deleteTokenInput');
+
+                                    form.action = '/note/' + noteId + '/delete';
+                                    tokenInput.value = token;
+                                });
+                            }
+                        });
+                    </script>
+                {% endblock %}
+        </body>
+    </html>

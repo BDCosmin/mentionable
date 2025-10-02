@@ -1,13 +1,16 @@
 document.addEventListener('DOMContentLoaded', function() {
     const replyModal = document.getElementById('newCommentReplyModal');
-    const replyForm = document.getElementById('reply-form');
+    if (!replyModal) return;
+
+    const replyForm = replyModal.querySelector('#reply-form');
     const gifButtons = replyModal.querySelectorAll('.gif-reply-toggle-btn');
     const gifPreviewContainer = replyModal.querySelector('.gif-reply-preview-container');
-    const gifPreview = gifPreviewContainer.querySelector('.gif-reply-preview');
-    const gifPreviewClear = gifPreviewContainer.querySelector('.gif-reply-preview-clear');
+    const gifPreview = gifPreviewContainer ? gifPreviewContainer.querySelector('.gif-reply-preview') : null;
+    const gifPreviewClear = gifPreviewContainer ? gifPreviewContainer.querySelector('.gif-reply-preview-clear') : null;
     const gifUrlInput = replyModal.querySelector('.gif-reply-url-input');
+    const repliesContainer = replyModal.querySelector('#replies-container');
 
-    replyForm.addEventListener('click', e => {
+    replyForm?.addEventListener('click', e => {
         const btn = e.target.closest('.emoji-reply-toggle-btn');
         if (!btn) return;
 
@@ -18,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const emojiListDiv = form.querySelector('.emoji-reply-list');
         if (!emojiListDiv) return;
 
-        emojiListDiv.style.display = (emojiListDiv.style.display === 'flex') ? 'none' : 'flex';
+        emojiListDiv.style.display = emojiListDiv.style.display === 'flex' ? 'none' : 'flex';
         emojiListDiv.style.flexWrap = 'wrap';
         emojiListDiv.style.gap = '5px';
 
@@ -57,42 +60,50 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    replyModal.addEventListener('show.bs.modal', function (event) {
+    // --- Modal show event ---
+    replyModal.addEventListener('show.bs.modal', function(event) {
         const button = event.relatedTarget;
+        if (!button) return;
+
         const username = button.getAttribute('data-username');
-        const comment = button.getAttribute('data-comment-id');
+        const commentId = button.getAttribute('data-comment-id');
         const commentMessage = button.getAttribute('data-comment-message');
         const commentImg = button.getAttribute('data-comment-img');
 
-        document.getElementById('reply-username').textContent = username;
-        document.getElementById('parent-comment-id').value = comment;
+        replyModal.querySelector('#reply-username').textContent = username;
+        replyForm.querySelector('#parent-comment-id').value = commentId;
 
-        const parentMessageEl = document.getElementById('parent-comment-message');
-        parentMessageEl.textContent = commentMessage || '';
-        parentMessageEl.style.display = commentMessage ? 'inline-block' : 'none';
-
-        const parentImgEl = document.getElementById('parent-comment-img');
-        if (commentImg) {
-            parentImgEl.src = commentImg.startsWith('http') ? commentImg : window.location.origin + commentImg;
-            parentImgEl.style.display = 'block';
-        } else {
-            parentImgEl.removeAttribute('src');
-            parentImgEl.style.display = 'none';
+        const parentMessageEl = replyModal.querySelector('#parent-comment-message');
+        if (parentMessageEl) {
+            parentMessageEl.textContent = commentMessage || '';
+            parentMessageEl.style.display = commentMessage ? 'inline-block' : 'none';
         }
 
-        gifUrlInput.value = '';
-        gifPreview.src = '';
-        gifPreviewContainer.classList.add('d-none');
-        replyForm.action = `/comment/${comment}/reply`;
+        const parentImgEl = replyModal.querySelector('#parent-comment-img');
+        if (parentImgEl) {
+            if (commentImg) {
+                parentImgEl.src = commentImg.startsWith('http') ? commentImg : window.location.origin + commentImg;
+                parentImgEl.style.display = 'block';
+            } else {
+                parentImgEl.removeAttribute('src');
+                parentImgEl.style.display = 'none';
+            }
+        }
 
-        fetch(`/comment/${comment}/replies`)
+        if (gifPreview) gifPreview.src = '';
+        if (gifPreviewContainer) gifPreviewContainer.classList.add('d-none');
+        if (gifUrlInput) gifUrlInput.value = '';
+        replyForm.action = `/comment/${commentId}/reply`;
+
+        fetch(`/comment/${commentId}/replies`)
             .then(res => res.text())
             .then(html => {
-                document.getElementById('replies-container').innerHTML = html;
-            });
+                if (repliesContainer) repliesContainer.innerHTML = html;
+            })
+            .catch(err => console.error('Error loading replies:', err));
     });
 
-    // --- GIF și submit ---
+    // --- GIF toggle and search ---
     let gifTimeout;
     gifButtons.forEach(button => {
         button.addEventListener('click', e => {
@@ -107,31 +118,37 @@ document.addEventListener('DOMContentLoaded', function() {
 
             dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
             const search = dropdown.querySelector('.gif-reply-search');
-            if (search) setTimeout(() => search.focus(), 50);
-
             const results = dropdown.querySelector('.gif-reply-results');
-            search.addEventListener('keyup', e => {
-                const query = e.target.value.trim();
+
+            if (!search || !results) return;
+
+            setTimeout(() => search.focus(), 50);
+
+            search.onkeyup = function(ev) {
+                const query = ev.target.value.trim();
                 if (query.length < 2) return;
 
                 clearTimeout(gifTimeout);
                 gifTimeout = setTimeout(async () => {
                     try {
-                        const response = await fetch(`/gif/search/${encodeURIComponent(query)}`);
-                        const gifs = await response.json();
+                        const res = await fetch(`/gif/search/${encodeURIComponent(query)}`);
+                        const gifs = await res.json();
                         results.innerHTML = '';
+
                         gifs.forEach(url => {
                             const img = document.createElement('img');
                             img.src = url;
                             img.style.width = '100%';
                             img.style.cursor = 'pointer';
                             img.addEventListener('click', () => {
-                                gifUrlInput.value = url;
-                                gifPreview.src = url;
-                                gifPreviewContainer.classList.remove('d-none');
-                                gifPreviewContainer.style.display = 'flex';
-                                gifPreviewContainer.style.justifyContent = 'center';
-                                gifPreviewContainer.style.alignItems = 'center';
+                                if (gifUrlInput) gifUrlInput.value = url;
+                                if (gifPreview) gifPreview.src = url;
+                                if (gifPreviewContainer) {
+                                    gifPreviewContainer.classList.remove('d-none');
+                                    gifPreviewContainer.style.display = 'flex';
+                                    gifPreviewContainer.style.justifyContent = 'center';
+                                    gifPreviewContainer.style.alignItems = 'center';
+                                }
                                 dropdown.style.display = 'none';
                             });
                             results.appendChild(img);
@@ -140,25 +157,26 @@ document.addEventListener('DOMContentLoaded', function() {
                         console.error('Error fetching GIFs:', err);
                     }
                 }, 300);
-            });
+            };
         });
     });
 
-    gifPreviewClear.addEventListener('click', () => {
-        gifPreview.src = '';
-        gifPreviewContainer.classList.add('d-none');
-        gifUrlInput.value = '';
+    gifPreviewClear?.addEventListener('click', () => {
+        if (gifPreview) gifPreview.src = '';
+        if (gifPreviewContainer) gifPreviewContainer.classList.add('d-none');
+        if (gifUrlInput) gifUrlInput.value = '';
     });
 
-    replyForm.addEventListener('submit', e => {
+    // --- Submit reply ---
+    replyForm?.addEventListener('submit', e => {
         e.preventDefault();
-        const textarea = replyForm.querySelector('textarea[name="message"]');
-        console.log('Message before submit:', textarea.value);
-        const message = textarea.value;
-        const commentId = replyForm.querySelector('#parent-comment-id').value;
-        const gifUrl = replyForm.querySelector('.gif-reply-url-input').value;
+        const desktopTextarea = replyForm.querySelector('#reply-message-desktop');
+        const mobileTextarea = replyForm.querySelector('#reply-message-mobile');
+        const message = (desktopTextarea?.value.trim() || mobileTextarea?.value.trim());
+        const commentId = replyForm.querySelector('#parent-comment-id')?.value;
+        const gifUrl = gifUrlInput?.value || '';
 
-        console.log("Message before submit:", message);
+        if (!commentId) return;
 
         fetch(`/comment/${commentId}/reply`, {
             method: 'POST',
@@ -169,34 +187,38 @@ document.addEventListener('DOMContentLoaded', function() {
             body: JSON.stringify({message, gif_url: gifUrl})
         })
             .then(async res => {
-                if (!res.ok) {
-                    const text = await res.text();
-                    console.error("Server responded with error:", res.status, text);
-                    throw new Error(text);
-                }
+                if (!res.ok) throw new Error(await res.text());
                 return res.json();
             })
             .then(data => {
-                console.log("Server response:", data);
                 if (data.success) {
-                    replyForm.reset();
-                    gifPreview.src = '';
-                    gifPreviewContainer.classList.add('d-none');
-                    gifPreviewContainer.style.display = 'none';
+                    if (desktopTextarea) desktopTextarea.value = '';
+                    if (mobileTextarea) mobileTextarea.value = '';
+                    if (gifPreview) gifPreview.src = '';
+                    if (gifPreviewContainer) {
+                        gifPreviewContainer.classList.add('d-none');
+                        gifPreviewContainer.style.display = 'none';
+                    }
                     replyModal.querySelectorAll('.gif-reply-dropdown').forEach(dd => dd.style.display = 'none');
 
-                    const repliesContainer = document.getElementById('replies-container');
                     if (repliesContainer && data.html) {
                         repliesContainer.insertAdjacentHTML('afterbegin', data.html);
                     }
 
                     const counterSpan = document.getElementById(`reply-count-${data.commentId}`);
                     if (counterSpan) counterSpan.textContent = data.repliesCount;
-
                 } else {
                     alert(data.error || 'Something went wrong.');
                 }
             })
             .catch(err => console.error('Error submitting reply:', err));
+    });
+
+    document.addEventListener('click', e => {
+        replyModal.querySelectorAll('.gif-reply-dropdown').forEach(dd => {
+            if (!dd.contains(e.target) && !e.target.closest('.gif-reply-toggle-btn')) {
+                dd.style.display = 'none';
+            }
+        });
     });
 });

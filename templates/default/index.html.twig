@@ -246,12 +246,9 @@ document.addEventListener('click', function(e) {
 
                             const isUpvoted = window.commentVotesMap && window.commentVotesMap[comment.id] === 'upvote';
 
-                            const repliesCount = window.repliesMap && window.repliesMap[comment.id]
-                                ? window.repliesMap[comment.id].length
-                                : 0;
+                            const repliesCount = comment.repliesCount || 0;
 
                             const replyCountEl = document.getElementById(`reply-count-${comment.id}`);
-
                             if (replyCountEl) {
                                 replyCountEl.innerText = repliesCount;
                             }
