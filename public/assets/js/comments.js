@@ -1,8 +1,23 @@
-// =========================
-// AJAX Comments + Delete + Upvote
-// =========================
-
+/////////////// COMMENT SUBMIT ///////////////////
 document.addEventListener('DOMContentLoaded', () => {
+    function isOnlyEmojis(str) {
+        const clean = str.trim();
+        const emojiRegex = /^(?:[\u2700-\u27BF]|[\uE000-\uF8FF]|\u24C2|[\uD83C-\uDBFF\uDC00-\uDFFF])+$/;
+        return emojiRegex.test(clean);
+    }
+    document.querySelectorAll('[id^="comment-message-"]').forEach(commentEl => {
+        const msg = commentEl.dataset.originalMessage || commentEl.textContent || '';
+        if (isOnlyEmojis(msg)) {
+            const small = commentEl.querySelector('small');
+            if (small) {
+                small.style.backgroundColor = 'transparent';
+                small.style.padding = '0';
+                small.style.fontSize = '18px';
+                small.style.borderRadius = '0';
+                small.style.opacity = '1';
+            }
+        }
+    });
     document.addEventListener('submit', function(e) {
         const form = e.target.closest('.ajax-comment-form');
         if (!form) return;
@@ -36,6 +51,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     const commentsContainer = form.closest('.note-comments').querySelector('.new-comments');
                     commentsContainer.insertAdjacentHTML('afterbegin', data.html);
+
+                    commentsContainer.querySelectorAll('[id^="comment-message-"]').forEach(commentEl => {
+                        const msg = commentEl.dataset.originalMessage || commentEl.textContent || '';
+                        if (isOnlyEmojis(msg)) {
+                            const small = commentEl.querySelector('small');
+                            if (small) {
+                                small.style.backgroundColor = 'transparent';
+                                small.style.padding = '0';
+                                small.style.fontSize = '18px';
+                                small.style.borderRadius = '0';
+                                small.style.opacity = '1';
+                            }
+                        }
+                    });
 
                     input.value = '';
                     if (gifUrlInput) gifUrlInput.value = '';
@@ -104,6 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
         errorDiv.classList.remove('show');
     }
 
+/////////////// COMMENT DELETE ///////////////////
     document.addEventListener('click', function(e) {
         const deleteBtn = e.target.closest('.delete-comment-btn');
         if (!deleteBtn) return;
@@ -146,6 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(err => console.error('Deleting error:', err));
     });
 
+/////////////// COMMENT UPVOTE ///////////////////
     document.addEventListener('click', function(e) {
         const btn = e.target.closest('.comment-upvote-btn');
         if (!btn) return;

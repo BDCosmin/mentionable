@@ -225,6 +225,19 @@ class ProfileController extends AbstractController
             $favoritesMap[$note->getId()] = $currentUser ? $currentUser->hasFavorite($note) : false;
         }
 
+        $limitedComments = [];
+
+        foreach ($notesWithMentionedUser as $item) {
+            $note = $item['note'];
+            $comments = $note->getComments()->toArray();
+
+            usort($comments, function ($a, $b) {
+                return $b->getPublicationDate() <=> $a->getPublicationDate();
+            });
+
+            $limitedComments[$note->getId()] = array_slice($comments, 0, 5);
+        }
+
         return $this->render('profile/mentionable.html.twig', [
             'user' => $page,
             'notesWithMentionedUser' => $notesWithMentionedUser,
@@ -233,6 +246,7 @@ class ProfileController extends AbstractController
             'noteVotes' => $noteVotes,
             'commentVotesMap' => $commentVotesMap,
             'votesMap' => $votesMap,
+            'limitedComments' => $limitedComments,
             'favoritesMap' => $favoritesMap,
         ]);
     }

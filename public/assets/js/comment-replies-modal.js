@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const gifUrlInput = replyModal.querySelector('.gif-reply-url-input');
     const repliesContainer = replyModal.querySelector('#replies-container');
 
+////////////// EMOJI TOGGLE REPLY //////////////////
     replyForm?.addEventListener('click', e => {
         const btn = e.target.closest('.emoji-reply-toggle-btn');
         if (!btn) return;
@@ -60,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // --- Modal show event ---
+////////////// MODAL SHOW REPLY //////////////////
     replyModal.addEventListener('show.bs.modal', function(event) {
         const button = event.relatedTarget;
         if (!button) return;
@@ -72,6 +73,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
         replyModal.querySelector('#reply-username').textContent = username;
         replyForm.querySelector('#parent-comment-id').value = commentId;
+
+        function isOnlyEmojis(str) {
+            const clean = str.trim();
+            const emojiRegex = /^(?:[\u2700-\u27BF]|[\uE000-\uF8FF]|\u24C2|[\uD83C-\uDBFF\uDC00-\uDFFF])+$/;
+
+            return emojiRegex.test(clean);
+        }
 
         const parentMessageEl = replyModal.querySelector('#parent-comment-message');
         if (parentMessageEl) {
@@ -98,12 +106,27 @@ document.addEventListener('DOMContentLoaded', function() {
         fetch(`/comment/${commentId}/replies`)
             .then(res => res.text())
             .then(html => {
-                if (repliesContainer) repliesContainer.innerHTML = html;
+                if (repliesContainer) {
+                    repliesContainer.innerHTML = html;
+                    repliesContainer.querySelectorAll('[id^="reply-message-"]').forEach(replyEl => {
+                        const msg = replyEl.dataset.originalMessage || '';
+                        if (isOnlyEmojis(msg)) {
+                            const small = replyEl.querySelector('small');
+                            if (small) {
+                                small.style.backgroundColor = 'transparent';
+                                small.style.padding = '0';
+                                small.style.fontSize = '18px';
+                                small.style.borderRadius = '0';
+                                small.style.opacity = '1';
+                            }
+                        }
+                    });
+                }
             })
             .catch(err => console.error('Error loading replies:', err));
     });
 
-    // --- GIF toggle and search ---
+////////////// GIF TOGGLE REPLY //////////////////
     let gifTimeout;
     gifButtons.forEach(button => {
         button.addEventListener('click', e => {
@@ -167,7 +190,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (gifUrlInput) gifUrlInput.value = '';
     });
 
-    // --- Submit reply ---
+////////////// SUBMIT REPLY //////////////////
     replyForm?.addEventListener('submit', e => {
         e.preventDefault();
         const desktopTextarea = replyForm.querySelector('#reply-message-desktop');
@@ -175,6 +198,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const message = (desktopTextarea?.value.trim() || mobileTextarea?.value.trim());
         const commentId = replyForm.querySelector('#parent-comment-id')?.value;
         const gifUrl = gifUrlInput?.value || '';
+
+        function isOnlyEmojis(str) {
+            const clean = str.trim();
+            const emojiRegex = /^(?:[\u2700-\u27BF]|[\uE000-\uF8FF]|\u24C2|[\uD83C-\uDBFF\uDC00-\uDFFF])+$/;
+
+            return emojiRegex.test(clean);
+        }
 
         if (!commentId) return;
 
@@ -203,6 +233,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     if (repliesContainer && data.html) {
                         repliesContainer.insertAdjacentHTML('afterbegin', data.html);
+
+                        repliesContainer.querySelectorAll('[id^="reply-message-"]').forEach(replyEl => {
+                            const msg = replyEl.dataset.originalMessage || '';
+                            if (isOnlyEmojis(msg)) {
+                                const small = replyEl.querySelector('small');
+                                if (small) {
+                                    small.style.backgroundColor = 'transparent';
+                                    small.style.padding = '0';
+                                    small.style.fontSize = '18px';
+                                    small.style.borderRadius = '0';
+                                    small.style.opacity = '1';
+                                }
+                            }
+                        });
                     }
 
                     const counterSpan = document.getElementById(`reply-count-${data.commentId}`);

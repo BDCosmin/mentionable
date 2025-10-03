@@ -1,4 +1,4 @@
-// Delete reply (delegare pe document)
+////////////// DELETE REPLY //////////////////
 document.addEventListener('click', function(e) {
     const deleteBtn = e.target.closest('.delete-reply-btn');
     if (!deleteBtn) return;
@@ -40,6 +40,7 @@ document.addEventListener('click', function(e) {
         });
 });
 
+////////////// REPLY UPVOTE //////////////////
 document.addEventListener('click', function(e) {
     const btn = e.target.closest('.reply-upvote-btn');
     if (!btn) return;
@@ -68,11 +69,18 @@ document.addEventListener('click', function(e) {
         .catch(err => console.error(err));
 });
 
-// Edit reply - text + GIF upload
+////////////// EDIT REPLY //////////////////
 document.addEventListener('click', function(e) {
     const editBtn = e.target.closest('.edit-reply-btn');
     const saveBtn = e.target.closest('.save-reply-btn');
     const cancelBtn = e.target.closest('.cancel-reply-btn');
+
+    function isOnlyEmojis(str) {
+        const clean = str.trim();
+        const emojiRegex = /^(?:[\u2700-\u27BF]|[\uE000-\uF8FF]|\u24C2|[\uD83C-\uDBFF\uDC00-\uDFFF])+$/;
+
+        return emojiRegex.test(clean);
+    }
 
     if (editBtn) {
         e.preventDefault();
@@ -84,7 +92,7 @@ document.addEventListener('click', function(e) {
 
         messageEl.innerHTML = `
             <textarea id="edit-reply-text-${replyId}" class="form-control mb-1">${currentMessage}</textarea>
-            <input type="text" id="edit-reply-gif-${replyId}" class="form-control mb-1" placeholder="GIF URL" value="${currentGif}">
+            <input type="hidden" id="edit-reply-gif-${replyId}" class="form-control mb-1" placeholder="GIF URL" value="${currentGif}">
             <button class="btn btn-sm btn-primary save-reply-btn" data-reply-id="${replyId}" data-csrf="${editBtn.dataset.csrf}">Save</button>
             <button class="btn btn-sm btn-secondary cancel-reply-btn" data-reply-id="${replyId}">Cancel</button>
         `;
@@ -96,7 +104,18 @@ document.addEventListener('click', function(e) {
         const replyId = cancelBtn.dataset.replyId;
         const messageEl = document.getElementById('reply-message-' + replyId);
         const gifEl = document.getElementById('reply-gif-' + replyId);
-        messageEl.innerHTML = `<small>${messageEl.dataset.originalMessage}</small>`;
+        const onlyEmojis = isOnlyEmojis(messageEl.dataset.originalMessage);
+        messageEl.innerHTML = `
+                    <small class="mb-2"
+                        style="                     
+                            align-self:flex-start;
+                            max-width:300px;
+                            color:#404040;
+                            ${onlyEmojis ? 'background-color:transparent; padding:0; font-size:18px;'
+            : 'background-color:#fff; border-radius:8px; opacity:0.9; padding:5px; font-size:16px;'}
+                        ">
+                        ${messageEl.dataset.originalMessage}
+                    </small>`;
         const originalGif = gifEl.dataset.originalGif;
         if (originalGif) {
             gifEl.innerHTML = `<img src="${originalGif}" alt="GIF" style="width:100%; max-width:200px; border-radius:8px;">`;
@@ -111,7 +130,7 @@ document.addEventListener('click', function(e) {
         const replyId = saveBtn.dataset.replyId;
         const message = document.getElementById('edit-reply-text-' + replyId).value;
         const gifUrl = document.getElementById('edit-reply-gif-' + replyId).value;
-
+        const onlyEmojis = isOnlyEmojis(message);
         fetch(`/comment/${replyId}/reply/edit`, {
             method: 'POST',
             headers: {
@@ -126,7 +145,17 @@ document.addEventListener('click', function(e) {
                 const gifEl = document.getElementById('reply-gif-' + replyId);
                 if (data.success) {
                     messageEl.dataset.originalMessage = message;
-                    messageEl.innerHTML = `<small>${message}</small>`;
+                    messageEl.innerHTML = `
+                    <small class="mb-2"
+                        style="                     
+                            align-self:flex-start;
+                            max-width:300px;
+                            color:#404040;
+                            ${onlyEmojis ? 'background-color:transparent; padding:0; font-size:18px;'
+                                    : 'background-color:#fff; border-radius:8px; opacity:0.9; padding:5px; font-size:16px;'}
+                        ">
+                        ${message}
+                    </small>`;
 
                     gifEl.dataset.originalGif = gifUrl;
                     if (gifUrl) {
@@ -140,13 +169,3 @@ document.addEventListener('click', function(e) {
             });
     }
 });
-
-
-
-
-
-
-
-
-
-
