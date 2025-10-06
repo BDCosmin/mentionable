@@ -1187,16 +1187,17 @@ class NoteController extends AbstractController
     public function editReply(CommentReply $reply, Request $request, EntityManagerInterface $em): JsonResponse
     {
         $user = $this->getUser();
+
         if (!$user || $reply->getUser() !== $user) {
             return $this->json(['success' => false, 'error' => 'You can only edit your own reply'], 403);
         }
 
         $data = json_decode($request->getContent(), true);
         $message = trim($data['message'] ?? '');
-        $gifUrl = trim($data['gifUrl'] ?? '');
+        $gifUrl = isset($data['gifUrl']) ? trim($data['gifUrl']) : null;
 
-        if ($message === '') {
-            return $this->json(['success' => false, 'error' => 'Message cannot be empty'], 400);
+        if ($message === '' && !$gifUrl) {
+            return $this->json(['success' => false, 'error' => 'Reply cannot be empty'], 400);
         }
 
         $reply->setMessage($message);
