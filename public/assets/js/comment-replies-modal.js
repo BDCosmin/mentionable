@@ -1,3 +1,10 @@
+function isOnlyEmojis(str) {
+    const clean = str.trim();
+    const emojiRegex = /^(?:[\u2700-\u27BF]|[\uE000-\uF8FF]|\u24C2|[\uD83C-\uDBFF\uDC00-\uDFFF])+$/;
+
+    return emojiRegex.test(clean);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const replyModal = document.getElementById('newCommentReplyModal');
     if (!replyModal) return;
@@ -74,17 +81,22 @@ document.addEventListener('DOMContentLoaded', function() {
         replyModal.querySelector('#reply-username').textContent = username;
         replyForm.querySelector('#parent-comment-id').value = commentId;
 
-        function isOnlyEmojis(str) {
-            const clean = str.trim();
-            const emojiRegex = /^(?:[\u2700-\u27BF]|[\uE000-\uF8FF]|\u24C2|[\uD83C-\uDBFF\uDC00-\uDFFF])+$/;
-
-            return emojiRegex.test(clean);
-        }
-
         const parentMessageEl = replyModal.querySelector('#parent-comment-message');
         if (parentMessageEl) {
             parentMessageEl.textContent = commentMessage || '';
-            parentMessageEl.style.display = commentMessage ? 'inline-block' : 'none';
+            if (isOnlyEmojis(commentMessage || '')) {
+                parentMessageEl.style.backgroundColor = 'transparent';
+                parentMessageEl.style.display = commentMessage ? 'inline-block' : 'none';
+                parentMessageEl.style.padding = '';
+                parentMessageEl.style.borderRadius = '';
+                parentMessageEl.style.fontSize = '20px';
+            } else {
+                parentMessageEl.style.backgroundColor = 'white';
+                parentMessageEl.style.display = commentMessage ? 'inline-block' : 'none';
+                parentMessageEl.style.padding = '5px';
+                parentMessageEl.style.borderRadius = '8px';
+                parentMessageEl.style.fontSize = '20px';
+            }
         }
 
         const parentImgEl = replyModal.querySelector('#parent-comment-img');
@@ -198,13 +210,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const message = (desktopTextarea?.value.trim() || mobileTextarea?.value.trim());
         const commentId = replyForm.querySelector('#parent-comment-id')?.value;
         const gifUrl = gifUrlInput?.value || '';
-
-        function isOnlyEmojis(str) {
-            const clean = str.trim();
-            const emojiRegex = /^(?:[\u2700-\u27BF]|[\uE000-\uF8FF]|\u24C2|[\uD83C-\uDBFF\uDC00-\uDFFF])+$/;
-
-            return emojiRegex.test(clean);
-        }
 
         if (!commentId) return;
 

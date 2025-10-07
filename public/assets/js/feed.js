@@ -1,3 +1,4 @@
+ /////////// NOTE VOTES /////////////
     const voteHandler = (noteId, type) => {
         const csrfVote = document.querySelector('meta[name="csrf-token-vote"]').content;
 
@@ -54,6 +55,7 @@
             voteHandler(downBtn.dataset.id, 'downvote');
         }
     });
+
 
     document.addEventListener("DOMContentLoaded", function () {
         const input = document.getElementById('searchNametag');

@@ -1,10 +1,11 @@
+function isOnlyEmojis(str) {
+    const clean = str.trim();
+    const emojiRegex = /^(?:[\u2700-\u27BF]|[\uE000-\uF8FF]|\u24C2|[\uD83C-\uDBFF\uDC00-\uDFFF])+$/;
+    return emojiRegex.test(clean);
+}
+
 /////////////// COMMENT SUBMIT ///////////////////
 document.addEventListener('DOMContentLoaded', () => {
-    function isOnlyEmojis(str) {
-        const clean = str.trim();
-        const emojiRegex = /^(?:[\u2700-\u27BF]|[\uE000-\uF8FF]|\u24C2|[\uD83C-\uDBFF\uDC00-\uDFFF])+$/;
-        return emojiRegex.test(clean);
-    }
     document.querySelectorAll('[id^="comment-message-"]').forEach(commentEl => {
         const msg = commentEl.dataset.originalMessage || commentEl.textContent || '';
         if (isOnlyEmojis(msg)) {
@@ -52,17 +53,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     const commentsContainer = form.closest('.note-comments').querySelector('.new-comments');
                     commentsContainer.insertAdjacentHTML('afterbegin', data.html);
 
-                    commentsContainer.querySelectorAll('[id^="comment-message-"]').forEach(commentEl => {
-                        const msg = commentEl.dataset.originalMessage || commentEl.textContent || '';
-                        if (isOnlyEmojis(msg)) {
-                            const small = commentEl.querySelector('small');
-                            if (small) {
-                                small.style.backgroundColor = 'transparent';
-                                small.style.padding = '0';
-                                small.style.fontSize = '18px';
-                                small.style.borderRadius = '0';
-                                small.style.opacity = '1';
-                            }
+                    commentsContainer.querySelectorAll('[id^="comment-message-"], .comment-message').forEach(commentEl => {
+                        const small = commentEl.tagName === 'SMALL' ? commentEl : commentEl.querySelector('small');
+                        if (!small) return;
+                        const msgText = small.textContent.trim();
+                        if (isOnlyEmojis(msgText)) {
+                            small.style.backgroundColor = 'transparent';
+                            small.style.padding = '0';
+                            small.style.fontSize = '18px';
+                            small.style.borderRadius = '0';
+                            small.style.opacity = '1';
+                        } else {
+                            small.style.backgroundColor = 'white';
+                            small.style.padding = '5px';
+                            small.style.fontSize = '16px';
+                            small.style.borderRadius = '8px';
+                            small.style.opacity = '0.9';
                         }
                     });
 
