@@ -1,3 +1,4 @@
+// EMOJI-ONLY FUNCTION
 function isOnlyEmojis(str) {
     const clean = str.trim();
     const emojiRegex = /^(?:[\u2700-\u27BF]|[\uE000-\uF8FF]|\u24C2|[\uD83C-\uDBFF\uDC00-\uDFFF])+$/;
