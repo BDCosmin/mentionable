@@ -128,6 +128,39 @@
                                 {% endif %}
                             {% endif %}
 
+                            <h4 class="text-gray mt-3">Bio</h4>
+
+                            <div class="d-flex flex-row">
+                                <p class="me-2">{{ bio|slice(0, 255) }}</p>
+                                {% if app.user.id is same as(user.id) %}
+                                    <a class="bg-white px-2 text-dark rounded-pill pt-1 pb-0" style="text-decoration: none; height: 28px" href="#"
+                                       data-bs-toggle="modal"
+                                       data-bs-target="#editProfileBioModal">
+                                        <i class='bx bx-edit-alt text-dark' style="font-size: 18px"></i>
+                                    </a>
+                                    <div class="modal fade" id="editProfileBioModal" tabindex="-1" aria-labelledby="editProfileBioModalLabel" aria-hidden="true" style="overflow-y: hidden;">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content border-light">
+                                                <div class="modal-header bg-dark" style="height: 50px">
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p class="mb-4 p-0">Want to make a change? Edit your bio here:</p>
+                                                    <form class="mb-3" method="POST" enctype="multipart/form-data" action="{{ path('app_bio_new') }}" id="addProfileBioForm">
+                                                        <textarea name="bio-content" id="bio-content" placeholder="Write..." class="form-control mb-4" style="height: 90px;" required>{{ bio }}</textarea>
+                                                        <div class="d-flex justify-content-end">
+                                                            <button type="submit" class="btn btn-light" style="width: 120px;">Edit</button>
+                                                        </div>
+                                                    </form>
+                                                    <i class="p-0 text-danger" style="font-size: 14px">Note: The content cannot be longer than 255 characters.</i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+
                             {# RINGS - MOBILE DISPLAY ONLY #}
                             <div class="d-block d-md-none m-0 p-0">
                                 <h4 class="text-gray mt-3">Rings</h4>

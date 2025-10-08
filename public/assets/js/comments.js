@@ -53,22 +53,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     const commentsContainer = form.closest('.note-comments').querySelector('.new-comments');
                     commentsContainer.insertAdjacentHTML('afterbegin', data.html);
 
-                    commentsContainer.querySelectorAll('[id^="comment-message-"], .comment-message').forEach(commentEl => {
-                        const small = commentEl.tagName === 'SMALL' ? commentEl : commentEl.querySelector('small');
-                        if (!small) return;
-                        const msgText = small.textContent.trim();
+                    commentsContainer.querySelectorAll('[id^="comment-message-"]').forEach(commentEl => {
+                        const msgText = commentEl.textContent.trim();
                         if (isOnlyEmojis(msgText)) {
-                            small.style.backgroundColor = 'transparent';
-                            small.style.padding = '0';
-                            small.style.fontSize = '18px';
-                            small.style.borderRadius = '0';
-                            small.style.opacity = '1';
+                            commentEl.style.backgroundColor = 'transparent';
+                            commentEl.style.padding = '0';
+                            commentEl.style.fontSize = '18px';
+                            commentEl.style.borderRadius = '0';
+                            commentEl.style.opacity = '1';
                         } else {
-                            small.style.backgroundColor = 'white';
-                            small.style.padding = '5px';
-                            small.style.fontSize = '16px';
-                            small.style.borderRadius = '8px';
-                            small.style.opacity = '0.9';
+                            commentEl.style.backgroundColor = 'white';
+                            commentEl.style.padding = '5px';
+                            commentEl.style.fontSize = '16px';
+                            commentEl.style.borderRadius = '8px';
+                            commentEl.style.opacity = '0.9';
                         }
                     });
 

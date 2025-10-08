@@ -137,6 +137,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: CommentReply::class, mappedBy: 'user', orphanRemoval: true)]
     private Collection $commentReplies;
 
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $bio = null;
+
     public function __construct()
     {
         $this->notes = new ArrayCollection();
@@ -596,6 +599,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $commentReply->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getBio(): ?string
+    {
+        return $this->bio;
+    }
+
+    public function setBio(?string $bio): static
+    {
+        $this->bio = $bio;
 
         return $this;
     }
