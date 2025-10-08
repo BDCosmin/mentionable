@@ -157,6 +157,7 @@ class ProfileController extends AbstractController
                 'friendRequests' => $friendRequests,
                 'notifications' => $notifications,
                 'interests' => $interests,
+                'bio' => $user->getBio(),
                 'noteVotes' => $noteVotes,
                 'commentVotesMap' => $commentVotesMap,
                 'votesMap' => $votesMap,
@@ -290,7 +291,7 @@ class ProfileController extends AbstractController
             }
         }
 
-        return $this->redirect($request->headers->get('referer'));
+        return $this->redirectToRoute('app_profile', ['id' => $user->getId()]);
     }
 
     #[Route('/profile/interest/delete/{id}', name: 'app_interest_delete', methods: ['DELETE'])]
@@ -324,5 +325,44 @@ class ProfileController extends AbstractController
                 'message' => $e->getMessage()
             ], 500);
         }
+    }
+
+    #[Route('/profile/bio/new', name: 'app_bio_new', methods: ['GET', 'POST'])]
+    public function bio(Request $request,
+                             EntityManagerInterface $em,
+                             NotificationService $notificationService,
+                             SluggerInterface $slugger,
+                             TextModerationService $moderator
+    ): Response
+    {
+        $user = $this->getUser();
+        if (!$user instanceof \App\Entity\User) {
+            throw new \LogicException('User is not an instance of App\Entity\User.');
+        }
+
+        if ($request->isMethod('POST')) {
+            $content = $request->request->get('bio-content');
+
+            $moderation = $moderator->analyze($content);
+            $toxicityScore = $moderation['attributeScores']['TOXICITY']['summaryScore']['value'] ?? 0;
+            $insultScore = $moderation['attributeScores']['INSULT']['summaryScore']['value'] ?? 0;
+
+            if ($toxicityScore > 0.75 || $insultScore > 0.75) {
+                $this->addFlash('error', 'The following content was blocked because it may be toxic or insulting.');
+                return $this->redirect($request->headers->get('referer'));
+            }
+
+            if (empty(trim($content))) {
+                $this->addFlash('error', 'Bio cannot be empty.');
+                return $this->redirect($request->headers->get('referer'));
+            } else {
+                $user->setBio($content);
+
+                $em->persist($user);
+                $em->flush();
+            }
+        }
+
+        return $this->redirectToRoute('app_profile', ['id' => $user->getId()]);
     }
 }
