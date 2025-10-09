@@ -15,6 +15,9 @@
             <a class="m-0 p-0 text-decoration-none text-white" href="{{ path('app_profile', {'id': reply.user.id}) }}">
                 <p class="text-white me-2" style="font-size: 18px;">@{{ reply.user.nametag }}</p>
             </a>
+            {% if reply.user.isVerified %}
+                <i class='fa fa-check-circle pt-1 me-2' style="font-size: 16px; margin-top: 0.10rem !important"></i>
+            {% endif %}
             {% if reply.isEdited %}
                 <i class="fa fa-clock-o text-gray me-1" style="margin-top: 6px"></i>
             {% else %}

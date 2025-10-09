@@ -1,0 +1,6 @@
+# config/routes/framework.yaml
+when@dev:
+  _errors:
+    resource: '@FrameworkBundle/Resources/config/routing/errors.php'
+    type:     php
+    prefix:   /_error
