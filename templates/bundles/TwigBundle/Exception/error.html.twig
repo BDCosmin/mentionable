@@ -1,18 +1,60 @@
-{% extends 'base.html.twig' %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Oops...something has happened{% endblock %}</title>
 
-{% block title %}Oops...something has happened{% endblock %}
+    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/vendors/mdi/css/materialdesignicons.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/vendors/ti-icons/css/themify-icons.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/vendors/css/vendor.bundle.base.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/vendors/font-awesome/css/font-awesome.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/vendors/jvectormap/jquery-jvectormap.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/vendors/flag-icon-css/css/flag-icons.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/vendors/owl-carousel-2/owl.carousel.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/vendors/owl-carousel-2/owl.theme.default.min.css') }}">
+    <link rel='stylesheet' href="{{ asset('https://cdn.boxicons.com/fonts/basic/boxicons.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.png') }}" />
 
-{% block body %}
-<div class="main-panel">
-    <div class="content-wrapper p-0">
-        {# CENTERED CONTAINER #}
-        <div class="row mb-3">
-            <div class="col-lg-7 pt-4 ps-4 pe-4 pb-3" style="border-radius: 5px; margin-top: 2rem;">
-                {# CONTENT HERE #}
-                <h1>Oops</h1>
-                <h5>Looks like this page doesn't exist anymore.</h5>
-            </div>
+    <script src="{{ asset('assets/vendors/js/vendor.bundle.base.js') }}"></script>
+
+    <script src="{{ asset('assets/vendors/chart.js/chart.umd.js') }}"></script>
+    <script src="{{ asset('assets/vendors/progressbar.js/progressbar.min.js') }}"></script>
+    <script src="{{ asset('assets/vendors/jvectormap/jquery-jvectormap.min.js') }}"></script>
+    <script src="{{ asset('assets/vendors/jvectormap/jquery-jvectormap-world-mill-en.js') }}"></script>
+    <script src="{{ asset('assets/vendors/owl-carousel-2/owl.carousel.min.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery.cookie.js') }}"></script>
+</head>
+<body>
+<div class="d-flex container-fluid m-0 p-0" style="background-color: #222831; min-height: 100vh;">
+    {# CENTERED CONTAINER - DESKTOP #}
+    <div class="row d-md-flex d-none justify-content-center mt-5 mb-3" style="width: 100%">
+        <div class="col-lg-7 mt-5 pt-4 ps-4 pe-4 pb-3" style="border-radius: 5px;">
+            <img src="{{ asset('../../../../assets/images/errors/error-img.png') }}" style="width: 130px; height: 130px;" alt="logo-error" />
+
+            <h1>Oops...</h1>
+            <h5 class="mb-5">Looks like something went wrong. We're on the way to fix it.</h5>
+
+            <a class="text-white mt-5" href="{{ path('homepage') }}">
+                Back to feed >>
+            </a>
+        </div>
+    </div>
+    {# CENTERED CONTAINER - MOBILE #}
+    <div class="row d-md-none d-flex justify-content-center" style="width: 100%; padding-top: 200px">
+        <div class="col-lg-7 d-flex flex-column align-items-center" style="border-radius: 5px;">
+            <img src="{{ asset('../../../../assets/images/errors/error-img.png') }}" style="width: 130px; height: 130px;" alt="logo-error" />
+
+            <h1>Oops...</h1>
+            <h5 class="mb-5">Looks like something went wrong. We're on the way to fix it.</h5>
+
+            <a class="text-white" href="{{ path('homepage') }}">
+                Back to feed >>
+            </a>
         </div>
     </div>
 </div>
-{% endblock %}
+</body>
+</html>
