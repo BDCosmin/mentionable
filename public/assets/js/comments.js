@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         e.preventDefault();
 
-        const commentElement = deleteBtn.closest('.d-flex.flex-row.mb-3');
+        const commentElement = deleteBtn.closest('.comment-wrapper');
         if (!commentElement) return;
 
         const url = deleteBtn.getAttribute('href');

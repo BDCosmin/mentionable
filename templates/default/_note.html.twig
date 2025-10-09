@@ -6,9 +6,14 @@
                 <img class="img-sm rounded-circle" src="{{ asset('uploads/avatars/' ~ note.user.avatar) }}" alt="avatar" onerror="showDefaultIcon(this)">
             </a>
             <div class="d-flex flex-column">
-                <a class="nav-link mt-2" id="nametagNote" href="{{ path('app_profile', {'id': note.user.id}) }}">
-                    <h5 class="mb-0 navbar-profile-name">@{{ note.user.nametag }}</h5>
-                </a>
+                <div class="d-flex flex-row m-0 p-0">
+                    <a class="nav-link mt-2 me-1" id="nametagNote" href="{{ path('app_profile', {'id': note.user.id}) }}">
+                        <h5 class="mb-0 navbar-profile-name">@{{ note.user.nametag }}</h5>
+                    </a>
+                    {% if note.user.isVerified %}
+                        <i class='fa fa-check-circle pt-2' style="font-size: 16px; margin-top: 0.10rem !important"></i>
+                    {% endif %}
+                </div>
                 <div class="d-flex flex-column m-0 p-0" style="font-size: 12px; color: gray">
                     <div class="d-flex flex-row m-0 p-0">
                         {% if note.isEdited %}
@@ -270,7 +275,7 @@
             {# COMMENTS LIST #}
             <div id="comments-list-{{ note.id }}">
                 {% for comment in limitedComments[note.id] %}
-                    <div class="d-flex flex-row mb-3" data-note-id="{{ note.id }}" data-comment-id="{{ comment.id }}">
+                    <div class="d-flex flex-row comment-wrapper mb-3" data-note-id="{{ note.id }}" data-comment-id="{{ comment.id }}">
                         <a class="nav-link me-2" href="{{ path('app_profile', {'id': comment.user.id}) }}">
                             <img class="img-xs rounded-circle" src="{{ asset('uploads/avatars/' ~ comment.user.avatar) }}" alt="avatarComment" onerror="showDefaultIcon(this)">
                         </a>
@@ -279,6 +284,9 @@
                                 <a class="m-0 p-0 text-decoration-none text-white" href="{{ path('app_profile', {'id': comment.user.id}) }}">
                                     <p class="text-white me-2" style="font-size: 18px;">@{{ comment.user.nametag }}</p>
                                 </a>
+                                {% if comment.user.isVerified %}
+                                    <i class='fa fa-check-circle pt-1 me-2' style="font-size: 16px; margin-top: 0.10rem !important"></i>
+                                {% endif %}
                                 {% if comment.isEdited %}
                                     <i class="fa fa-clock-o text-gray me-1" style="margin-top: 6px"></i>
                                 {% else %}
