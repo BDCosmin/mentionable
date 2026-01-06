@@ -6,6 +6,7 @@ use App\Entity\Interest;
 use App\Entity\Notification;
 use App\Entity\Ring;
 use App\Entity\User;
+use App\Repository\AdminTaskRepository;
 use App\Repository\CommentReplyReportRepository;
 use App\Repository\CommentReportRepository;
 use App\Repository\InterestRepository;
@@ -77,6 +78,22 @@ final class AdminController extends AbstractController
             'reports' => $reports,
             'interests' => $interests,
             'tickets' => $tickets,
+        ]);
+    }
+
+    #[Route('/admin/manage-tasks', name: 'admin_manage_tasks', methods: ['GET', 'POST'])]
+    public function adminManageTasks(
+        NoteReportRepository $noteReportRepository,
+        CommentReportRepository $commentReportRepository,
+        CommentReplyReportRepository $commentReplyReportRepository,
+        AdminTaskRepository $adminTaskRepository
+    ): Response
+    {
+        $tasks = $adminTaskRepository->findAll();
+
+        return $this->render('admin/all_tasks.html.twig', [
+            'tasks' => $tasks,
+            'tasksNumber' => count($tasks),
         ]);
     }
 
