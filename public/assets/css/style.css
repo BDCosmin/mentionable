@@ -24439,6 +24439,26 @@ input[type="file"]::file-selector-button {
   transform: scale(1);
 }
 
+.task-column {
+  min-height: 200px;
+  padding: 8px;
+  background: rgba(0,0,0,0.05);
+  border-radius: 10px;
+}
+
+.draggable-card {
+  cursor: grab;
+}
+
+.draggable-card.dragging {
+  opacity: 0.5;
+}
+
+.priority-btn.active, .assign-btn.active {
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.7);
+  opacity: 0.8;
+}
+
 .note-launch-link:hover {
   background-color: #2f3640;
   box-shadow: 0 0 12px rgba(255, 255, 255, 0.2);

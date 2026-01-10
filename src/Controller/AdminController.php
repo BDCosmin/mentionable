@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\AdminTask;
 use App\Entity\Interest;
 use App\Entity\Notification;
 use App\Entity\Ring;
@@ -83,18 +84,64 @@ final class AdminController extends AbstractController
 
     #[Route('/admin/manage-tasks', name: 'admin_manage_tasks', methods: ['GET', 'POST'])]
     public function adminManageTasks(
-        NoteReportRepository $noteReportRepository,
-        CommentReportRepository $commentReportRepository,
-        CommentReplyReportRepository $commentReplyReportRepository,
-        AdminTaskRepository $adminTaskRepository
+        AdminTaskRepository $adminTaskRepository,
+        UserRepository $userRepository,
+        Request $request,
+        EntityManagerInterface $em
     ): Response
     {
+        $devs = $userRepository->findAdmins();
+
+        if ($request->isMethod('POST')) {
+            $newTask = new AdminTask();
+            $newTask->setTitle($request->request->get('title'));
+            $newTask->setDescription($request->request->get('description'));
+            $newTask->setPriority($request->request->get('priority'));
+
+            $assignedUserId = $request->request->get('assignedTo');
+            if ($assignedUserId) {
+                $assignedUser = $userRepository->find($assignedUserId);
+                $newTask->setAssignedTo($assignedUser);
+            }
+
+            $em->persist($newTask);
+            $em->flush();
+        }
+
         $tasks = $adminTaskRepository->findAll();
+
+        $assignedTasks = [];
+        foreach ($tasks as $taskItem) {
+            $user = $taskItem->getAssignedTo();
+            if ($user) {
+                $username = $user->getNametag();
+                if (!isset($assignedTasks[$username])) {
+                    $assignedTasks[$username] = [];
+                }
+                $assignedTasks[$username][] = $taskItem;
+            }
+        }
 
         return $this->render('admin/all_tasks.html.twig', [
             'tasks' => $tasks,
             'tasksNumber' => count($tasks),
+            'assignedTasks' => $assignedTasks,
+            'devs' => $devs
         ]);
+    }
+
+    #[Route('/admin/delete-task/{id}', name: 'admin_delete_task', methods: ['POST'])]
+    public function deleteTask(AdminTask $task, EntityManagerInterface $em, Request $request): JsonResponse
+    {
+        $submittedToken = $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('delete_task', $submittedToken)) {
+            return $this->json(['error' => 'Invalid CSRF token'], 403);
+        }
+
+        $em->remove($task);
+        $em->flush();
+
+        return $this->json(['success' => true]);
     }
 
     #[Route('/admin/reports', name: 'admin_show_reports', methods: ['GET', 'POST'])]
