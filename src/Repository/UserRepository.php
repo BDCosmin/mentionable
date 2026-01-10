@@ -42,11 +42,19 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 
         $qb = $this->createQueryBuilder('p');
 
-        // Caută nametag-uri care conțin inputul
         $qb->andWhere('p.nametag LIKE :nametag')
             ->setParameter('nametag', '%' . $searchInput . '%');
 
         return $qb->getQuery()->getResult();
+    }
+
+    public function findAdmins(): array
+    {
+        return $this->createQueryBuilder('u')
+            ->where('u.roles LIKE :role')
+            ->setParameter('role', '%ROLE_ADMIN%')
+            ->getQuery()
+            ->getResult();
     }
 
     public function findByNametag(string $nametag): array
