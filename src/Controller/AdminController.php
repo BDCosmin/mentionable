@@ -130,6 +130,31 @@ final class AdminController extends AbstractController
         ]);
     }
 
+    #[Route('/admin/edit-task/{id}', name: 'admin_edit_task', methods: ['POST'])]
+    public function editTask(
+        AdminTask $task,
+        UserRepository $userRepository,
+        EntityManagerInterface $em,
+        Request $request
+    ): JsonResponse {
+
+        $task->setTitle($request->request->get('title'));
+        $task->setDescription($request->request->get('description'));
+        $task->setPriority($request->request->get('priority'));
+
+        $assignedId = $request->request->get('assignedTo');
+        if ($assignedId) {
+            $assignedUser = $userRepository->find($assignedId);
+            $task->setAssignedTo($assignedUser);
+        } else {
+            $task->setAssignedTo(null);
+        }
+
+        $em->flush();
+
+        return $this->json(['success' => true]);
+    }
+
     #[Route('/admin/delete-task/{id}', name: 'admin_delete_task', methods: ['POST'])]
     public function deleteTask(AdminTask $task, EntityManagerInterface $em, Request $request): JsonResponse
     {

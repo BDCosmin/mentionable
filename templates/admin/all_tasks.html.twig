@@ -21,23 +21,32 @@
                     {% endfor %}
                 </div>
                 <div class="col-lg-8 p-3 justify-content-center">
-                    <div class="d-flex flex-row justify-content-center">
-                        <h1 class="text-center d-none d-md-flex">
-                            Tasks
-                        </h1>
-                        <h1 class="text-center d-flex d-md-none mt-1" style="font-size: 24px">
-                            Tasks
-                        </h1>
-                        <span class="badge badge-light text-dark mt-2 ms-2" style="height: 25px">{{ tasksNumber }}</span>
-                        <a class="ms-2 ps-2 pe-2 mt-2" style="text-decoration: none; height: 30px; background-color: #bc7b00; border-radius: 10px;" href="#" data-bs-toggle="modal" data-bs-target="#newTaskModal">
-                            <h4 class="text-white" style="font-size: 24px">+</h4>
-                        </a>
-                        {# CREATE NOTE MODAL #}
+                    <div class="d-flex flex-column justify-content-center">
+                        <div class="d-none d-md-flex flex-row justify-content-center">
+                            <h1 class="text-center">
+                                Tasks
+                            </h1>
+                            <span class="badge badge-light text-dark mt-2 ms-2" style="height: 25px">{{ tasksNumber }}</span>
+                            <a class="ms-2 ps-2 pe-2 mt-2" style="text-decoration: none; height: 30px; background-color: #bc7b00; border-radius: 10px;" href="#" data-bs-toggle="modal" data-bs-target="#newTaskModal">
+                                <h4 class="text-white" style="font-size: 24px">+</h4>
+                            </a>
+                        </div>
+                        <p class="d-none d-md-flex justify-content-center" style="font-size: 12px">Please refresh the page after every update on tasks.</p>
+                        <div class="d-flex d-md-none flex-row justify-content-center">
+                            <h1 class="text-center mt-1" style="font-size: 24px">
+                                Tasks
+                            </h1>
+                            <span class="badge badge-light text-dark mt-2 ms-2" style="height: 25px">{{ tasksNumber }}</span>
+                            <a class="ms-2 ps-2 pe-2 mt-2" style="text-decoration: none; height: 30px; background-color: #bc7b00; border-radius: 10px;" href="#" data-bs-toggle="modal" data-bs-target="#newTaskModal">
+                                <h4 class="text-white" style="font-size: 24px">+</h4>
+                            </a>
+                        </div>
+                        {# CREATE TASK MODAL #}
                         <div class="modal fade" id="newTaskModal" tabindex="-1" aria-labelledby="newTaskModalLabel" aria-hidden="true" style="overflow-y: hidden;">
                             <div class="modal-dialog" style="max-width: 850px; margin-top: 50px">
                                 <div class="modal-content" style="background-color: #181b20; border-radius: 5px;">
                                     <div class="modal-body" style="overflow: visible !important;">
-                                        <form id="new-note-form" class="forms-sample" method="POST" enctype="multipart/form-data">
+                                        <form id="new-task-form" class="forms-sample" method="POST" enctype="multipart/form-data">
                                             <h3 class="text-white mb-4">Create a task</h3>
 
                                             {# TASK TITLE #}
@@ -79,7 +88,6 @@
                                                 <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal" aria-label="Close">Close</button>
                                                 <button type="submit" class="btn btn-light" style="width: 120px; font-weight: bold">Create</button>
                                             </div>
-
                                         </form>
                                     </div>
                                 </div>
@@ -87,14 +95,17 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="container m-0 p-0 mt-4">
-                    <div class="row m-0 p-0 g-3">
+                    {# DESKTOP VIEW #}
+                    <div class="row m-0 p-0 g-3 d-none d-md-flex align-items-stretch">
                         {% set i = 0 %}
                         {% for user, userTasks in assignedTasks %}
                             {% if i < 2 %}
-                                <div class="col-3">
+                                {# SECTION #}
+                                <div class="col-3 d-flex flex-column">
                                     {# TASK #}
-                                    <div class="task-column" data-user="{{ user }}">
+                                    <div class="task-column flex-grow-1" data-user="{{ user }}">
                                         <h4 class="text-white ps-2 pt-2">{{ user }}</h4>
                                         <hr/>
                                         {% for task in userTasks %}
@@ -112,6 +123,14 @@
                                                     <div class="card-body">
                                                         <h5 class="card-title">Priority: {{ task.priority }}</h5>
                                                         <p class="card-text">{{ task.description }}</p>
+                                                        <button class="btn btn-light edit-task-btn float-end" style="border-radius: 10px;"
+                                                                data-bs-toggle="modal" data-bs-target="#editTaskModal" data-id="{{ task.id }}"
+                                                                data-title="{{ task.title|e('html_attr') }}"
+                                                                data-description="{{ task.description|e('html_attr') }}"
+                                                                data-priority="{{ task.priority }}"
+                                                                data-assigned="{{ task.assignedTo ? task.assignedTo.id : '' }}">
+                                                            <i class="fa fa-pencil" style="font-size: 14px"></i>
+                                                        </button>
                                                     </div>
                                             </div>
                                         {% endfor %}
@@ -122,9 +141,9 @@
                         {% endfor %}
 
                         {# SECTION #}
-                        <div class="col-3">
+                        <div class="col-3 d-flex flex-column">
                             {# UNASSIGNED TASK #}
-                            <div class="task-column">
+                            <div class="task-column flex-grow-1">
                                 {% if tasks is defined and tasks is not empty %}
                                     <h4 class="ps-2 pt-2 text-white">Unassigned</h4>
                                     <hr/>
@@ -144,6 +163,14 @@
                                                           <div class="card-body">
                                                               <h5 class="card-title">Priority: {{ task.priority }}</h5>
                                                               <p class="card-text">{{ task.description }}</p>
+                                                              <button class="btn btn-light edit-task-btn float-end" style="border-radius: 10px;"
+                                                                 data-bs-toggle="modal" data-bs-target="#editTaskModal" data-id="{{ task.id }}"
+                                                                 data-title="{{ task.title|e('html_attr') }}"
+                                                                 data-description="{{ task.description|e('html_attr') }}"
+                                                                 data-priority="{{ task.priority }}"
+                                                                 data-assigned="{{ task.assignedTo ? task.assignedTo.id : '' }}">
+                                                                  <i class="fa fa-pencil" style="font-size: 14px"></i>
+                                                              </button>
                                                           </div>
                                                   </div>
                                         {% endif %}
@@ -151,20 +178,83 @@
                                 {% endif %}
                             </div>
                         </div>
+                        {# EDIT TASK MODAL #}
+                        <div class="modal fade" id="editTaskModal" tabindex="-1" aria-labelledby="editTaskModalLabel" aria-hidden="true" style="overflow-y: hidden;">
+                            <div class="modal-dialog" style="max-width: 850px; margin-top: 50px">
+                                <div class="modal-content" style="background-color: #181b20; border-radius: 5px;">
+                                    <div class="modal-body" style="overflow: visible !important;">
+                                        <form id="edit-task-form" class="forms-sample" method="POST" enctype="multipart/form-data">
+                                            <h3 class="text-white mb-4">Editing task</h3>
 
-                    <input type="hidden" id="delete-task-token" value="{{ csrf_token('delete_task') }}">
+                                            {# TASK TITLE #}
+                                            <div class="form-group mb-2">
+                                                <label>Title</label>
+                                                <textarea name="title" id="edit-task-title" class="form-control task-title-input" style="height: 25px; border: 1px solid rgba(255,255,255,0.3);" required></textarea>
+                                            </div>
 
-                    {# SECTION #}
-                    <div class="col-3">
-                        <div class="task-column trash-column" data-column="4" style="position: relative; min-height: 200px; background-color: rgba(255,0,0,0.35); border-radius: 10px; display: flex; justify-content: center; align-items: center;">
-                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; color: rgba(0,0,0,0.27); text-align: center;">
-                                <h4>TRASH THE TASK HERE</h4>
+                                            {# TASK DESCRIPTION #}
+                                            <div class="form-group mb-2">
+                                                <label>Description</label>
+                                                <textarea name="description" id="edit-task-description" class="form-control task-description-input" style="height: 85px; border: 1px solid rgba(255,255,255,0.3);" required></textarea>
+                                            </div>
+
+                                            {# TASK PRIORITY #}
+                                            <input type="hidden" name="priority" id="edit-task-priority" value="LOW">
+                                            <div class="form-group mb-2">
+                                                <label>Priority:</label>
+                                                <button type="button" class="btn btn-success me-2 priority-btn" data-value="LOW">LOW</button>
+                                                <button type="button" class="btn btn-warning me-2 priority-btn" data-value="MODERATE">MODERATE</button>
+                                                <button type="button" class="btn btn-danger priority-btn" data-value="HIGH">HIGH</button>
+                                            </div>
+
+                                            {# TASK ASSIGNATION #}
+                                            <input type="hidden" name="assignedTo" id="edit-task-assignedTo">
+                                            <div class="form-group mb-2">
+                                                <label>Assign to: </label>
+                                                {% for dev in devs %}
+                                                    <button type="button" class="btn btn-primary me-2 assign-btn" data-value="{{ dev.id }}">
+                                                        {{ dev.nametag }}
+                                                    </button>
+                                                {% endfor %}
+                                            </div>
+
+                                            {# EDIT TASK & CANCEL #}
+                                            <div class="d-flex justify-content-end">
+                                                <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal" aria-label="Close">Close</button>
+                                                <button type="submit" class="btn btn-light" style="width: 120px;">Save changes</button>
+                                            </div>
+
+                                            <input type="hidden" name="taskId" id="task-id">
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <input type="hidden" id="delete-task-token" value="{{ csrf_token('delete_task') }}">
+                        {# SECTION #}
+                        <div class="col-3 d-flex flex-column">
+                            <div class="task-column flex-grow-1 trash-column" data-column="4" style="position: relative; background-color: rgba(255,0,0,0.29); border-radius: 10px; display: flex; justify-content: center; align-items: center;">
+                                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; color: rgba(0,0,0,0.27); text-align: center;">
+                                    <i class="fa fa-times" style="font-size: 32px"></i>
+                                    <h4>TRASH THE TASK HERE</h4>
+                                </div>
+                            </div>
+                        </div>
+                </div>
+                    {# MOBILE VIEW #}
+                    <div class="row m-0 p-0 d-flex d-md-none" style="width: 100%;">
+                        <div class="col-12">
+                            <div class="task-column" style="position: relative; background-color: rgba(0,0,0,0.56); border-radius: 10px; display: flex; justify-content: center; align-items: center;">
+                                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; color: rgba(0,0,0,0.27); text-align: center;">
+                                    <i class="fa fa-times text-muted" style="font-size: 32px"></i>
+                                    <h4 class="text-muted">MOBILE VERSION NOT SUPPORTED</h4>
+                                </div>
                             </div>
                         </div>
                     </div>
-
                 </div>
-            </div>
+
             </div>
         </div>
     </div>
@@ -172,86 +262,5 @@
 {% block javascript %}
 {{ parent() }}
 <script src="{{ asset('../assets/js/ticket.js') }}"></script>
-<script>
-const priorityButtons = document.querySelectorAll('.priority-btn');
-const priorityInput = document.getElementById('task-priority');
-
-priorityButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-        priorityInput.value = btn.dataset.value;
-
-        priorityButtons.forEach(b => b.classList.remove('active'));
-
-        btn.classList.add('active');
-    });
-});
-</script>
-<script>
-const assignButtons = document.querySelectorAll('.assign-btn');
-const assignInput = document.getElementById('task-assignedTo');
-
-assignButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-        assignInput.value = btn.dataset.value;
-
-        assignButtons.forEach(b => b.classList.remove('active'));
-
-        btn.classList.add('active');
-    });
-});
-</script>
-<script>
-const csrfToken = document.getElementById("delete-task-token").value;
-let draggedCard = null;
-
-document.querySelectorAll(".draggable-card").forEach(card => {
-    card.addEventListener("dragstart", e => {
-        draggedCard = card;
-        card.classList.add("dragging");
-        e.dataTransfer.effectAllowed = "move";
-    });
-
-    card.addEventListener("dragend", () => {
-        card.classList.remove("dragging");
-        draggedCard = null;
-    });
-});
-
-// NORMAL COLUMNS
-document.querySelectorAll(".task-column:not(.trash-column)").forEach(column => {
-    column.addEventListener("dragover", e => e.preventDefault());
-    column.addEventListener("dragenter", e => e.preventDefault());
-
-    column.addEventListener("drop", e => {
-        e.preventDefault();
-        if (!draggedCard) return;
-        column.appendChild(draggedCard);
-        draggedCard = null;
-    });
-});
-
-// TRASH COLUMN
-const trashColumn = document.querySelector(".trash-column");
-trashColumn.addEventListener("dragover", e => e.preventDefault());
-trashColumn.addEventListener("dragenter", e => e.preventDefault());
-
-trashColumn.addEventListener("drop", e => {
-    e.preventDefault();
-    if (!draggedCard) return;
-
-    const taskId = draggedCard.dataset.taskId;
-    draggedCard.remove();
-    draggedCard = null;
-
-    fetch('/admin/delete-task/' + taskId, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `_token=${csrfToken}`
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (!data.success) alert('Error deleting task!');
-    });
-});
-</script>
+<script src="{{ asset('../assets/js/admin-task.js') }}" defer></script>
 {% endblock %}
