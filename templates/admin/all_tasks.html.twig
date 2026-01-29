@@ -30,8 +30,12 @@
                             <a class="ms-2 ps-2 pe-2 mt-2" style="text-decoration: none; height: 30px; background-color: #bc7b00; border-radius: 10px;" href="#" data-bs-toggle="modal" data-bs-target="#newTaskModal">
                                 <h4 class="text-white" style="font-size: 24px">+</h4>
                             </a>
+                            <a class="ms-2 ps-2 pe-2 mt-2" style="text-decoration: none; padding-top: 7px; height: 30px; background-color: #bc7b00; border-radius: 10px;" href="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')) }}">
+                                <i class="bx bx-refresh-cw-alt" style="font-size: 20px; color: white"></i>
+                            </a>
                         </div>
-                        <p class="d-none d-md-flex justify-content-center" style="font-size: 12px">Please refresh the page after every update on tasks.</p>
+                        <p class="d-none d-md-flex justify-content-center m-0 p-0" style="font-size: 12px">Please refresh the page after every update on tasks.</p>
+                        <p class="d-none d-md-flex justify-content-center" style="font-size: 12px">Please refresh using ONLY the button.</p>
                         <div class="d-flex d-md-none flex-row justify-content-center">
                             <h1 class="text-center mt-1" style="font-size: 24px">
                                 Tasks
@@ -143,7 +147,7 @@
                         {# SECTION #}
                         <div class="col-3 d-flex flex-column">
                             {# UNASSIGNED TASK #}
-                            <div class="task-column flex-grow-1">
+                            <div class="task-column flex-grow-1" data-user="">
                                 {% if tasks is defined and tasks is not empty %}
                                     <h4 class="ps-2 pt-2 text-white">Unassigned</h4>
                                     <hr/>

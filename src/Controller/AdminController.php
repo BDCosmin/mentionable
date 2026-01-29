@@ -155,6 +155,37 @@ final class AdminController extends AbstractController
         return $this->json(['success' => true]);
     }
 
+    #[Route('/admin/task/{id}/reassign', name: 'admin_reassign_task', methods: ['POST'])]
+    public function reassignTask(
+        AdminTask $task,
+        UserRepository $userRepository,
+        EntityManagerInterface $em,
+        Request $request
+    ): JsonResponse {
+
+        $data = json_decode($request->getContent(), true);
+
+        if (!array_key_exists('user', $data)) {
+            return $this->json(['success' => false, 'error' => 'Missing user'], 400);
+        }
+
+        if ($data['user'] === '' || $data['user'] === null) {
+            // Unassigned
+            $task->setAssignedTo(null);
+        } else {
+            // Assigned
+            $user = $userRepository->findOneBy(['nametag' => $data['user']]);
+            if (!$user) {
+                return $this->json(['success' => false, 'error' => 'User not found'], 404);
+            }
+            $task->setAssignedTo($user);
+        }
+
+        $em->flush();
+
+        return $this->json(['success' => true]);
+    }
+
     #[Route('/admin/delete-task/{id}', name: 'admin_delete_task', methods: ['POST'])]
     public function deleteTask(AdminTask $task, EntityManagerInterface $em, Request $request): JsonResponse
     {
