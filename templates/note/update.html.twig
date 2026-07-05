@@ -24,7 +24,7 @@
                             {# NOTE PROFILE #}
                             <div class="navbar-profile d-flex flex-row text-light mb-3" style="width: 100%;">
                                 <a class="nav-link me-3 mt-2" id="avatarNote" href="#">
-                                    <img class="img-sm rounded-circle" src="{{ asset('Uploads/avatars/' ~ note.user.avatar) }}" alt="avatar" onerror="showDefaultIcon(this)">
+                                    <img class="img-sm rounded-circle" src="{{ asset('uploads/avatars/' ~ note.user.avatar) }}" alt="avatar" onerror="showDefaultIcon(this)">
                                 </a>
                                 <div class="d-flex flex-column">
                                     <a class="nav-link mt-3" id="nametagNote" href="#">
@@ -59,7 +59,13 @@
                                 <div class="d-flex flex-column text-gray mb-3">
                                     <label for="image" class="text-light mb-2">Change Image (optional)</label>
                                     {% if note.image %}
-                                        <img src="{{ asset('Uploads/notes/' ~ note.image)}}" alt="noteImage" class="mb-2" style="max-width: 100%;">
+                                        {% if note.image starts with 'http' %}
+                                            {# Dacă e un GIF sau o imagine de pe internet, folosește linkul curat #}
+                                            <img src="{{ note.image }}" alt="noteImage" class="mb-2" style="max-width: 100%; border-radius: 5px;">
+                                        {% else %}
+                                            {# Dacă e o poză încărcată de pe PC, adaugă folderul uploads/notes/ #}
+                                            <img src="{{ asset('uploads/notes/' ~ note.image) }}" alt="noteImage" class="mb-2" style="max-width: 100%; border-radius: 5px;">
+                                        {% endif %}
                                     {% endif %}
                                     <input type="file" name="image" id="image" class="form-control">
                                 </div>

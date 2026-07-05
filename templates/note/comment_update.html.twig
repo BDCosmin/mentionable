@@ -10,10 +10,10 @@
                 <div class="row justify-content-center mb-4">
                     {# NOTE #}
                     {% if note is defined %}
-                        <div class="col-lg-7 mt-5 p-0 d-flex flex-row" style="background-color: #354765; border-bottom-right-radius: none; border-bottom-left-radius: none; border-top-right-radius: 5px; border-top-left-radius: 5px; margin-top: 2rem;">
+                        <div class="col-lg-7 mt-5 p-0 d-flex flex-row" style="background-color: #354765; border-radius: 5px 5px;margin-top: 2rem;">
                             <p class="text-gray ms-2 mt-1 mb-1">Edit comment...</p>
                         </div>
-                        <div class="col-lg-7 ps-4 pe-4 pb-3" style="background-color: #181b20; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; border-top-right-radius: none; border-top-left-radius: none;">
+                        <div class="col-lg-7 ps-4 pe-4 pb-3" style="background-color: #181b20; border-radius: 5px 5px;">
                             {# NOTE PROFILE #}
                             <div class="navbar-profile p-2 ps-3 d-flex flex-row text-light mb-3" style="width: 100%;">
                                 <a class="nav-link me-3 mt-2" id="avatarNote" href="#">
@@ -78,16 +78,16 @@
                                     </div>
                                 </div>
                             </div>
-                            {# NOTE CONTENT #}
-                            <div class="d-flex flex-row text-gray ps-3 mb-1">
-                                <p style="font-size: 16px">{{ note.content }}</p>
-                            </div>
-                            {# NOTE IMAGE #}
-                            {% if note.image %}
-                                <div class="d-flex flex-row text-gray justify-content-center mb-2">
-                                    <a href="{{ path('app_note_show', {'noteId': note.id}) }}">
-                                        <img src="{{ asset('uploads/notes/' ~ note.image)}}" id="noteImage" alt="noteImage"/>
-                                    </a>
+                            {# COMMENT IMAGE / GIF #}
+                            {% if comment.image %}
+                                <div class="d-flex flex-row text-gray justify-content-center mb-2 mt-2">
+                                    {% if comment.image starts with 'http' %}
+                                        {# Dacă este un GIF de pe internet #}
+                                        <img src="{{ comment.image }}" alt="commentImage" style="max-width: 100%; border-radius: 5px;"/>
+                                    {% else %}
+                                        {# Dacă este o poză încărcată de pe PC (Atenție la folder, dacă le salvezi în 'notes' sau 'comments') #}
+                                        <img src="{{ asset('uploads/notes/' ~ comment.image) }}" alt="commentImage" style="max-width: 100%; border-radius: 5px;"/>
+                                    {% endif %}
                                 </div>
                             {% endif %}
                             {# NOTE NAV – DESKTOP & MOBILE HYBRID #}
