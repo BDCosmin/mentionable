@@ -53,7 +53,7 @@ final class NotificationController extends AbstractController
             $notificationService->markOneAsRead($user, $notification);
         }
 
-        if (in_array($notification->getType(), ['reported', 'closed_report'])) {
+        if (in_array($notification->getType(), ['closed_report'])) {
             return $this->redirectToRoute('app_user_notifications');
         }
 
